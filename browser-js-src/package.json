@@ -12,6 +12,9 @@
       "browserify-shim"
     ]
   },
+  "aliasify": {
+    "react": "preact-compat"
+  },
   "scripts": {
     "start": "node watch",
     "build": "node build"
@@ -31,5 +34,8 @@
     "uglifyify": "^4.0.4",
     "watchify": "^3.9.0"
   },
-  "dependencies": {}
+  "dependencies": {
+    "babel-preset-react": "^6.24.1",
+    "preact-compat": "^3.18.0"
+  }
 }

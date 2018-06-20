@@ -1,10 +1,10 @@
+import BaseController from './base-controller'
 var path = require('path')
 
 var passport = require('passport')
 var log = require('npmlog')
 
-var BaseController = require(path.join(__dirname, 'base-controller'))
-var PassportHelper = require(path.join(__dirname, '../utils/passport-helper'))
+/* var PassportHelper = require(path.join(__dirname, '../utils/passport-helper')) */
 
 const TAG = 'SearchManagementController'
 class SearchManagementController extends BaseController {
@@ -25,18 +25,18 @@ class SearchManagementController extends BaseController {
       failureRedirect: '/register',
       failureFlash: true
     }), (req, res, next) => {
-      res.redirect(req.session.returnTo || '/')
+      res.redirect((req.session && req.session.returnTo) || '/')
     })
 
     this.routePost('/login', passport.authenticate('app_login', {
       failureRedirect: '/login',
       failureFlash: true
     }), (req, res, next) => {
-      log.verbose(TAG, 'submitlogin.POST(): redirecting to: ' + req.session.returnTo)
-      res.redirect(req.session.returnTo || '/')
+      log.verbose(TAG, 'submitlogin.POST(): redirecting to: ' + (req.session && req.session.returnTo))
+      res.redirect((req.session && req.session.returnTo) || '/')
     })
 
-    this.routeGet('/logout', PassportHelper.logOut())
+    /* this.routeGet('/logout', PassportHelper.logOut()) */
   }
 }
 

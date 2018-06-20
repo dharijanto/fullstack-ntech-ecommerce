@@ -1,15 +1,15 @@
+import BaseController from './controllers/base-controller'
 const path = require('path')
 
 var log = require('npmlog')
 
-var BaseController = require(path.join(__dirname, 'controllers/base-controller'))
 var CredentialController = require(path.join(__dirname, 'controllers/credential-controller'))
 
 const TAG = 'MainController'
 
 class Controller extends BaseController {
-  constructor (initData) {
-    super(initData)
+  constructor (siteData) {
+    super(siteData)
 
     this.addInterceptor((req, res, next) => {
       log.verbose(TAG, 'req.path=' + req.path)
@@ -18,7 +18,11 @@ class Controller extends BaseController {
       next()
     })
 
-    this.routeUse((new CredentialController(initData)).getRouter())
+    this.routeGet('/', (req, res, next) => {
+      res.send('hello')
+    })
+
+    /* this.routeUse((new CredentialController(initData)).getRouter()) */
   }
 }
 
