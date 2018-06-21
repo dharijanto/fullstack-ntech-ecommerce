@@ -3,7 +3,6 @@ var path = require('path')
 
 var gulp = require('gulp')
 var gulpCopy = require('gulp-copy')
-var merge = require('merge-stream')
 var sourcemaps = require('gulp-sourcemaps')
 var ts = require('gulp-typescript')
 var tsconfig = require('tsconfig')
@@ -30,13 +29,19 @@ gulp.task('compileSites', function () {
     .pipe(gulp.dest('dist/'))
 })
 
+gulp.task('compileSitesWithoutUglify', function () {
+  return gulp.src(sitesFiles)
+    .pipe(tsProject()).js
+    .pipe(gulp.dest('dist/'))
+})
+
 gulp.task('copySitesDeps', function () {
   return gulp.src(sitesDepsFiles)
     .pipe(gulpCopy('dist/', {prefix: 1}))
 })
 
 gulp.task('watchSites', function () {
-  return gulp.watch(sitesFiles, ['compileSites'])
+  return gulp.watch(sitesFiles, ['compileSitesWithoutUglify'])
 })
 
 gulp.task('watchSitesDeps', function () {

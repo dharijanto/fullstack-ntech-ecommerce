@@ -17,7 +17,6 @@
     "@types/express-flash": "0.0.0",
     "@types/express-session": "^1.15.10",
     "@types/passport": "^0.4.5",
-    "merge-stream": "^1.0.1",
     "typescript": "^3.0.0-dev.20180619"
   }
 }
