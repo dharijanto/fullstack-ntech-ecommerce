@@ -3,6 +3,7 @@ var path = require('path')
 
 var gulp = require('gulp')
 var gulpCopy = require('gulp-copy')
+var log = require('fancy-log')
 var sourcemaps = require('gulp-sourcemaps')
 var ts = require('gulp-typescript')
 var tsconfig = require('tsconfig')
@@ -24,6 +25,7 @@ gulp.task('compileSites', function () {
   return gulp.src(sitesFiles)
     .pipe(sourcemaps.init())
     .pipe(tsProject()).js
+    .on('error', swallowError)
     .pipe(uglify())
     .pipe(sourcemaps.write())
     .pipe(gulp.dest('dist/'))
@@ -31,8 +33,11 @@ gulp.task('compileSites', function () {
 
 gulp.task('compileSitesWithoutUglify', function () {
   return gulp.src(sitesFiles)
-    .pipe(tsProject()).js
-    .pipe(gulp.dest('dist/'))
+  .pipe(sourcemaps.init())
+  .pipe(tsProject()).js
+  .pipe(sourcemaps.write())
+  .on('error', swallowError)
+  .pipe(gulp.dest('dist/'))
 })
 
 gulp.task('copySitesDeps', function () {
@@ -46,6 +51,7 @@ gulp.task('watchSites', function () {
 
 gulp.task('watchSitesDeps', function () {
   return watch(sitesDepsFiles, vynil => {
+    log('Site deps changes: ' + vynil.history[0])
     // src/[path to file]/file.ext
     const srcFile = vynil.history[0].slice((vynil.cwd + '/').length)
     // dest/[path to file]/file.ext
@@ -66,4 +72,10 @@ gulp.task('watchSitesDeps', function () {
   })
 })
 
-gulp.task('watch', ['watchSites', 'watchSitesDeps'])
+gulp.task('watch', ['compileSitesWithoutUglify', 'copySitesDeps', 'watchSites', 'watchSitesDeps'])
+
+function swallowError (error) {
+  // If you want details of the error in the console
+  console.log(error.toString())
+  this.emit('end')
+}

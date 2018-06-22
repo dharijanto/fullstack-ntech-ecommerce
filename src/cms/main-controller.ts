@@ -8,11 +8,15 @@ const TAG = 'MainController'
 class MainController extends BaseController {
   constructor (initData) {
     initData.logTag = 'FiloseduCMSController'
-    super(initData)
+    super(Object.assign(initData, {viewPath: path.join(__dirname, 'views/v1')}))
 
     this.addInterceptor((req, res, next) => {
       log.verbose(TAG, 'req.path=' + req.path)
       next()
+    })
+
+    this.routeGet('/', (req, res, next) => {
+      res.render('category')
     })
   }
 

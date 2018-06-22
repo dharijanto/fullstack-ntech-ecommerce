@@ -2,7 +2,6 @@ import * as path from 'path'
 
 import * as express from 'express'
 import {Sequelize} from 'sequelize'
-import { Router } from 'express-serve-static-core';
 
 export interface Database {
   sequelize: Sequelize
@@ -28,7 +27,9 @@ export interface SiteData {
   site: Site,
   user: User,
   socketIO: SocketIO,
-  db: Database
+  db: Database,
+  viewPath: string,
+  assetPath?: string
 }
 
 export type SocketIO = any
@@ -48,9 +49,9 @@ export abstract class AppController {
   constructor (data: SiteData) {
     this.siteData = data
     this.router = express()
-    this.viewPath = path.join(__dirname, '../views')
-    this.assetsPath = path.join(this.viewPath, '/assets')
-    this.viewPath = path.join(__dirname, '../views')
+    // TODO: __dirname is not necessary
+    this.viewPath = data.viewPath || path.join(__dirname, 'views')
+    this.assetsPath = data.assetPath || path.join(this.viewPath, '/assets')
 
     this.router.set('views', this.viewPath)
     this.router.set('view engine', 'pug')
@@ -134,10 +135,10 @@ export abstract class CMSController {
 
     this.router.use(`/${this.siteHash}`, this.subRouter)
     this.subRouter.locals.rootifyPath = this.rootifyPath.bind(this)
-    this.viewPath = path.join(__dirname, '../views')
-    this.assetsPath = path.join(this.viewPath, '/assets')
-    this.router.use('/assets', express.static(this.assetsPath))
-    this.subRouter.set('views', path.join(__dirname, 'view'))
+    this.viewPath = siteData.viewPath
+    this.assetsPath = siteData.assetPath || path.join(this.viewPath, '/assets')
+    this.subRouter.use('/assets', express.static(this.assetsPath))
+    this.subRouter.set('views', this.viewPath)
     this.subRouter.set('view engine', 'pug')
   }
 
@@ -151,32 +152,32 @@ export abstract class CMSController {
     }
   }
 
-  protected extendInterceptors (fns) {
+  protected extendInterceptors (...fns: express.RequestHandler[]) {
     return this.interceptors.concat(fns)
   }
 
-  protected  addInterceptor (fns) {
-    this.interceptors = this.extendInterceptors(fns)
+  protected  addInterceptor (...fns: express.RequestHandler[]) {
+    this.interceptors = this.extendInterceptors(...fns)
   }
 
-  getRouter () {
+  routeAll (path, ...fns: express.RequestHandler[]) {
+    this.subRouter.all(path, this.extendInterceptors(...fns))
+  }
+
+  routeGet (path, ...fns: Array<express.RequestHandler>) {
+    this.subRouter.get(path, this.extendInterceptors(...fns))
+  }
+
+  routePost (path, ...fns: Array<express.RequestHandler>) {
+    this.subRouter.post(path, this.extendInterceptors(...fns))
+  }
+
+  routeUse (...fns: Array<express.RequestHandler>) {
+    this.subRouter.use('', this.extendInterceptors(...fns))
+  }
+
+  getRouter (): express.Express {
     return this.router
-  }
-
-  routeAll (path, ...fns) {
-    this.router.all(path, this.extendInterceptors(fns))
-  }
-
-  routeGet (path, ...fns) {
-    this.subRouter.get(path, this.extendInterceptors(fns))
-  }
-
-  routePost (path, ...fns) {
-    this.subRouter.post(path, this.extendInterceptors(fns))
-  }
-
-  routeUse (...fns) {
-    this.subRouter.use('', this.extendInterceptors(fns))
   }
 
   abstract getSidebar (): any[]
