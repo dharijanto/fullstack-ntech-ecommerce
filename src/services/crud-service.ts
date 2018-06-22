@@ -1,31 +1,22 @@
 import SequelizeService from './sequelize-service'
+import {Model, Instance, WhereOptions, UpdateOptions} from 'sequelize'
 import * as Promise from 'bluebird'
 var log = require('npmlog')
 
 const TAG = 'BaseService'
 
-export interface NewData {
-  [key: string]: any
-}
-
-
-export interface ExistingData {
-  [key: string]: any
-  id: number
-}
-
-export interface SearchClause {
-  [key: string]: any
-}
-
 export abstract class CRUDService {
-  create (modelName: string, data: NewData): Promise<NCResponse<ExistingData>> {
+  protected getModels (name) {
+    return SequelizeService.getInstance().models[name]
+  }
+
+  create<T extends BaseModel> (modelName: string, data: Partial<T>) {
     log.verbose(TAG, `create(): modelName=${modelName} data=${JSON.stringify(data)}`)
     if (!data) {
       throw new Error('data has to be specified!')
     }
-    delete data.id // We want to allow easy duplication, so we assume that adding data with the same id means creating a duplicate
-    return SequelizeService.getInstance().models[modelName].create(data).then(createdData => {
+    return (<Model<Instance<T>, Partial<T>>>this.getModels(modelName))
+        .create(Object.assign(data, {id: null})).then(createdData => {
       return {status: true, data: createdData.get({plain: true})}
     }).catch(err => {
       if (err.name === 'SequelizeUniqueConstraintError') {
@@ -43,9 +34,10 @@ export abstract class CRUDService {
   //
   // If there's no data:
   // {status: false, errCode: ..., errMessage: ..., errData}
-  read (modelName: string, searchClause: SearchClause): Promise<NCResponse<ExistingData[]>> {
+  read <T extends BaseModel>(modelName: string, searchClause: WhereOptions<T>): Promise<NCResponse<T[]>> {
     log.verbose(TAG, `read(): modelName=${modelName} searchClause=${JSON.stringify(searchClause)}`)
-    return SequelizeService.getInstance().models[modelName].findAll({where: searchClause}).then(readData => {
+    return (<Model<Instance<T>, Partial<T>>>this.getModels(modelName))
+        .findAll({where: searchClause}).then(readData => {
       if (readData.length > 0) {
         return {status: true, data: readData.map(data => data.get({plain: true}))}
       } else {
@@ -54,7 +46,7 @@ export abstract class CRUDService {
     })
   }
 
-  readOne (modelName: string, searchClause: SearchClause) : Promise<NCResponse<ExistingData>> {
+  readOne <T extends BaseModel>(modelName: string, searchClause: WhereOptions<T>): Promise<NCResponse<T>> {
     return this.read(modelName, searchClause).then(resp => {
       if (resp.status) {
         return {status: true, data: (resp.data || [])[0]}
@@ -64,10 +56,15 @@ export abstract class CRUDService {
     })
   }
 
-  update (modelName: string, data: ExistingData): Promise<NCResponse<null>> {
+  update <T extends BaseModel> (modelName: string, data: Partial<T>, searchClause: WhereOptions<T>): Promise<NCResponse<number>> {
     log.verbose(TAG, `update(): modelName=${modelName} data=${JSON.stringify(data)}`)
-    return SequelizeService.getInstance().models[modelName].update(data, {where: data}).spread((count) => {
-      return {status: true}
+    return (<Model<Instance<T>, Partial<T>>>this.getModels(modelName))
+        .update(data, {where: <any> searchClause}).spread((count: number) => {
+      if (count > 0) {
+        return {status: true, data: count}
+      } else {
+        return {status: false, errMessage: 'Data not found'}
+      }
     }).catch(err => {
       if (err.name === 'SequelizeUniqueConstraintError') {
         return {status: false, errMessage: 'Unique Constraint Error'}
@@ -79,13 +76,14 @@ export abstract class CRUDService {
     })
   }
 
-  delete (modelName: string, data: ExistingData): Promise<NCResponse<null>> {
-    log.verbose(TAG, `delete(): modelName=${modelName} data=${JSON.stringify(data)}`)
-    return SequelizeService.getInstance().models[modelName].destroy({where: data}).then(numDeleted => {
-      if (numDeleted > 0) {
-        return {status: true}
+  delete <T extends BaseModel> (modelName: string, searchClause: WhereOptions<T>): Promise<NCResponse<number>> {
+    log.verbose(TAG, `delete(): modelName=${modelName} searchClause=${JSON.stringify(searchClause)}`)
+    return (<Model<Instance<T>, Partial<T>>>this.getModels(modelName))
+        .destroy({where: <any> searchClause}).then((count: number) => {
+      if (count > 0) {
+        return {status: true, data: count}
       } else {
-        return {status: false, errMessage: 'Data Not Found!'}
+        return {status: false, errMessage: 'Data not found'}
       }
     }).catch(err => {
       if (err.name === 'SequelizeUniqueConstraintError') {

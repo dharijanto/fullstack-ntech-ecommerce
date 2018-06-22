@@ -160,20 +160,20 @@ export abstract class CMSController {
     this.interceptors = this.extendInterceptors(...fns)
   }
 
-  routeAll (path, ...fns: express.RequestHandler[]) {
+  routeAll (path: string, ...fns: express.RequestHandler[]) {
     this.subRouter.all(path, this.extendInterceptors(...fns))
   }
 
-  routeGet (path, ...fns: Array<express.RequestHandler>) {
+  routeGet (path: string, ...fns: Array<express.RequestHandler>) {
     this.subRouter.get(path, this.extendInterceptors(...fns))
   }
 
-  routePost (path, ...fns: Array<express.RequestHandler>) {
+  routePost (path: string, ...fns: Array<express.RequestHandler>) {
     this.subRouter.post(path, this.extendInterceptors(...fns))
   }
 
-  routeUse (...fns: Array<express.RequestHandler>) {
-    this.subRouter.use('', this.extendInterceptors(...fns))
+  routeUse (path: string, ...fns: Array<express.RequestHandler>) {
+    this.subRouter.use(path, this.extendInterceptors(...fns))
   }
 
   getRouter (): express.Express {

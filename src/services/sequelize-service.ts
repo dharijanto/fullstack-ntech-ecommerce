@@ -2,6 +2,7 @@ import {Sequelize, Models} from 'sequelize'
 var log = require('npmlog')
 
 const TAG = 'SequelizeService'
+
 export default class SequelizeService {
   private static instance: SequelizeService
   readonly sequelize: Sequelize

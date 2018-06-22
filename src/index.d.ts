@@ -5,59 +5,59 @@ interface NCResponse<T> {
   errCode?: number
 }
 
-interface CommonModel {
+interface BaseModel {
   id: number,
   createdAt: string,
-  updatedAt: string
+  updatedAt: string,
 }
 
-interface Category extends CommonModel {
+interface Category extends BaseModel {
   name: string
   description: string
 }
 
-interface SubCategory extends CommonModel {
+interface SubCategory extends BaseModel {
   name: string
   description: string,
   categoryId: number
 }
 
-interface Product extends CommonModel {
+interface Product extends BaseModel {
   name: string
   price: number,
   description: string
   subCategoryId: number
 }
 
-interface Variant extends CommonModel {
+interface Variant extends BaseModel {
   name: string
   productId: number
 }
 
-interface Picture extends CommonModel {
+interface Picture extends BaseModel {
   url: string
 }
 
 // TODO: Add foreign key ids
-interface Supplier extends CommonModel {
+interface Supplier extends BaseModel {
   location: string,
   city: string,
   pickup: boolean,
   courier: boolean
 }
 
-interface Shop extends CommonModel {
+interface Shop extends BaseModel {
   name: string,
   city: string,
   address: string,
   zipCode: number
 }
 
-interface Stock extends CommonModel {
+interface Stock extends BaseModel {
   quantity: number
   purchasePrice: number
 }
 
-interface Transaction extends CommonModel {
+interface Transaction extends BaseModel {
   quantity: number
 }

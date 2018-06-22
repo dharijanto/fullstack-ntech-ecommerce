@@ -1,7 +1,7 @@
 import * as Sequelize from 'sequelize'
 
 export default function addTables (sequelize: Sequelize.Sequelize, models: Sequelize.Models) {
-  models.Category = sequelize.define<Category, Category>('Category', {
+  models.Category = sequelize.define('Category', {
     id: {type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true},
     name: {type: Sequelize.STRING, unique: true},
     description: {type: Sequelize.STRING}
@@ -14,26 +14,26 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
   })
   models.SubCategory.belongsTo(models.Category)
 
-  models.Product = sequelize.define<Product, Product>('Product', {
+  models.Product = sequelize.define('Product', {
     id: {type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true},
     name: {type: Sequelize.STRING, unique: true},
     price: {type: Sequelize.INTEGER},
     description: {type: Sequelize.TEXT}
   })
 
-  models.Variant = sequelize.define<Variant, Variant>('Variant', {
+  models.Variant = sequelize.define('Variant', {
     id: {type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true},
     name: {type: Sequelize.STRING, unique: true}
   })
   models.Variant.belongsTo(models.Product)
 
-  models.Picture = sequelize.define<Picture, Picture>('Picture', {
+  models.Picture = sequelize.define('Picture', {
     id: {type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true},
     url: {type: Sequelize.STRING}
   })
   models.Variant.hasMany(models.Picture)
 
-  models.Supplier = sequelize.define<Supplier, Supplier>('Supplier', {
+  models.Supplier = sequelize.define('Supplier', {
     id: {type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true},
     location: {type: Sequelize.STRING},
     city: {type: Sequelize.STRING},
@@ -41,7 +41,7 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
     courier: {type: Sequelize.BOOLEAN}
   })
 
-  models.Shop = sequelize.define<Shop, Shop>('Shop', {
+  models.Shop = sequelize.define('Shop', {
     id: {type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true},
     name: {type: Sequelize.STRING},
     city: {type: Sequelize.STRING},
@@ -49,7 +49,7 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
     zipCode: {type: Sequelize.INTEGER},
   })
 
-  models.Stock = sequelize.define<Stock, Stock>('Stock', {
+  models.Stock = sequelize.define('Stock', {
     id: {type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true},
     quantity: {type: Sequelize.INTEGER},
     purchasePrice: {type: Sequelize.INTEGER}
@@ -57,7 +57,7 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
 
   models.Stock.belongsTo(models.Variant)
 
-  models.Transaction = sequelize.define<Transaction, Transaction>('Transaction', {
+  models.Transaction = sequelize.define('Transaction', {
     id: {type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true},
     quantity: {type: Sequelize.INTEGER}
   })
