@@ -24,20 +24,10 @@ const sitesFiles = project.config.include
 gulp.task('compileSites', function () {
   return gulp.src(sitesFiles)
     .pipe(sourcemaps.init())
-    .pipe(tsProject()).js
-    .on('error', swallowError)
+    .pipe(tsProject()).on('error', swallowError).js
     .pipe(uglify())
     .pipe(sourcemaps.write())
     .pipe(gulp.dest('dist/'))
-})
-
-gulp.task('compileSitesWithoutUglify', function () {
-  return gulp.src(sitesFiles)
-  .pipe(sourcemaps.init())
-  .pipe(tsProject()).js
-  .pipe(sourcemaps.write())
-  .on('error', swallowError)
-  .pipe(gulp.dest('dist/'))
 })
 
 gulp.task('copySitesDeps', function () {
@@ -46,7 +36,7 @@ gulp.task('copySitesDeps', function () {
 })
 
 gulp.task('watchSites', function () {
-  return gulp.watch(sitesFiles, ['compileSitesWithoutUglify'])
+  return gulp.watch(sitesFiles, ['compileSites'])
 })
 
 gulp.task('watchSitesDeps', function () {
@@ -72,10 +62,10 @@ gulp.task('watchSitesDeps', function () {
   })
 })
 
-gulp.task('watch', ['compileSitesWithoutUglify', 'copySitesDeps', 'watchSites', 'watchSitesDeps'])
+gulp.task('watch', ['compileSites', 'copySitesDeps', 'watchSites', 'watchSitesDeps'])
 
 function swallowError (error) {
   // If you want details of the error in the console
-  console.log(error.toString())
+  log(error.toString())
   this.emit('end')
 }

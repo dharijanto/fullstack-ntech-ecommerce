@@ -2,37 +2,38 @@ var fs = require('fs')
 var path = require('path')
 
 var browserify = require('browserify')
+var log = require('fancy-log')
+var tsify = require('tsify')
 var watchify = require('watchify')
 
 const modules = [
   {
-    input: 'landing',
-    output: 'app'
+    input: 'category-cms',
+    output: 'cms'
   }
 ]
 
 modules.forEach(module => {
-  console.log(`Watching module: ${module.input}...`)
-  const b = watchify(browserify(path.join(__dirname, module.input, 'main.js'), {cache: {}, packageCache: {}})
-    .transform({global: true}, 'browserify-shim')
-    .transform('babelify', {presets: ['es2015', 'react']})
-    // .transform('uglifyify', {global: true})
-  )
-  // .plugin(watchify)
+  log(`Watching module: ${module.input}...`)
+  const b = browserify(path.join(__dirname, module.input, 'main.ts'), {cache: {}, packageCache: {}, debug: true})
+  .transform({global: true}, 'browserify-shim')
+  .plugin(tsify, {target: 'es6'})
+  .transform('babelify', {presets: ['es2015', 'react']})
+  .transform('uglifyify', {global: true})
+  .plugin(watchify)
+
   b.on('update', () => bundle(b, module.input, module.output))
-  b.on('error', err => console.error(err.message))
-  // b.on('log', msg => console.log(msg))
+  b.on('error', err => log.error(err.message))
 
   bundle(b, module.input, module.output)
 })
 
 function bundle (b, module, outputFolder) {
-  console.log(`Bundling module: ${module}...`)
-  console.time(module)
+  log(`Bundling module: ${module}...`)
   b.bundle()
-    .on('error', err => console.error(err.message))
-    .pipe(fs.createWriteStream(path.join(__dirname, `../${outputFolder}/views/assets/js/${module}-bundle.js`)))
+    .on('error', err => log.error(err.message))
+    .pipe(fs.createWriteStream(path.join(__dirname, `../dist/${outputFolder}/views/assets/js/${module}-bundle.js`)))
     .on('finish', () => {
-      console.timeEnd(module)
+      log(`Finished Bundling module: ${module}...`)
     })
 }

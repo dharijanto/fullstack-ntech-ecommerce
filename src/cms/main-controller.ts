@@ -13,7 +13,6 @@ class MainController extends BaseController {
       log.verbose(TAG, 'req.path=' + req.path)
       next()
     })
-
     
     this.routeGet('/', (req, res, next) => {
       res.render('category')
