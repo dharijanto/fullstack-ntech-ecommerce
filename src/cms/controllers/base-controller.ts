@@ -8,7 +8,8 @@ const log = require('npmlog')
 
 abstract class BaseController extends CMSController {
   constructor (initData) {
-    super(Object.assign(initData, {viewPath: path.join(__dirname, 'views/v1')}))
+    super(Object.assign(initData, {viewPath: path.join(__dirname, '../views/v1')}))
+    console.log('path=' + this.assetsPath)
   }
 
   getSidebar () {

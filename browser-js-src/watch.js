@@ -15,9 +15,11 @@ const modules = [
 
 modules.forEach(module => {
   log(`Watching module: ${module.input}...`)
-  const b = browserify(path.join(__dirname, module.input, 'main.ts'), {cache: {}, packageCache: {}, debug: true})
-  .transform({global: true}, 'browserify-shim')
-  .plugin(tsify, {target: 'es6'})
+  const b = browserify(
+    [path.join(__dirname, module.input, 'main.ts'),
+      path.join(__dirname, 'index.d.ts')],
+    {cache: {}, packageCache: {}, debug: true})
+    .plugin(tsify, {target: 'es6'})
   .transform('babelify', {presets: ['es2015', 'react']})
   .transform('uglifyify', {global: true})
   .plugin(watchify)
@@ -32,7 +34,7 @@ function bundle (b, module, outputFolder) {
   log(`Bundling module: ${module}...`)
   b.bundle()
     .on('error', err => log.error(err.message))
-    .pipe(fs.createWriteStream(path.join(__dirname, `../dist/${outputFolder}/views/assets/js/${module}-bundle.js`)))
+    .pipe(fs.createWriteStream(path.join(__dirname, `../dist/${outputFolder}/views/v1/assets/js/${module}-bundle.js`)))
     .on('finish', () => {
       log(`Finished Bundling module: ${module}...`)
     })

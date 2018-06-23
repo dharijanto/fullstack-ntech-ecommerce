@@ -23,6 +23,9 @@ html(lang='en')
       link(href='/assets/vendor/morrisjs/morris.css', rel='stylesheet')
       // Custom Fonts
       link(href='/assets/vendor/font-awesome/css/font-awesome.min.css', rel='stylesheet', type='text/css')
+      // Data Table
+      link(href=`/${siteHash}/assets/vendor/datatables/css/dataTables.bootstrap.css`, rel='stylesheet')
+
       // HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries
       // WARNING: Respond.js doesn't work if you view the page via file://
   body
@@ -44,7 +47,7 @@ html(lang='en')
               li.dropdown
                 a.dropdown-toggle(data-toggle='dropdown', href='#')
                   i.fa.fa-rocket.fa-fw
-                  | Apps 
+                  | Apps
                   i.fa.fa-caret-down
                 ul.dropdown-menu.dropdown-user
                   li
@@ -57,7 +60,7 @@ html(lang='en')
               li.dropdown
                 a.dropdown-toggle(data-toggle='dropdown', href='#')
                   i.fa.fa-user.fa-fw
-                  | #{user.username} 
+                  | #{user.username}
                   i.fa.fa-caret-down
                 ul.dropdown-menu.dropdown-user
                   li
@@ -93,10 +96,12 @@ html(lang='en')
       script(src='/assets/vendor/metisMenu/metisMenu.min.js')
       // Morris Charts JavaScript
       script(src='/assets/vendor/raphael/raphael.min.js')
-      |     
+      |
       script(src='/assets/vendor/morrisjs/morris.min.js')
       // Custom Theme JavaScript
       script(src='/assets/dist/js/sb-admin-2.js')
       // IntercoolerJS
       script(src="/assets/vendor/intercooler/intercooler-1.1.2.min.js")
+      script.
+        window['siteHash'] = '#{siteHash}'
 

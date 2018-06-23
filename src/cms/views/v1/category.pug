@@ -1,4 +1,10 @@
 extends layout.pug
 
 block content
-  | Hello
+  .row
+    .col-md-12
+      #category
+        | Haha
+
+append scripts
+  script(src=`/${siteHash}/assets/js/category-cms-bundle.js`)

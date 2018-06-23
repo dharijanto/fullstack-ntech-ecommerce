@@ -6,11 +6,7 @@ class ProductService extends CRUDService {
     return super.create('Category', data)
   }
 
-  updateCategory (id: number, data: Partial<Category>) {
-    return super.update('Category', data, {id})
-  }
-
-  getCategory (searchClause: Partial<Category>): Promise<NCResponse<Category>>  {
+  getCategory (searchClause: Partial<Category>) {
     return super.readOne<Category>('Category', searchClause)
   }
 
@@ -18,19 +14,35 @@ class ProductService extends CRUDService {
     return super.read<Category>('Category', searchClause)
   }
 
-  createSubCategory (data: Partial<SubCategory>) {
-    return super.create('SubCategory', data)
+  updateCategory (id: number, data: Partial<Category>) {
+    return super.update('Category', data, {id})
   }
 
-  updateSubCategory (id: number, data: Partial<SubCategory>) {
-    return super.update('SubCategory', data, {id})
+  deleteCategory (id: number) {
+    return super.delete('Category', {id})
+  }
+
+  createSubCategory (data: Partial<SubCategory>) {
+    return super.create('SubCategory', data)
   }
 
   getSubCategories (categoryId) {
     return super.read<SubCategory>('SubCategory', {categoryId})
   }
 
-  createProduct (data: Partial<Product>) {
+  getSubCategory (searchClause: Partial<Category>) {
+    return super.readOne<SubCategory>('SubCategory', searchClause)
+  }
+
+  updateSubCategory (id: number, data: Partial<SubCategory>) {
+    return super.update('SubCategory', data, {id})
+  }
+
+  deleteSubCategory (id: number) {
+    return super.delete('SubCategory', {id})
+  }
+
+  /* createProduct (data: Partial<Product>) {
     return super.create('Product', data)
   }
 
@@ -40,7 +52,7 @@ class ProductService extends CRUDService {
 
   getProducts (searchClause: Partial<Product>) {
     return super.read<Product>('Product', searchClause)
-  }
+  } */
 }
 
 export default new ProductService()
