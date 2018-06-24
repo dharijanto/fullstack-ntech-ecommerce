@@ -1,6 +1,6 @@
 import BaseController from './controllers/base-controller'
-import ProductController from './controllers/product-controller';
-import { SiteData } from '../site-definitions';
+import ProductManagementController from './controllers/product-management-controller'
+import { SiteData } from '../site-definitions'
 
 const path = require('path')
 
@@ -15,18 +15,13 @@ class MainController extends BaseController {
       res.locals.siteHash = this.siteHash
       next()
     })
-    
+
     this.routeGet('/', (req, res, next) => {
       res.render('category')
     })
 
-    this.routeGet('/asd', (req, res, next) => {
-      res.send('haha')
-    })
-
-
     initData.site.hash = ''
-    this.routeUse('/product-management', new ProductController(initData).getRouter())
+    this.routeUse('/product-management', new ProductManagementController(initData).getRouter())
   }
 }
 

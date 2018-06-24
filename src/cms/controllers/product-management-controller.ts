@@ -1,7 +1,7 @@
 import BaseController from './base-controller'
 import ProductService from '../../services/product-service'
 
-export default class ProductController extends BaseController {
+export default class ProductManagementController extends BaseController {
   constructor (initData) {
     super(initData)
 
@@ -30,9 +30,13 @@ export default class ProductController extends BaseController {
     })
 
     super.routePost('/subCategory', (req, res, next) => {
-      ProductService.createSubCategory(req.body).then(resp => {
-        res.json(resp)
-      }).catch(next)
+      if (req.query.categoryId) {
+        ProductService.createSubCategory({ ...req.body, categoryId: req.query.categoryId }).then(resp => {
+          res.json(resp)
+        }).catch(next)
+      } else {
+        res.json({ status: false, errMessage: 'Category is needed' })
+      }
     })
 
     super.routeGet('/subCategories', (req, res, next) => {

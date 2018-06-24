@@ -38,7 +38,7 @@
   },
   "dependencies": {
     "babel-preset-react": "^6.24.1",
-    "nc-input-library": "^1.2.1",
+    "nc-input-library": "^1.2.3",
     "preact-compat": "^3.18.0"
   }
 }

@@ -19,12 +19,14 @@ html(lang='en')
       link(href='/assets/dist/css/sb-admin-2.css', rel='stylesheet')
       // NC-added  CSS
       link(href='/assets/dist/css/nc-style.css', rel='stylesheet')
-      // Morris Charts CSS
-      link(href='/assets/vendor/morrisjs/morris.css', rel='stylesheet')
       // Custom Fonts
       link(href='/assets/vendor/font-awesome/css/font-awesome.min.css', rel='stylesheet', type='text/css')
-      // Data Table
-      link(href=`/${siteHash}/assets/vendor/datatables/css/dataTables.bootstrap.css`, rel='stylesheet')
+      // NCInput
+      link(rel="stylesheet" type="text/css" href=`/${siteHash}/assets/vendor/datatables/datatables.min.css`)
+      link(rel="stylesheet" type="text/css" href=`/${siteHash}/assets/vendor/datatables/responsive.bootstrap.min.css`)
+      link(rel="stylesheet" type="text/css" href=`/${siteHash}/assets/css/nprogress.css`)
+      link(rel="stylesheet" type="text/css" href=`/${siteHash}/assets/css/nc-input-library.css`)
+
 
       // HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries
       // WARNING: Respond.js doesn't work if you view the page via file://
@@ -104,4 +106,3 @@ html(lang='en')
       script(src="/assets/vendor/intercooler/intercooler-1.1.2.min.js")
       script.
         window['siteHash'] = '#{siteHash}'
-

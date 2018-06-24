@@ -1,4 +1,4 @@
-import {CRUDService} from './crud-service'
+import { CRUDService } from './crud-service'
 import * as Promise from 'bluebird'
 
 class ProductService extends CRUDService {
@@ -15,11 +15,11 @@ class ProductService extends CRUDService {
   }
 
   updateCategory (id: number, data: Partial<Category>) {
-    return super.update('Category', data, {id})
+    return super.update('Category', data, { id })
   }
 
   deleteCategory (id: number) {
-    return super.delete('Category', {id})
+    return super.delete('Category', { id })
   }
 
   createSubCategory (data: Partial<SubCategory>) {
@@ -27,7 +27,7 @@ class ProductService extends CRUDService {
   }
 
   getSubCategories (categoryId) {
-    return super.read<SubCategory>('SubCategory', {categoryId})
+    return super.read<SubCategory>('SubCategory', { categoryId })
   }
 
   getSubCategory (searchClause: Partial<Category>) {
@@ -35,11 +35,11 @@ class ProductService extends CRUDService {
   }
 
   updateSubCategory (id: number, data: Partial<SubCategory>) {
-    return super.update('SubCategory', data, {id})
+    return super.update('SubCategory', data, { id })
   }
 
   deleteSubCategory (id: number) {
-    return super.delete('SubCategory', {id})
+    return super.delete('SubCategory', { id })
   }
 
   /* createProduct (data: Partial<Product>) {
