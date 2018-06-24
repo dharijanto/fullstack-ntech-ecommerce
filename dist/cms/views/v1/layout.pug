@@ -1,0 +1,108 @@
+// Defines the variable used by includes/sidebar.pug
+block sidebar
+
+doctype html
+html(lang='en')
+  head
+    meta(charset='utf-8')
+    meta(http-equiv='X-UA-Compatible', content='IE=edge')
+    meta(name='viewport', content='width=device-width, initial-scale=1')
+    meta(name='description', content='')
+    meta(name='author', content='')
+    title Nusantara Cloud - Content Management System
+    block links
+      // Bootstrap Core CSS
+      link(href='/assets/vendor/bootstrap/css/bootstrap.min.css', rel='stylesheet')
+      // MetisMenu CSS
+      link(href='/assets/vendor/metisMenu/metisMenu.min.css', rel='stylesheet')
+      // Custom CSS
+      link(href='/assets/dist/css/sb-admin-2.css', rel='stylesheet')
+      // NC-added  CSS
+      link(href='/assets/dist/css/nc-style.css', rel='stylesheet')
+      // Custom Fonts
+      link(href='/assets/vendor/font-awesome/css/font-awesome.min.css', rel='stylesheet', type='text/css')
+      // NCInput
+      link(rel="stylesheet" type="text/css" href=`/${siteHash}/assets/vendor/datatables/datatables.min.css`)
+      link(rel="stylesheet" type="text/css" href=`/${siteHash}/assets/vendor/datatables/responsive.bootstrap.min.css`)
+      link(rel="stylesheet" type="text/css" href=`/${siteHash}/assets/css/nprogress.css`)
+      link(rel="stylesheet" type="text/css" href=`/${siteHash}/assets/css/nc-input-library.css`)
+
+
+      // HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries
+      // WARNING: Respond.js doesn't work if you view the page via file://
+  body
+    #wrapper
+      // Navigation
+      block navigation
+        nav.navbar.navbar-default.navbar-static-top(role='navigation', style='margin-bottom: 0')
+          .navbar-header
+            button.navbar-toggle(type='button', data-toggle='collapse', data-target='.navbar-collapse')
+              span.sr-only Toggle navigation
+              span.icon-bar
+              span.icon-bar
+              span.icon-bar
+            a.navbar-brand(href='/')
+              span Nusantara Cloud CMS
+          // /.navbar-header
+          ul.nav.navbar-top-links.navbar-right
+            if user
+              li.dropdown
+                a.dropdown-toggle(data-toggle='dropdown', href='#')
+                  i.fa.fa-rocket.fa-fw
+                  | Apps
+                  i.fa.fa-caret-down
+                ul.dropdown-menu.dropdown-user
+                  li
+                    a(href='/new-site/')
+                      i.fa.fa-internet-explorer.fa-fw
+                      |  Create New Site
+                  for site in user.sites
+                    li
+                      a(href=`/${site.hash}/`)= site.name
+              li.dropdown
+                a.dropdown-toggle(data-toggle='dropdown', href='#')
+                  i.fa.fa-user.fa-fw
+                  | #{user.username}
+                  i.fa.fa-caret-down
+                ul.dropdown-menu.dropdown-user
+                  li
+                    a(href='/email/')
+                      i.fa.fa-envelope.fa-fw
+                      |  Email Setting
+                  li
+                    a(href='/logout')
+                      i.fa.fa-sign-out.fa-fw
+                      |  Logout
+            else
+              li.dropdown
+                a.dropdown-toggle(data-toggle='dropdown', href='/login')
+                  i.fa.fa-fw
+                  | Login
+              // /.dropdown-user
+            // /.dropdown
+          // /.navbar-top-links
+          include includes/sidebar.pug
+      - if (__sidebar)
+          #page-wrapper
+            block content
+      - else
+          #page-wrapper-no-sidebar
+            block content
+    // /#wrapper
+    block scripts
+      // jQuery
+      script(src='/assets/vendor/jquery/jquery.min.js')
+      // Bootstrap Core JavaScript
+      script(src='/assets/vendor/bootstrap/js/bootstrap.min.js')
+      // Metis Menu Plugin JavaScript
+      script(src='/assets/vendor/metisMenu/metisMenu.min.js')
+      // Morris Charts JavaScript
+      script(src='/assets/vendor/raphael/raphael.min.js')
+      |
+      script(src='/assets/vendor/morrisjs/morris.min.js')
+      // Custom Theme JavaScript
+      script(src='/assets/dist/js/sb-admin-2.js')
+      // IntercoolerJS
+      script(src="/assets/vendor/intercooler/intercooler-1.1.2.min.js")
+      script.
+        window['siteHash'] = '#{siteHash}'
