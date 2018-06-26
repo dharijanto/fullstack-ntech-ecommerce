@@ -56,5 +56,61 @@ export default class ProductManagementController extends BaseController {
         res.json(resp)
       }).catch(next)
     })
+
+    super.routePost('/product', (req, res, next) => {
+      if (req.query.subCategoryId) {
+        ProductService.create('Product', { ...req.body, subCategoryId: req.query.subCategoryId }).then(resp => {
+          res.json(resp)
+        }).catch(next)
+      } else {
+        res.json({ status: false, errMessage: 'Sub-Category is needed' })
+      }
+    })
+
+    super.routeGet('/products', (req, res, next) => {
+      ProductService.read<Product>('Product', { subCategoryId: req.query.subCategoryId }).then(resp => {
+        res.json(resp)
+      }).catch(next)
+    })
+
+    super.routePost('/product/edit', (req, res, next) => {
+      ProductService.update('Product', req.body, { id: req.body.id }).then(resp => {
+        res.json(resp)
+      }).catch(next)
+    })
+
+    super.routePost('/product/delete', (req, res, next) => {
+      ProductService.delete('Product', { id: req.body.id }).then(resp => {
+        res.json(resp)
+      }).catch(next)
+    })
+
+    super.routePost('/variant', (req, res, next) => {
+      if (req.query.productId) {
+        ProductService.create('Variant', { ...req.body, productId: req.query.productId }).then(resp => {
+          res.json(resp)
+        }).catch(next)
+      } else {
+        res.json({ status: false, errMessage: 'Product is needed' })
+      }
+    })
+
+    super.routeGet('/variants', (req, res, next) => {
+      ProductService.read<Variant>('Variant', { productId: req.query.productId }).then(resp => {
+        res.json(resp)
+      }).catch(next)
+    })
+
+    super.routePost('/variant/edit', (req, res, next) => {
+      ProductService.update('Variant', req.body, { id: req.body.id }).then(resp => {
+        res.json(resp)
+      }).catch(next)
+    })
+
+    super.routePost('/variant/delete', (req, res, next) => {
+      ProductService.delete('Variant', { id: req.body.id }).then(resp => {
+        res.json(resp)
+      }).catch(next)
+    })
   }
 }

@@ -8,7 +8,7 @@ var watchify = require('watchify')
 
 const modules = [
   {
-    input: 'category-cms',
+    input: 'product-management-cms',
     output: 'cms'
   }
 ]

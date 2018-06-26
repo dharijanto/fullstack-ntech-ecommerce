@@ -22,6 +22,7 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
     name: { type: Sequelize.STRING, allowNull: false },
     price: { type: Sequelize.INTEGER },
+    warranty: { type: Sequelize.INTEGER },
     description: { type: Sequelize.TEXT }
   }, {
     indexes: [
@@ -32,7 +33,7 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
 
   models.Variant = sequelize.define('variant', {
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
-    name: { type: Sequelize.STRING, unique: true, allowNull: false }
+    name: { type: Sequelize.STRING, allowNull: false }
   }, {
     indexes: [
       { fields: ['productId', 'name'], unique: true }

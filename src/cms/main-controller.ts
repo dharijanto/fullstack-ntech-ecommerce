@@ -17,7 +17,7 @@ class MainController extends BaseController {
     })
 
     this.routeGet('/', (req, res, next) => {
-      res.render('category')
+      res.render('product-management')
     })
 
     initData.site.hash = ''
