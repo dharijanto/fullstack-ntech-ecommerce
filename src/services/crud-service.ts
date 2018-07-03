@@ -40,7 +40,7 @@ export abstract class CRUDService {
   readOne <T extends BaseModel> (modelName: string, searchClause: WhereOptions<T>): Promise<NCResponse<T>> {
     return (this.getModels(modelName) as Model<Instance<T>, Partial<T>>).findOne({ where: searchClause }).then(readData => {
       if (readData) {
-        return { status: true, data: (readData.get({ plain: true }) || [])[0] }
+        return { status: true, data: readData.get({ plain: true }) }
       } else {
         return { status: false, errMessage: 'Data not found' }
       }

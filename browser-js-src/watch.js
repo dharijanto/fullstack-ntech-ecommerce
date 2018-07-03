@@ -10,16 +10,19 @@ const modules = [
   {
     input: 'product-management-cms',
     output: 'cms'
+  },
+  {
+    input: 'product-description-cms',
+    output: 'cms'
   }
 ]
 
 modules.forEach(module => {
   log(`Watching module: ${module.input}...`)
   const b = browserify(
-    [path.join(__dirname, module.input, 'main.ts'),
-      path.join(__dirname, 'index.d.ts')],
-    {cache: {}, packageCache: {}, debug: true})
-    .plugin(tsify, {target: 'es6'})
+    [path.join(__dirname, 'src', module.input, 'main.ts'), path.join(__dirname, 'src/index.d.ts')],
+      {cache: {}, packageCache: {}, debug: true})
+  .plugin(tsify, {target: 'es6'})
   .transform('babelify', {presets: ['es2015', 'react']})
   .transform('uglifyify', {global: true})
   .plugin(watchify)

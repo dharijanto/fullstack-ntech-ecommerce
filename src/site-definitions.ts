@@ -1,7 +1,9 @@
 import * as path from 'path'
 
 import * as express from 'express'
-import {Sequelize} from 'sequelize'
+import * as Promise from 'bluebird'
+
+import { Sequelize, Models } from 'sequelize'
 
 export interface Database {
   sequelize: Sequelize
@@ -13,6 +15,26 @@ export interface User {
   username: string,
   email: string,
   siteId: number
+}
+
+export type FileNameFormatter = (filename: string) => string
+export interface ImageResource {
+  url: string,
+  identifier: string
+}
+export interface ImageService {
+  getExpressUploadMiddleware (uploadPath: string, filename: string, formatter: FileNameFormatter): express.RequestHandler
+  getImages (): Promise<NCResponse<ImageResource>>
+  deleteImage (imageUploadPath: string, fileName: string): Promise<NCResponse<null>>
+}
+
+export interface ImageServiceConstructable {
+  new (sequelize: Sequelize, models: Models): ImageService
+  addImageModel (sequelize: Sequelize, models: Models): Models
+}
+
+export interface Services {
+  ImageService: ImageServiceConstructable
 }
 
 export interface Site {
@@ -29,7 +51,8 @@ export interface SiteData {
   socketIO: SocketIO,
   db: Database,
   viewPath: string,
-  assetPath?: string
+  assetPath?: string,
+  services: Services
 }
 
 export type SocketIO = any
@@ -55,7 +78,7 @@ export abstract class AppController {
 
     this.router.set('views', this.viewPath)
     this.router.set('view engine', 'pug')
-    this.router.use('/assets', express.static(this.assetsPath, {maxAge: '1h'}))
+    this.router.use('/assets', express.static(this.assetsPath, { maxAge: '1h' }))
   }
   // Initialize the class. The reason this can't be done using constructor is because
   // we may have to wait until the initialization is compelte before preceeding
@@ -80,12 +103,11 @@ export abstract class AppController {
     return this.siteData.site
   }
 
-
   protected extendInterceptors (...fns: express.RequestHandler[]) {
     return this.interceptors.concat(fns)
   }
 
-  protected  addInterceptor (...fns: express.RequestHandler[]) {
+  protected addInterceptor (...fns: express.RequestHandler[]) {
     this.interceptors = this.extendInterceptors(...fns)
   }
 
@@ -104,7 +126,6 @@ export abstract class AppController {
   routeUse (...fns: Array<express.RequestHandler>) {
     this.router.use('', this.extendInterceptors(...fns))
   }
-
 
   // When the instance of the class is no longer valid,
   // we have to evict out the cache so re-instantiation is clean
@@ -126,14 +147,17 @@ export abstract class CMSController {
   protected interceptors: Array<any> = []
   readonly siteData: SiteData
 
-  constructor (siteData: SiteData) {
+  constructor (siteData: SiteData, useSubrouter = true) {
     this.siteData = siteData
     this.siteHash = siteData.site.hash
     // Since the path is prefixed with /:hash/, we don't wanna handle it manually everytime, hence we use two routers
     this.router = express()
-    this.subRouter = express()
-
-    this.router.use(`/${this.siteHash}`, this.subRouter)
+    if (useSubrouter) {
+      this.subRouter = express()
+      this.router.use(`/${this.siteHash}`, this.subRouter)
+    } else {
+      this.subRouter = this.router
+    }
     this.subRouter.locals.rootifyPath = this.rootifyPath.bind(this)
     this.viewPath = siteData.viewPath
     this.assetsPath = siteData.assetPath || path.join(this.viewPath, '/assets')
@@ -156,7 +180,7 @@ export abstract class CMSController {
     return this.interceptors.concat(fns)
   }
 
-  protected  addInterceptor (...fns: express.RequestHandler[]) {
+  protected addInterceptor (...fns: express.RequestHandler[]) {
     this.interceptors = this.extendInterceptors(...fns)
   }
 

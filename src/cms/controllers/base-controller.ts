@@ -1,15 +1,17 @@
-import {CMSController} from '../../site-definitions'
+import { CMSController } from '../../site-definitions'
 
 const path = require('path')
 
 const express = require('express')
-const bodyParser= require('body-parser')
+const bodyParser = require('body-parser')
 const log = require('npmlog')
 
+const TAG = 'NTech.BaseController'
 abstract class BaseController extends CMSController {
-  constructor (initData) {
-    super(Object.assign(initData, {viewPath: path.join(__dirname, '../views/v1')}))
-    console.log('path=' + this.assetsPath)
+  constructor (initData, useSubRouter = true) {
+    super(Object.assign(initData, { viewPath: path.join(__dirname, '../views/v1') }), useSubRouter)
+    log.verbose(TAG, 'assetsPath=' + this.assetsPath)
+    log.verbose(TAG, 'viewPath=' + this.viewPath)
   }
 
   getSidebar () {
@@ -24,8 +26,8 @@ abstract class BaseController extends CMSController {
         url: '/dependency-visualizer',
         faicon: 'fa-bar-chart-o',
         children: [
-          {title: 'A', url: '/dependency-visualizer/a'},
-          {title: 'B', url: '/dependency-visualizer/b'}]
+          { title: 'A', url: '/dependency-visualizer/a' },
+          { title: 'B', url: '/dependency-visualizer/b' }]
       }
     ]
   }

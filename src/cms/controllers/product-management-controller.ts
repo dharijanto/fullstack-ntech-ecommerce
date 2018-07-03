@@ -3,8 +3,9 @@ import ProductService from '../../services/product-service'
 
 export default class ProductManagementController extends BaseController {
   constructor (initData) {
-    super(initData)
+    super(initData, false)
 
+    // Product-Management
     super.routePost('/category', (req, res, next) => {
       ProductService.createCategory(req.body).then(resp => {
         res.json(resp)
@@ -111,6 +112,32 @@ export default class ProductManagementController extends BaseController {
       ProductService.delete('Variant', { id: req.body.id }).then(resp => {
         res.json(resp)
       }).catch(next)
+    })
+
+    // Product Description
+    super.routeGet('/product/description', (req, res, next) => {
+      const id = req.query.id
+      ProductService.readOne<Product>('Product', { id }).then(resp => {
+        if (resp.status) {
+          res.locals.product = resp.data
+          res.render('product-description')
+        } else {
+          /* next(new Error('Product does not exist')) */
+          res.json(resp)
+        }
+      })
+    })
+
+    super.routeGet('/product/pictures', (req, res, next) => {
+    })
+
+    super.routeGet('/product/picture', (req, res, next) => {
+    })
+
+    super.routeGet('/product/picture/edit', (req, res, next) => {
+    })
+
+    super.routeGet('/product/picture/delete', (req, res, next) => {
     })
   }
 }

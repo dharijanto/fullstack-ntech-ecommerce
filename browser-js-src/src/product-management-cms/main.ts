@@ -146,9 +146,9 @@ function onSubCategoryClicked (data: SubCategory) {
 let selectedProduct: Product
 function onProductClicked (data: Product) {
   if (selectedProduct && selectedProduct.id === data.id) {
-    console.log('hehe')
+    window.open(`/${window['siteHash']}/product-management/product/description?id=${data.id}`)
   } else {
-    console.log('should toast')
+    toastr.clear()
     toastr.info('Click one more time to open description editor')
   }
   selectedProduct = data
