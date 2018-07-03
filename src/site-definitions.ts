@@ -17,21 +17,33 @@ export interface User {
   siteId: number
 }
 
+/* --------------- Image Service --------------- */
 export type FileNameFormatter = (filename: string) => string
+export type URLFormatter = (filename: string) => string
 export interface ImageResource {
   url: string,
   identifier: string
 }
 export interface ImageService {
-  getExpressUploadMiddleware (uploadPath: string, filename: string, formatter: FileNameFormatter): express.RequestHandler
-  getImages (): Promise<NCResponse<ImageResource>>
-  deleteImage (imageUploadPath: string, fileName: string): Promise<NCResponse<null>>
+  getExpressUploadMiddleware (uploadPath: string, urlFormatter: URLFormatter,
+    fieldName?: string, fileNameFormatter?: FileNameFormatter): express.RequestHandler
+  getImages (urlFormatter: URLFormatter): Promise<NCResponse<ImageResource>>
+  deleteImage (uploadPath: string, fileName: string): Promise<NCResponse<null>>
 }
 
 export interface ImageServiceConstructable {
   new (sequelize: Sequelize, models: Models): ImageService
-  addImageModel (sequelize: Sequelize, models: Models): Models
 }
+
+// Database format needed to use Image Service
+export function addImageModel (sequelize: Sequelize, models: Models) {
+  models.Image = sequelize.define('images', {
+    id: { type: sequelize.Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
+    filename: { type: sequelize.Sequelize.STRING, unique: true },
+    url: { type: sequelize.Sequelize.TEXT }
+  })
+}
+/* ------------------------------------------------ */
 
 export interface Services {
   ImageService: ImageServiceConstructable
@@ -62,6 +74,7 @@ export interface DBStructure {
   addTables (sequelize: Sequelize, models: {}): {}
 }
 
+/* --------------- App Controller --------------- */
 export abstract class AppController {
   readonly router: express.Express
   protected viewPath: string
@@ -123,8 +136,8 @@ export abstract class AppController {
     this.router.post(path, this.extendInterceptors(...fns))
   }
 
-  routeUse (...fns: Array<express.RequestHandler>) {
-    this.router.use('', this.extendInterceptors(...fns))
+  routeUse (path, ...fns: Array<express.RequestHandler>) {
+    this.router.use(path, this.extendInterceptors(...fns))
   }
 
   // When the instance of the class is no longer valid,
@@ -137,7 +150,9 @@ export abstract class AppController {
     return this.router
   }
 }
+/* ---------------------------------------------- */
 
+/* --------------- CMS Controller --------------- */
 export abstract class CMSController {
   readonly siteHash: string
   readonly router: express.Express
@@ -206,3 +221,4 @@ export abstract class CMSController {
 
   abstract getSidebar (): any[]
 }
+/* ---------------------------------------------- */

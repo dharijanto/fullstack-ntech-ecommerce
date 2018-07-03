@@ -1,9 +1,20 @@
+import * as path from 'path'
 import BaseController from './base-controller'
 import ProductService from '../../services/product-service'
+import { ImageService } from '../../site-definitions'
 
+import AppConfig from '../../app-config'
+
+let log = require('npmlog')
+
+const TAG = 'ProductManagementController'
 export default class ProductManagementController extends BaseController {
+  private imageService: ImageService
+  private readonly imageURLFormatter
   constructor (initData) {
     super(initData, false)
+    this.imageService = new initData.services.ImageService(initData.db.sequelize, initData.db.models)
+    this.imageURLFormatter = filename => `${AppConfig.BASE_URL}${AppConfig.PRODUCT_IMAGES_MOUNT_PATH}${filename}`
 
     // Product-Management
     super.routePost('/category', (req, res, next) => {
@@ -128,10 +139,27 @@ export default class ProductManagementController extends BaseController {
       })
     })
 
+    super.routeGet('/product/nc-images', (req, res, next) => {
+      this.imageService.getImages(this.imageURLFormatter).then(resp => {
+        log.verbose(TAG, '/product/nc-images.GET():' + JSON.stringify(resp))
+        res.json(resp)
+      })
+    })
+
+    super.routePost('/product/nc-image',
+      this.imageService.getExpressUploadMiddleware(
+        AppConfig.PRODUCT_IMAGES_UPLOAD_PATH, this.imageURLFormatter))
+
+    super.routePost('/product/nc-images/delete', (req, res, next) => {
+      log.verbose(TAG, 'product/nc-images/delete.POST: req.body=' + JSON.stringify(req.body))
+    })
+
     super.routeGet('/product/pictures', (req, res, next) => {
+      
     })
 
     super.routeGet('/product/picture', (req, res, next) => {
+
     })
 
     super.routeGet('/product/picture/edit', (req, res, next) => {

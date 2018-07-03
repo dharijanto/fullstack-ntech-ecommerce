@@ -66,6 +66,7 @@ saveButton.click(function () {
     }
   })
 })
+
 function updateSaveButton (text: string) {
   saveButton.text(text)
 }
@@ -74,7 +75,7 @@ $('#btn-add-image').NCImagePicker({
   callbackFn: (imageurl, imageid) => {
     console.log('haha')
   },
-  postURL: '',
-  getURL: '',
-  deleteURL: ''
+  postURL: `/${window['siteHash']}/product-management/product/nc-image`,
+  getURL: `/${window['siteHash']}/product-management/product/nc-images`,
+  deleteURL: `/${window['siteHash']}/product-management/product/nc-image/delete`
 })

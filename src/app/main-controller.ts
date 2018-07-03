@@ -1,19 +1,22 @@
+import * as express from 'express'
+import AppConfig from '../app-config'
+
 import BaseController from './controllers/base-controller'
 import ProductService from '../services/product-service'
-import SequelizeService from '../services/sequelize-service';
-import { SiteData } from '../site-definitions';
+import SequelizeService from '../services/sequelize-service'
+import { SiteData } from '../site-definitions'
 
 const path = require('path')
 
-var log = require('npmlog')
+let log = require('npmlog')
 
-var CredentialController = require(path.join(__dirname, 'controllers/credential-controller'))
+let CredentialController = require(path.join(__dirname, 'controllers/credential-controller'))
 
 const TAG = 'MainController'
 
 class Controller extends BaseController {
   constructor (siteData: SiteData) {
-    super(Object.assign(siteData, {viewPath: path.join(__dirname, 'views')}))
+    super(Object.assign(siteData, { viewPath: path.join(__dirname, 'views') }))
     SequelizeService.initialize(siteData.db.sequelize, siteData.db.models)
 
     this.addInterceptor((req, res, next) => {
@@ -22,6 +25,8 @@ class Controller extends BaseController {
       log.verbose(TAG, 'req.on=' + JSON.stringify(req.session))
       next()
     })
+
+    this.routeUse(AppConfig.IMAGE_MOUNT_PATH, express.static(AppConfig.IMAGE_PATH))
 
     this.routeGet('/', (req, res, next) => {
       ProductService.getCategories().then(resp => {

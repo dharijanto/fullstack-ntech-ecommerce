@@ -8,11 +8,8 @@ const log = require('npmlog')
 
 const TAG = 'MainController'
 class MainController extends BaseController {
-  private imageService: ImageService
   constructor (initData: SiteData) {
     super(initData)
-    const ImageServiceImpl = initData.services.ImageService
-    this.imageService = new ImageServiceImpl(initData.db.sequelize, initData.db.models)
 
     this.addInterceptor((req, res, next) => {
       log.verbose(TAG, 'req.path=' + req.path)
