@@ -34,8 +34,9 @@ interface Variant extends BaseModel {
   productId: number
 }
 
-interface Picture extends BaseModel {
-  url: string
+interface ProductImage extends BaseModel {
+  imageFilename: string
+  productId: number
 }
 
 // TODO: Add foreign key ids

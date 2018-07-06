@@ -41,16 +41,21 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
   })
   models.Variant.belongsTo(models.Product)
 
-  models.Image = sequelize.define('images', {
+  models.Image = sequelize.define('image', {
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
-    url: { type: Sequelize.STRING },
     filename: { type: sequelize.Sequelize.STRING, unique: true }
+  })
+
+  models.ProductImage = sequelize.define('productImages', {
+    id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
+    primary: { type: Sequelize.BOOLEAN }
   }, {
     indexes: [
-      { fields: ['productId', 'url'], unique: true }
+      { fields: ['productId', 'imageFilename'], unique: true }
     ]
   })
-  models.Image.belongsTo(models.Product)
+  models.ProductImage.belongsTo(models.Product)
+  models.ProductImage.belongsTo(models.Image, { targetKey: 'filename', foreignKey: 'imageFilename' })
 
   models.Supplier = sequelize.define('supplier', {
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },

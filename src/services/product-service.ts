@@ -1,4 +1,5 @@
 import { CRUDService } from './crud-service'
+import { Model } from 'sequelize'
 import * as Promise from 'bluebird'
 
 class ProductService extends CRUDService {
@@ -40,6 +41,13 @@ class ProductService extends CRUDService {
 
   deleteSubCategory (id: number) {
     return super.delete('SubCategory', { id })
+  }
+
+  getProductImages (productId: number): Promise<NCResponse<ProductImage[]>> {
+    return (this.getModels('ProductImage') as Model<ProductImage, Partial<ProductImage>>)
+      .findAll({ where: { productId } }).then(data => {
+        return { status: true, data }
+      })
   }
 
   /* createProduct (data: Partial<Product>) {

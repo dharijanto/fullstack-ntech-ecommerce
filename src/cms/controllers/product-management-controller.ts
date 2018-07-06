@@ -14,7 +14,7 @@ export default class ProductManagementController extends BaseController {
   constructor (initData) {
     super(initData, false)
     this.imageService = new initData.services.ImageService(initData.db.sequelize, initData.db.models)
-    this.imageURLFormatter = filename => `${AppConfig.BASE_URL}${AppConfig.PRODUCT_IMAGES_MOUNT_PATH}${filename}`
+    this.imageURLFormatter = filename => `${AppConfig.BASE_URL}${AppConfig.IMAGE_MOUNT_PATH}${filename}`
 
     // Product-Management
     super.routePost('/category', (req, res, next) => {
@@ -136,36 +136,57 @@ export default class ProductManagementController extends BaseController {
           /* next(new Error('Product does not exist')) */
           res.json(resp)
         }
-      })
+      }).catch(next)
     })
 
     super.routeGet('/product/nc-images', (req, res, next) => {
       this.imageService.getImages(this.imageURLFormatter).then(resp => {
         log.verbose(TAG, '/product/nc-images.GET():' + JSON.stringify(resp))
         res.json(resp)
-      })
+      }).catch(next)
     })
 
     super.routePost('/product/nc-image',
       this.imageService.getExpressUploadMiddleware(
-        AppConfig.PRODUCT_IMAGES_UPLOAD_PATH, this.imageURLFormatter))
+        AppConfig.IMAGE_PATH, this.imageURLFormatter))
 
-    super.routePost('/product/nc-images/delete', (req, res, next) => {
+    super.routePost('/product/nc-image/delete', (req, res, next) => {
       log.verbose(TAG, 'product/nc-images/delete.POST: req.body=' + JSON.stringify(req.body))
+      this.imageService.deleteImage(AppConfig.IMAGE_PATH, req.body.filename).then(resp => {
+        res.json(resp)
+      }).catch(next)
     })
 
-    super.routeGet('/product/pictures', (req, res, next) => {
-      
+    super.routeGet('/product/images', (req, res, next) => {
+      const productId = req.query.productId
+      ProductService.getProductImages(productId).then(resp => {
+        res.json(resp)
+      }).catch(next)
     })
 
-    super.routeGet('/product/picture', (req, res, next) => {
-
+    super.routePost('/product/image', (req, res, next) => {
+      const productId = req.query.productId
+      ProductService.create<ProductImage>('ProductImage', Object.assign(req.body, { productId })).then(resp => {
+        res.json(resp)
+      }).catch(next)
     })
 
-    super.routeGet('/product/picture/edit', (req, res, next) => {
+    super.routePost('/product/image/edit', (req, res, next) => {
+      const productId = req.query.productId
+      ProductService.update<ProductImage>('ProductImage', req.body, { productId }).then(resp => {
+        res.json(resp)
+      }).catch(next)
     })
 
-    super.routeGet('/product/picture/delete', (req, res, next) => {
+    super.routePost('/product/image/delete', (req, res, next) => {
+      ProductService.delete<ProductImage>('ProductImage', { id: req.body.id }).then(resp => {
+        res.json(resp)
+      }).catch(next)
+    })
+
+    super.routePost('/product/image/get-url', (req, res, next) => {
+      const filename = req.body.filename
+      res.json({ status: true, data: this.imageURLFormatter(filename) })
     })
   }
 }
