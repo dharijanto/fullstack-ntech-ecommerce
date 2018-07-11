@@ -49,18 +49,6 @@ class ProductService extends CRUDService {
         return { status: true, data }
       })
   }
-
-  /* createProduct (data: Partial<Product>) {
-    return super.create('Product', data)
-  }
-
-  getProduct (searchClause: Partial<Product>) {
-    return super.readOne<Product>('Product', searchClause)
-  }
-
-  getProducts (searchClause: Partial<Product>) {
-    return super.read<Product>('Product', searchClause)
-  } */
 }
 
 export default new ProductService()

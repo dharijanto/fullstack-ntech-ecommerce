@@ -1,8 +1,9 @@
 import BaseController from './controllers/base-controller'
 import ProductManagementController from './controllers/product-management-controller'
-import { SiteData, ImageService } from '../site-definitions'
+import ShopManagementController from './controllers/shop-management-controller'
+import SupplierManagementController from './controllers/supplier-management-controller'
 
-const path = require('path')
+import { SiteData, ImageService } from '../site-definitions'
 
 const log = require('npmlog')
 
@@ -22,6 +23,8 @@ class MainController extends BaseController {
     })
 
     this.routeUse('/product-management', new ProductManagementController(initData).getRouter())
+    this.routeUse('/shop-management', new ShopManagementController(initData).getRouter())
+    this.routeUse('/supplier-management', new SupplierManagementController(initData).getRouter())
   }
 }
 

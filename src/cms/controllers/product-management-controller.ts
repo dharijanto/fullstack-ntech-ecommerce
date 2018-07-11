@@ -80,7 +80,8 @@ export default class ProductManagementController extends BaseController {
     })
 
     super.routeGet('/products', (req, res, next) => {
-      ProductService.read<Product>('Product', { subCategoryId: req.query.subCategoryId }).then(resp => {
+      const searchClause = req.query.subCategoryId ? { subCategoryId: req.query.subCategoryId } : {}
+      ProductService.read<Product>('Product', searchClause).then(resp => {
         res.json(resp)
       }).catch(next)
     })

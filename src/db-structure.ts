@@ -60,27 +60,45 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
   models.Supplier = sequelize.define('supplier', {
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
     name: { type: Sequelize.STRING , allowNull: false },
-    location: { type: Sequelize.STRING, allowNull: false },
+    location: { type: Sequelize.STRING, allowNull: true },
+    address: { type: Sequelize.STRING, allowNull: true },
     city: { type: Sequelize.STRING },
+    zipCode: { type: Sequelize.INTEGER },
     pickup: { type: Sequelize.BOOLEAN },
-    courier: { type: Sequelize.BOOLEAN }
+    online: { type: Sequelize.BOOLEAN }
   })
+
+  models.SupplierStock = sequelize.define('supplierStock', {
+    id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
+    price: { type: Sequelize.INTEGER },
+    date: { type: Sequelize.DATE }
+  }, {
+    indexes: [
+      { fields: ['supplierId', 'variantId'] }
+    ]
+  })
+
+  models.SupplierStock.belongsTo(models.Supplier)
+  models.SupplierStock.belongsTo(models.Variant)
 
   models.Shop = sequelize.define('shop', {
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
-    name: { type: Sequelize.STRING, allowNull: false },
+    name: { type: Sequelize.STRING, allowNull: false, unique: true },
+    location: { type: Sequelize.STRING },
     city: { type: Sequelize.STRING },
     address: { type: Sequelize.STRING },
     zipCode: { type: Sequelize.INTEGER }
   })
 
-  models.Stock = sequelize.define('stock', {
+  models.ShopStock = sequelize.define('shopStock', {
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
-    quantity: { type: Sequelize.INTEGER },
-    purchasePrice: { type: Sequelize.INTEGER }
+    price: { type: Sequelize.INTEGER },
+    date: { type: Sequelize.DATE },
+    quantity: { type: Sequelize.INTEGER }
   })
 
-  models.Stock.belongsTo(models.Variant)
+  models.ShopStock.belongsTo(models.Shop)
+  models.ShopStock.belongsTo(models.Variant)
 
   models.Transaction = sequelize.define('transaction', {
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
@@ -88,7 +106,6 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
   })
 
   models.Transaction.belongsTo(models.Variant)
-  models.Stock.belongsTo(models.Variant)
 
   return models
 }

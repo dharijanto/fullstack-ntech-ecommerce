@@ -31,7 +31,8 @@ interface Product extends BaseModel {
 
 interface Variant extends BaseModel {
   name: string
-  productId: number
+  productId: number,
+  product?: Product
 }
 
 interface ProductImage extends BaseModel {
@@ -61,4 +62,39 @@ interface Stock extends BaseModel {
 
 interface Transaction extends BaseModel {
   quantity: number
+}
+
+interface Shop extends BaseModel {
+  name: string,
+  location: string,
+  city: string,
+  address: string,
+  zipCode: number
+}
+
+interface ShopStock extends BaseModel {
+  shopId: number
+  variantId: number
+  price: number
+  quantity: number
+  date: string
+  variant?: Variant
+}
+
+interface Supplier extends BaseModel {
+  name: string,
+  location: string,
+  address: string,
+  city: string,
+  zipCode: number,
+  pickup: boolean,
+  online: boolean
+}
+
+interface SupplierStock extends BaseModel {
+  price: number,
+  supplierId: number,
+  variantId: number
+  date: string
+  variant?: Variant,
 }

@@ -1,0 +1,18 @@
+extends layout.pug
+
+block content
+  .container
+    .row
+      .col-md-12
+        #shop
+    .row
+      .col-md-6
+        #product
+      .col-md-6
+        #variant
+    .row
+      .col-md-12
+        #shop-stock
+
+append scripts
+  script(src=`/${siteHash}/assets/js/shop-management-cms-bundle.js`)

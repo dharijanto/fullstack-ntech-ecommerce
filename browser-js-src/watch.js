@@ -14,6 +14,14 @@ const modules = [
   {
     input: 'product-description-cms',
     output: 'cms'
+  },
+  {
+    input: 'shop-management-cms',
+    output: 'cms'
+  },
+  {
+    input: 'supplier-management-cms',
+    output: 'cms'
   }
 ]
 
@@ -23,8 +31,9 @@ modules.forEach(module => {
     [path.join(__dirname, 'src', module.input, 'main.ts'), path.join(__dirname, 'src/index.d.ts')],
       {cache: {}, packageCache: {}, debug: true})
   .plugin(tsify, {target: 'es6'})
-  .transform('babelify', {presets: ['es2015', 'react']})
-  .transform('uglifyify', {global: true})
+  .transform('babelify', {presets: ['es2015']})
+  .transform({global: true}, 'browserify-shim')
+  /* .transform('uglifyify', {global: true}) */
   .plugin(watchify)
 
   b.on('update', () => bundle(b, module.input, module.output))
