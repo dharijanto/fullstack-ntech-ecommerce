@@ -100,6 +100,13 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
   models.ShopStock.belongsTo(models.Shop)
   models.ShopStock.belongsTo(models.Variant)
 
+  models.Promotion = sequelize.define('promotion', {
+    id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true }
+  })
+  models.Promotion.belongsTo(models.Shop)
+  models.Promotion.belongsTo(models.Product)
+  models.Promotion.belongsTo(models.Image, { targetKey: 'filename', foreignKey: 'imageFilename' })
+
   models.Transaction = sequelize.define('transaction', {
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
     quantity: { type: Sequelize.INTEGER }

@@ -92,18 +92,14 @@ $(document).ready(() => {
     saveButton.text(text)
   }
 
-  $('input[name="imageFilename"]').click(() => {
-    console.log('hahaha')
-  })
-
   $('input[name="imageFilename"]').NCImagePicker({
     callbackFn: (imageUrl, imageFilename) => {
       toastr.info('Image Selected!')
       $('input[name="imageFilename"]').val(imageFilename)
     },
-    postURL: `/${window['siteHash']}/product-management/product/nc-image`,
-    getURL: `/${window['siteHash']}/product-management/product/nc-images`,
-    deleteURL: `/${window['siteHash']}/product-management/product/nc-image/delete`
+    getURL: `/${window['siteHash']}/images`,
+    postURL: `/${window['siteHash']}/image`,
+    deleteURL: `/${window['siteHash']}/image/delete`
   })
 
   ncPicture.reloadTable()

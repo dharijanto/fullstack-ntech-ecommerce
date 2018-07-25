@@ -1,27 +1,2 @@
-// Sidebar format is as following:
-// - var sidebar = [{title: 'Dashboard', url: 'index.html', faicon: 'fa-dashboard'}, {title: 'Charts', url: '#', faicon: 'fa-bar-chart-o', children: [{title: 'Flot Charts', url: 'flot.html'}, {title: 'Morris.js Charts', url: 'morris.html'}]}]
-- if (__sidebar)
-    .navbar-default.sidebar(role='navigation')
-      .sidebar-nav.navbar-collapse
-        ul#side-menu.nav
-          - for (var i = 0; i < __sidebar.length; i++)
-            - const title = __sidebar[i].title
-            - const url = __sidebar[i].url
-            - const faicon = __sidebar[i].faicon
-            - const children = __sidebar[i].children
-            li
-              a(href=url)
-                i.fa.fa-fw(class=faicon)
-                | 
-                span= title
-                - if (children)
-                    span.fa.arrow
-              - if (children)
-                  ul.nav.nav-second-level
-                    - for (var i = 0; i < children.length; i++)
-                      - const child = children[i]
-                      - const childUrl = child.url
-                      - const childTitle = child.title
-                      ul.nav.nav-second-level
-                        li
-                          a(href=childUrl)= childTitle
+block sidebar
+  - var __sidebar = [{title: 'Product Management', url: `/${siteHash}/`, faicon: 'fa-dashboard'}, {title: 'Shop Management', url: `/${siteHash}/shop-management`, faicon: 'fa-bar-chart-o'}, {title: 'Supplier Management', url: `/${siteHash}/supplier-management`, faicon: 'fa-bar-chart-o'}, {title: 'Promotion Management', url: `/${siteHash}/shop-management/promotion-management`, faicon: 'fa-bar-chart-o'}]

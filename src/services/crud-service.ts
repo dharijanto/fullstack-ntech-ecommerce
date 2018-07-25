@@ -10,7 +10,7 @@ export abstract class CRUDService {
     return SequelizeService.getInstance().models[name]
   }
 
-  private errHandler (err) {
+  protected errHandler (err) {
     if (err.name) {
       return { status: false, errMessage: err.message }
     } else {

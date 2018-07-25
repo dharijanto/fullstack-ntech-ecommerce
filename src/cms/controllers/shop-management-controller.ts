@@ -16,6 +16,47 @@ export default class ShopManagementController extends BaseController {
       res.render('shop-management')
     })
 
+    super.routeGet('/promotion-management', (req, res, next) => {
+      res.render('promotion-management')
+    })
+
+    super.routeGet('/promotion', (req, res, next) => {
+      const shopId = req.query.shopId
+      if (!shopId) {
+        res.json({ status: false, errMessage: 'shopId is required!' })
+      } else {
+        ShopService.getPromotion(shopId).then(res.json.bind(res)).catch(next)
+      }
+    })
+
+    super.routePost('/promotion', (req, res, next) => {
+      const shopId = req.query.shopId
+      const productId = req.query.productId
+      console.dir(req.query)
+      if (!shopId || !productId) {
+        res.json({ status: false, errMessage: 'shopId and productId are required' })
+      } else {
+        ShopService.create<Promotion>('Promotion', Object.assign({ shopId, productId }, req.body))
+          .then(res.json.bind(res)).catch(next)
+      }
+    })
+
+    super.routePost('/promotion/edit', (req, res, next) => {
+      const shopId = req.query.shopId
+      const productId = req.query.productId
+      console.dir(req.query)
+      if (!shopId || !productId) {
+        res.json({ status: false, errMessage: 'shopId and productId are required' })
+      } else {
+        ShopService.update<Promotion>('Promotion',
+         Object.assign({ shopId, productId }, req.body),
+         { id: req.body.id }).then(res.json.bind(res)).catch(next)
+      }
+    })
+
+    super.routePost('/promotion/delete', (req, res, next) => {
+    })
+
     super.routeGet('/shops', (req, res, next) => {
       ShopService.read<Shop>('Shop', {}).then(resp => {
         res.json(resp)

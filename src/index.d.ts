@@ -98,3 +98,10 @@ interface SupplierStock extends BaseModel {
   date: string
   variant?: Variant,
 }
+
+interface Promotion extends BaseModel {
+  product?: Product
+  shopId: number
+  productId: number
+  imageFilename: string
+}

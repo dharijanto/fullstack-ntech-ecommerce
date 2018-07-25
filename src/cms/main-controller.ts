@@ -5,12 +5,19 @@ import SupplierManagementController from './controllers/supplier-management-cont
 
 import { SiteData, ImageService } from '../site-definitions'
 
+import AppConfig from '../app-config'
+
 const log = require('npmlog')
 
 const TAG = 'MainController'
 class MainController extends BaseController {
+  private imageService: ImageService
+  private readonly imageURLFormatter
+
   constructor (initData: SiteData) {
     super(initData)
+    this.imageService = new initData.services.ImageService(initData.db.sequelize, initData.db.models)
+    this.imageURLFormatter = filename => `${AppConfig.BASE_URL}${AppConfig.IMAGE_MOUNT_PATH}${filename}`
 
     this.addInterceptor((req, res, next) => {
       log.verbose(TAG, 'req.path=' + req.path)
@@ -18,7 +25,26 @@ class MainController extends BaseController {
       next()
     })
 
+    super.routeGet('/images', (req, res, next) => {
+      this.imageService.getImages(this.imageURLFormatter).then(resp => {
+        log.verbose(TAG, '/images.GET():' + JSON.stringify(resp))
+        res.json(resp)
+      }).catch(next)
+    })
+
+    super.routePost('/image',
+      this.imageService.getExpressUploadMiddleware(
+        AppConfig.IMAGE_PATH, this.imageURLFormatter))
+
+    super.routePost('/image/delete', (req, res, next) => {
+      log.verbose(TAG, 'image/delete.POST: req.body=' + JSON.stringify(req.body))
+      this.imageService.deleteImage(AppConfig.IMAGE_PATH, req.body.filename).then(resp => {
+        res.json(resp)
+      }).catch(next)
+    })
+
     this.routeGet('/', (req, res, next) => {
+      res.locals.renderSidebar = true
       res.render('product-management')
     })
 

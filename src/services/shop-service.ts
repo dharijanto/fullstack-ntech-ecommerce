@@ -46,7 +46,7 @@ class ShopService extends CRUDService {
       ]
     }).then(data => {
       return { status: true, data }
-    })
+    }).catch(this.errHandler)
   }
 
   addSupplierStock ({ supplierId, variantId, price }) {
@@ -55,6 +55,19 @@ class ShopService extends CRUDService {
       variantId,
       price
     })
+  }
+
+  getPromotion (shopId) {
+    return this.getModels('Promotion').findAll({
+      where: { shopId },
+      include: [
+        {
+          model: this.getModels('Product')
+        }
+      ]
+    }).then(data => {
+      return { status: true, data }
+    }).catch(this.errHandler)
   }
 }
 

@@ -1,5 +1,6 @@
-// Defines the variable used by includes/sidebar.pug
 block sidebar
+  // To enable sidebar, define a variable like this:
+  // - var __sidebar = [{title: 'Product Management', url: `/${siteHash}/`, faicon: 'fa-dashboard'}, {title: 'Charts', url: '#', faicon: 'fa-bar-chart-o', children: [{title: 'Flot Charts', url: 'flot.html'}, {title: 'Morris.js Charts', url: 'morris.html'}]}]
 
 doctype html
 html(lang='en')
@@ -82,7 +83,31 @@ html(lang='en')
               // /.dropdown-user
             // /.dropdown
           // /.navbar-top-links
-          include includes/sidebar.pug
+        - if (__sidebar)
+            .navbar-default.sidebar(role='navigation')
+              .sidebar-nav.navbar-collapse
+                ul#side-menu.nav
+                  - for (var i = 0; i < __sidebar.length; i++)
+                    - const title = __sidebar[i].title
+                    - const url = __sidebar[i].url
+                    - const faicon = __sidebar[i].faicon
+                    - const children = __sidebar[i].children
+                    li
+                      a(href=url)
+                        i.fa.fa-fw(class=faicon)
+                        | 
+                        span= title
+                        - if (children)
+                            span.fa.arrow
+                      - if (children)
+                          ul.nav.nav-second-level
+                            - for (var i = 0; i < children.length; i++)
+                              - const child = children[i]
+                              - const childUrl = child.url
+                              - const childTitle = child.title
+                              ul.nav.nav-second-level
+                                li
+                                  a(href=childUrl)= childTitle
       - if (__sidebar)
           #page-wrapper
             block content

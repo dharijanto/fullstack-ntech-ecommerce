@@ -3,6 +3,7 @@ var path = require('path')
 
 var gulp = require('gulp')
 var gulpCopy = require('gulp-copy')
+var sass = require('gulp-sass')
 var log = require('fancy-log')
 var sourcemaps = require('gulp-sourcemaps')
 var ts = require('gulp-typescript')
@@ -62,7 +63,17 @@ gulp.task('watchSitesDeps', function () {
   })
 })
 
-gulp.task('watch', ['compileSites', 'copySitesDeps', 'watchSites', 'watchSitesDeps'])
+gulp.task('sass', function () {
+  return gulp.src('./src/app/views/assets/sass/**/*.scss')
+    .pipe(sass().on('error', sass.logError))
+    .pipe(gulp.dest('./src/app/views/assets/css/'));
+})
+
+gulp.task('watchSass', function () {
+  return gulp.watch('./src/app/views/assets/sass/**/*.scss', ['sass'])
+})
+
+gulp.task('watch', ['compileSites', 'copySitesDeps', 'watchSites', 'watchSitesDeps', 'watchSass'])
 
 function swallowError (error) {
   // If you want details of the error in the console

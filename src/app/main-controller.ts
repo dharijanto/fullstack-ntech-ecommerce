@@ -29,13 +29,13 @@ class Controller extends BaseController {
     this.routeUse(AppConfig.IMAGE_MOUNT_PATH, express.static(AppConfig.IMAGE_PATH))
 
     this.routeGet('/', (req, res, next) => {
-      ProductService.getCategories().then(resp => {
+      /* ProductService.getCategories().then(resp => {
         log.verbose(TAG, 'resp=' + JSON.stringify(resp))
         if (resp.status) {
         } else {
         }
-      })
-      res.render('index')
+      }) */
+      res.render('home')
     })
 
     /* this.routeUse((new CredentialController(initData)).getRouter()) */

@@ -140,24 +140,6 @@ export default class ProductManagementController extends BaseController {
       }).catch(next)
     })
 
-    super.routeGet('/product/nc-images', (req, res, next) => {
-      this.imageService.getImages(this.imageURLFormatter).then(resp => {
-        log.verbose(TAG, '/product/nc-images.GET():' + JSON.stringify(resp))
-        res.json(resp)
-      }).catch(next)
-    })
-
-    super.routePost('/product/nc-image',
-      this.imageService.getExpressUploadMiddleware(
-        AppConfig.IMAGE_PATH, this.imageURLFormatter))
-
-    super.routePost('/product/nc-image/delete', (req, res, next) => {
-      log.verbose(TAG, 'product/nc-images/delete.POST: req.body=' + JSON.stringify(req.body))
-      this.imageService.deleteImage(AppConfig.IMAGE_PATH, req.body.filename).then(resp => {
-        res.json(resp)
-      }).catch(next)
-    })
-
     super.routeGet('/product/images', (req, res, next) => {
       const productId = req.query.productId
       ProductService.getProductImages(productId).then(resp => {
