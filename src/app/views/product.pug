@@ -1,0 +1,84 @@
+extend layout/base
+
+block content
+  header
+    h1
+      | Nusantara Gizmo - Solusi Gadget & Elektronik Anda
+    section.information #[a(href=`/category/${product.subCategory.category.id}`) #{product.subCategory.category.name}] > #[a(href=`/subCategory/${product.subCategory.id}`) #{product.subCategory.name}]
+    section.product
+      section.images
+        if (product.productImages.length > 0)
+          article.main-image
+            img(src=`${getImageURL(product.productImages[0].imageFilename)}`)
+          section.thumbnail-images
+            each productImage in product.productImages
+              article
+                img(src=`${getImageURL(productImage.imageFilename)}`)
+      //section.images
+        article.main-image
+          img()
+        section.thumbnail-images
+          article
+            img
+          article
+            img
+          article
+            img
+          article
+            img
+          article
+            img
+          article
+            img
+      section.description
+        article
+          h1= product.name
+          section.information
+            | !{product.description}
+          .detail
+            label Harga: 
+            span= formatPrice(product.price)
+          .detail
+            label Garansi: 
+            span= product.warranty
+          if product.variants.length
+            .detail
+              label Availability:
+              span Ready Stock
+            .detail
+              label Varian: 
+              select
+                each variant in product.variants
+                  option(data=variant.id)= variant.name
+          else
+            .detail
+              label Availability:
+              span Pre-order
+          .purchase
+            button Add to Cart
+      //section.description
+        article
+          h1 SanDisk Cruzer Blade 32GB
+          p This is the best USB 2.0 on the market.
+          .detail
+            label Harga: 
+            span Rp. 125.000
+          .detail
+            label Garansi: 
+            span 1 bulan
+          .detail
+            label Varian: 
+            span Hitam
+          .detail
+            label Stock:
+            span 10 pcs
+          .detail
+            label Quantity:
+            select
+              option 1
+              option 2
+              option 3
+              option 4
+              option 5
+          .purchase
+            button Add to Cart

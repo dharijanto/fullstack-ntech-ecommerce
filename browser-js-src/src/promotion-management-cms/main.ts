@@ -52,7 +52,7 @@ $(document).ready(() => {
         { id: 'id', desc: 'ID', dataTable: true, input: 'text', disabled: true },
         { id: 'createdAt', desc: 'Date Created', dataTable: true, input: 'hidden', disabled: true },
         { id: 'updatedAt', desc: 'Date Updated', dataTable: true, input: 'hidden', disabled: true },
-        { id: 'imageFilename', desc: 'Image Filename', dataTable: true, input: 'text', disabled: false },
+        { id: 'imageFilename', desc: 'Image (645x275)', dataTable: true, input: 'text', disabled: false },
         { id: 'product.name', desc: 'Product Name', dataTable: true, input: 'text', disabled: true }
       ],
       conf: {

@@ -1,6 +1,11 @@
 import * as Sequelize from 'sequelize'
 
 export default function addTables (sequelize: Sequelize.Sequelize, models: Sequelize.Models) {
+  models.Image = sequelize.define('image', {
+    id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
+    filename: { type: sequelize.Sequelize.STRING, unique: true }
+  })
+
   models.Category = sequelize.define('category', {
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
     name: { type: Sequelize.STRING, unique: true, allowNull: false, validate: { len: [1, 255] } },
@@ -17,12 +22,14 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
     ]
   })
   models.SubCategory.belongsTo(models.Category)
+  models.SubCategory.belongsTo(models.Image, { targetKey: 'filename', foreignKey: 'imageFilename' })
+  models.Category.hasMany(models.SubCategory)
 
   models.Product = sequelize.define('product', {
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
     name: { type: Sequelize.STRING, allowNull: false },
     price: { type: Sequelize.INTEGER },
-    warranty: { type: Sequelize.INTEGER },
+    warranty: { type: Sequelize.STRING },
     description: { type: Sequelize.TEXT }
   }, {
     indexes: [
@@ -40,11 +47,7 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
     ]
   })
   models.Variant.belongsTo(models.Product)
-
-  models.Image = sequelize.define('image', {
-    id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
-    filename: { type: sequelize.Sequelize.STRING, unique: true }
-  })
+  models.Product.hasMany(models.Variant)
 
   models.ProductImage = sequelize.define('productImages', {
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
@@ -55,6 +58,7 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
     ]
   })
   models.ProductImage.belongsTo(models.Product)
+  models.Product.hasMany(models.ProductImage)
   models.ProductImage.belongsTo(models.Image, { targetKey: 'filename', foreignKey: 'imageFilename' })
 
   models.Supplier = sequelize.define('supplier', {
@@ -92,13 +96,22 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
 
   models.ShopStock = sequelize.define('shopStock', {
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
-    price: { type: Sequelize.INTEGER },
+    price: { type: Sequelize.INTEGER }, // purchase price, not sell price
     date: { type: Sequelize.DATE },
     quantity: { type: Sequelize.INTEGER }
   })
-
   models.ShopStock.belongsTo(models.Shop)
   models.ShopStock.belongsTo(models.Variant)
+  models.Variant.hasMany(models.ShopStock)
+
+  models.ShopProduct = sequelize.define('shopProduct', {
+    id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
+    price: { type: Sequelize.INTEGER }, // sell price. If unset, use product.price
+    preOrder: { type: Sequelize.BOOLEAN },
+    poLength: { type: Sequelize.INTEGER },
+    disable: { type: Sequelize.BOOLEAN, defaultValue: false } // when enabled, the item is not sold on the store
+  })
+  models.ShopProduct.belongsTo(models.Product)
 
   models.Promotion = sequelize.define('promotion', {
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true }
@@ -109,7 +122,8 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
 
   models.Transaction = sequelize.define('transaction', {
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
-    quantity: { type: Sequelize.INTEGER }
+    quantity: { type: Sequelize.INTEGER },
+    price: { type: Sequelize.INTEGER }
   })
 
   models.Transaction.belongsTo(models.Variant)

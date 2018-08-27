@@ -57,7 +57,7 @@ class ShopService extends CRUDService {
     })
   }
 
-  getPromotion (shopId) {
+  getPromotion (shopId): Promise<NCResponse<Promotion[]>> {
     return this.getModels('Promotion').findAll({
       where: { shopId },
       include: [

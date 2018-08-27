@@ -3,6 +3,8 @@ import BaseController from './base-controller'
 import ProductService from '../../services/product-service'
 import { ImageService } from '../../site-definitions'
 
+import * as Utils from '../../libs/utils'
+
 import AppConfig from '../../app-config'
 
 let log = require('npmlog')
@@ -14,7 +16,7 @@ export default class ProductManagementController extends BaseController {
   constructor (initData) {
     super(initData, false)
     this.imageService = new initData.services.ImageService(initData.db.sequelize, initData.db.models)
-    this.imageURLFormatter = filename => `${AppConfig.BASE_URL}${AppConfig.IMAGE_MOUNT_PATH}${filename}`
+    this.imageURLFormatter = Utils.getImageURL// filename => `${AppConfig.BASE_URL}${AppConfig.IMAGE_MOUNT_PATH}${filename}`
 
     // Product-Management
     super.routePost('/category', (req, res, next) => {
@@ -155,8 +157,8 @@ export default class ProductManagementController extends BaseController {
     })
 
     super.routePost('/product/image/edit', (req, res, next) => {
-      const productId = req.query.productId
-      ProductService.update<ProductImage>('ProductImage', req.body, { productId }).then(resp => {
+      const id = req.body.id
+      ProductService.update<ProductImage>('ProductImage', req.body, { id }).then(resp => {
         res.json(resp)
       }).catch(next)
     })

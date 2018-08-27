@@ -3,31 +3,42 @@ extend layout/base
 block content
   header
     h1
-      | Nusantara Gizmo - Solusi Aksesoris Elektronik
-    p
-      | Etiam quis viverra lorem, in semper lorem. Sed nisl arcu euismod sit amet nisi euismod sed cursus arcu elementum ipsum arcu vivamus quis venenatis orci lorem ipsum et magna feugiat veroeros aliquam. Lorem ipsum dolor sit amet nullam dolore.
+      | Nusantara Gizmo - Solusi Gadget & Elektronik Anda
 
-    section.promotion
+    section.promotion.with-header
       h2 Produk Unggulan
       section.tiles
-        article.style1
+        each promotion in promotions
+          article
+            span.image
+              img(src=`${getImageURL(promotion.imageFilename)}`)
+            a(href="")
+              .content
+                p
+                  =promotion.product.name
+                  br
+                  =formatPrice(promotion.product.price)
+        // article.style1
           span.image
             img(src="assets/images/promotion1.jpg" alt="")
           a(href="generic.html")
             h2 Magna
             .content
               p Sed nisl arcu euismod sit amet nisi lorem etiam dolor veroeros et feugiat.
-        article.style2
-          span.image
-            img(src="assets/images/promotion1.jpg" alt="")
-          a(href="generic.html")
-            h2 Lorem
-            .content
-              p Sed nisl arcu euismod sit amet nisi lorem etiam dolor veroeros et feugiat.
 
-    section.small-promotion
+    section.small-promotion.with-header
       section.tiles
-        article.small-promotion
+        each smallPromotion in smallPromotions
+            article
+              span.image
+                img(src=`${getImageURL(smallPromotion.imageFilename)}`)
+              a(href="")
+                .content
+                  p
+                    =smallPromotion.product.name
+                    br
+                    =formatPrice(smallPromotion.product.price)
+        // article.small-promotion
           span.image
             img(src="assets/images/promotion1.jpg" alt="")
           a(href="generic.html")
@@ -35,118 +46,59 @@ block content
             .content
               p Sed nisl arcu euismod sit amet nisi lorem etiam dolor veroeros et feugiat.
 
-        article
-          span.image
-            img(src="assets/images/promotion1.jpg" alt="")
-          a(href="generic.html")
-            h2 Magna
-            .content
-              p Sed nisl arcu euismod sit amet nisi lorem etiam dolor veroeros et feugiat.
-
-        article
-          span.image
-            img(src="assets/images/promotion1.jpg" alt="")
-          a(href="generic.html")
-            h2 Magna
-            .content
-              p Sed nisl arcu euismod sit amet nisi lorem etiam dolor veroeros et feugiat.
-
-        article
-          span.image
-            img(src="assets/images/promotion1.jpg" alt="")
-          a(href="generic.html")
-            h2 Magna
-            .content
-              p Sed nisl arcu euismod sit amet nisi lorem etiam dolor veroeros et feugiat.
-
-  section.category
+  section.with-header
     h2 Kategori
     section.tiles
-      article.style1
+      for category in categories
+        // h3= category.name
+        for subCategory in category.subCategories
+          article.style2
+            span.image
+              img(src=`${getImageURL(subCategory.imageFilename)}` alt="")
+            a(href="generic.html")
+              h2= subCategory.name
+              .content
+                p= category.name
+      // article.style1
         span.image
           img(src="assets/images/pic01.jpg" alt="")
         a(href="generic.html")
           h2 Magna
           .content
             p Sed nisl arcu euismod sit amet nisi lorem etiam dolor veroeros et feugiat.
-      article.style2
-        span.image
-          img(src="assets/images/pic02.jpg" alt="")
-        a(href="generic.html")
-          h2 Lorem
-          .content
-            p Sed nisl arcu euismod sit amet nisi lorem etiam dolor veroeros et feugiat.
-      article.style3
-        span.image
-          img(src="assets/images/pic03.jpg" alt="")
-        a(href="generic.html")
-          h2 Feugiat
-          .content
-            p Sed nisl arcu euismod sit amet nisi lorem etiam dolor veroeros et feugiat.
-      article.style4
-        span.image
-          img(src="assets/images/pic04.jpg" alt="")
-        a(href="generic.html")
-          h2 Tempus
-          .content
-            p Sed nisl arcu euismod sit amet nisi lorem etiam dolor veroeros et feugiat.
-
-  section.category
+  section.with-header
     h2 Produk
-    section
-      article.style5
+    section.tiles
+      each product in products
+        article.product
+          span.image
+            img(src=`${getImageURL(product.productImages[0].imageFilename)}` alt="")
+          a(href=`${getProductURL(product)}`)
+            .content
+              p Sed nisl arcu euismod sit amet nisi lorem etiam dolor veroeros et feugiat.
+              .availability
+          section.product-information
+            h2
+              = product.name
+              br
+              = formatPrice(product.price)
+      //article(style='border: 1px')
         span.image
-          img(src="assets/images/pic05.jpg" alt="")
+          img(src="http://ntech.nusantara-local.com/images/1532660195494_3.png" alt="")
         a(href="generic.html")
-          h2 Aliquam
           .content
             p Sed nisl arcu euismod sit amet nisi lorem etiam dolor veroeros et feugiat.
-      article.style6
+            .availability
+              | Availability: PO
+        section.product-information
+          h2
+            | Logitech M235
+            br
+            | Rp. 120.000
+      //article.style6
         span.image
           img(src="assets/images/pic06.jpg" alt="")
         a(href="generic.html")
           h2 Veroeros
-          .content
-            p Sed nisl arcu euismod sit amet nisi lorem etiam dolor veroeros et feugiat.
-      article.style2
-        span.image
-          img(src="assets/images/pic07.jpg" alt="")
-        a(href="generic.html")
-          h2 Ipsum
-          .content
-            p Sed nisl arcu euismod sit amet nisi lorem etiam dolor veroeros et feugiat.
-      article.style3
-        span.image
-          img(src="assets/images/pic08.jpg" alt="")
-        a(href="generic.html")
-          h2 Dolor
-          .content
-            p Sed nisl arcu euismod sit amet nisi lorem etiam dolor veroeros et feugiat.
-      article.style1
-        span.image
-          img(src="assets/images/pic09.jpg" alt="")
-        a(href="generic.html")
-          h2 Nullam
-          .content
-            p Sed nisl arcu euismod sit amet nisi lorem etiam dolor veroeros et feugiat.
-      article.style5
-        span.image
-          img(src="assets/images/pic10.jpg" alt="")
-        a(href="generic.html")
-          h2 Ultricies
-          .content
-            p Sed nisl arcu euismod sit amet nisi lorem etiam dolor veroeros et feugiat.
-      article.style6
-        span.image
-          img(src="assets/images/pic11.jpg" alt="")
-        a(href="generic.html")
-          h2 Dictum
-          .content
-            p Sed nisl arcu euismod sit amet nisi lorem etiam dolor veroeros et feugiat.
-      article.style4
-        span.image
-          img(src="assets/images/pic12.jpg" alt="")
-        a(href="generic.html")
-          h2 Pretium
           .content
             p Sed nisl arcu euismod sit amet nisi lorem etiam dolor veroeros et feugiat.

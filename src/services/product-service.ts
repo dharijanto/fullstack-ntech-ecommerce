@@ -3,6 +3,24 @@ import { Model } from 'sequelize'
 import * as Promise from 'bluebird'
 
 class ProductService extends CRUDService {
+  // Get all products with only their primary image
+  getProductsWithPrimaryImage (): Promise<NCResponse<Product[]>> {
+    return super.getModels('Product').findAll<Product>({
+      include: [
+        {
+          model: super.getModels('ProductImage'),
+          where: { primary: true }
+        },
+        {
+          model: super.getModels('SubCategory'),
+          include: [{ model: super.getModels('Category') }]
+        }
+      ]
+    }).then(readData => {
+      return { status: true, data: readData.map(data => data.get({ plain: true })) }
+    })
+  }
+
   createCategory (data: Partial<Category>) {
     return super.create('Category', data)
   }
@@ -11,8 +29,21 @@ class ProductService extends CRUDService {
     return super.readOne<Category>('Category', searchClause)
   }
 
-  getCategories (searchClause: Partial<Category> = {}) {
-    return super.read<Category>('Category', searchClause)
+  getCategories (searchClause: Partial<Category> = {}, includeSubCategories: boolean = false): Promise<NCResponse<Category[]>> {
+    if (includeSubCategories) {
+      return this.getModels('Category').findAll<Category>({
+        include: [
+          {
+            model: this.getModels('SubCategory')
+          }
+        ],
+        where: searchClause
+      }).then(readData => {
+        return { status: true, data: readData.map(data => data.get({ plain: true })) }
+      })
+    } else {
+      return super.read<Category>('Category', searchClause)
+    }
   }
 
   updateCategory (id: number, data: Partial<Category>) {

@@ -5,6 +5,19 @@ interface NCResponse<T> {
   errCode?: number
 }
 
+/* interface NCResponseSuccess<T> {
+  status: true
+  data: T
+}
+
+interface NCResponseFailed {
+  status: false
+  errMessage: string
+  errCode?: number
+}
+
+type NCResponse<T> = NCResponseSuccess<T> | NCResponseFailed */
+
 interface BaseModel {
   id: number,
   createdAt: string,
@@ -18,14 +31,18 @@ interface Category extends BaseModel {
 
 interface SubCategory extends BaseModel {
   name: string
-  description: string,
+  description: string
   categoryId: number
+  category?: Category
+  imageFilename: string
 }
 
 interface Product extends BaseModel {
   name: string
-  price: number,
+  price: number
+  warranty: string
   description: string
+  subCategory?: SubCategory
   subCategoryId: number
 }
 

@@ -1,8 +1,11 @@
 import * as $ from 'jquery'
 import 'nc-input-library'
+import 'nc-image-picker'
 /* import * as toastr from 'toastr' */
 import * as toastr from 'toastr'
 import * as _ from 'lodash'
+
+import axios from '../libs/axios-wrapper'
 
 console.log(_.random(true))
 const ncCategory = $('#category').NCInputLibrary({
@@ -46,7 +49,8 @@ const ncSubCategory = $('#sub-category').NCInputLibrary({
       { id: 'createdAt', desc: 'Date Created', dataTable: true, input: 'text', disabled: true },
       { id: 'updatedAt', desc: 'Date Updated', dataTable: true, input: 'text', disabled: true },
       { id: 'name', desc: 'Name', dataTable: true, input: 'text' },
-      { id: 'description', desc: 'Description', dataTable: true, input: 'text' }
+      { id: 'description', desc: 'Description', dataTable: true, input: 'text' },
+      { id: 'imageFilename', desc: 'Image (400 x 400)', dataTable: true, input: 'text', disabled: false }
     ],
     conf: {
       order: [['updatedAt', 'desc']],
@@ -77,7 +81,8 @@ const ncProduct = $('#product').NCInputLibrary({
       { id: 'createdAt', desc: 'Date Created', dataTable: true, input: 'text', disabled: true },
       { id: 'updatedAt', desc: 'Date Updated', dataTable: true, input: 'text', disabled: true },
       { id: 'name', desc: 'Name', dataTable: true, input: 'text' },
-      { id: 'price', desc: 'Price', dataTable: true, input: 'text' }
+      { id: 'price', desc: 'Price', dataTable: true, input: 'text' },
+      { id: 'warranty', desc: 'Garansi', dataTable: true, input: 'text' }
     ],
     conf: {
       order: [['updatedAt', 'desc']],
@@ -140,6 +145,7 @@ let selectedSubCategory: Category
 function onSubCategoryClicked (data: SubCategory) {
   selectedSubCategory = data
   ncProduct.reloadTable(true)
+  setImagePreview(data.imageFilename)
   console.log('Selected category=' + JSON.stringify(selectedCategory))
 }
 
@@ -154,3 +160,31 @@ function onProductClicked (data: Product) {
   selectedProduct = data
   ncVariant.reloadTable(true)
 }
+
+const imagePreview = $(`<img class="img-responsive" style="max-width: 200px; padding: 15px">`)
+ncSubCategory.setFirstCustomView(imagePreview)
+
+function setImagePreview (filename) {
+  axios.post(`/${window['siteHash']}/image/get-url`, { filename: filename }).then(resp => {
+    console.dir(resp)
+    if (resp.status) {
+      imagePreview.attr('src', resp.data.data)
+    } else {
+      toastr.error('Failed to retrieve image URL')
+    }
+  }).catch(err => {
+    console.error(err)
+    toastr.error('Unexpected error!')
+  })
+}
+
+$('input[name="imageFilename"]').NCImagePicker({
+  callbackFn: (imageUrl, imageFilename) => {
+    toastr.info('Image Selected!')
+    setImagePreview(imageFilename)
+    $('input[name="imageFilename"]').val(imageFilename)
+  },
+  getURL: `/${window['siteHash']}/images`,
+  postURL: `/${window['siteHash']}/image`,
+  deleteURL: `/${window['siteHash']}/image/delete`
+})

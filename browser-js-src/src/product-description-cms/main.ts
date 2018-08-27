@@ -14,7 +14,8 @@ $(document).ready(() => {
     table: {
       ui: [
         { id: 'id', desc: 'ID', dataTable: true, input: 'text', disabled: true },
-        { id: 'imageFilename', desc: 'Image Filename', dataTable: true, input: 'text', disabled: false },
+        { id: 'imageFilename', desc: 'Image (800 x 800)', dataTable: true, input: 'text', disabled: false },
+        { id: 'primary', desc: 'Primary Image', dataTable: true, input: 'select', selectData: () => ['1', '0'] , disabled: false },
         { id: 'createdAt', desc: 'Date Created', dataTable: true, input: 'text', disabled: true },
         { id: 'updatedAt', desc: 'Date Updated', dataTable: true, input: 'text', disabled: true }
       ],
@@ -95,6 +96,7 @@ $(document).ready(() => {
   $('input[name="imageFilename"]').NCImagePicker({
     callbackFn: (imageUrl, imageFilename) => {
       toastr.info('Image Selected!')
+      setImagePreview(imageFilename)
       $('input[name="imageFilename"]').val(imageFilename)
     },
     getURL: `/${window['siteHash']}/images`,

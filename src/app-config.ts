@@ -1,7 +1,7 @@
 import * as path from 'path'
 
 const LOCAL_SHOP_INFORMATION = {
-  NAME: '' // This should be the same as shop.name
+  NAME: 'Nusantara Gizmo 1' // This should be the same as shop.name
 }
 
 export default {

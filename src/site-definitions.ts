@@ -63,6 +63,7 @@ export interface SiteData {
   socketIO: SocketIO,
   db: Database,
   viewPath: string,
+  baseDir?: string,
   assetPath?: string,
   services: Services
 }
@@ -174,6 +175,8 @@ export abstract class CMSController {
       this.subRouter = this.router
     }
     this.subRouter.locals.rootifyPath = this.rootifyPath.bind(this)
+    // Used for pug path that starts with /
+    this.subRouter.locals.basedir = siteData.baseDir
     this.viewPath = siteData.viewPath
     this.assetsPath = siteData.assetPath || path.join(this.viewPath, '/assets')
     this.subRouter.use('/assets', express.static(this.assetsPath))

@@ -4,6 +4,7 @@ import ShopManagementController from './controllers/shop-management-controller'
 import SupplierManagementController from './controllers/supplier-management-controller'
 
 import { SiteData, ImageService } from '../site-definitions'
+import * as Utils from '../libs/utils'
 
 import AppConfig from '../app-config'
 
@@ -23,6 +24,11 @@ class MainController extends BaseController {
       log.verbose(TAG, 'req.path=' + req.path)
       res.locals.siteHash = this.siteHash
       next()
+    })
+
+    this.routePost('/image/get-url', (req, res, next) => {
+      const filename = req.body.filename
+      res.json({ status: true, data: Utils.getImageURL(filename) })
     })
 
     super.routeGet('/images', (req, res, next) => {
