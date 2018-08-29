@@ -1,3 +1,9 @@
+declare enum OrderStatus {
+  Open = 'Open',
+  Close = 'Close',
+  PendingPO = 'Pending PO'
+}
+
 interface NCResponse<T> {
   status: boolean,
   data?: T,
@@ -18,6 +24,15 @@ interface NCResponseFailed {
 
 type NCResponse<T> = NCResponseSuccess<T> | NCResponseFailed */
 
+/*
+-------------------------------------------------------------------------------
+Sequelize Model. Should not add anything else other than what could come from:
+1. Single table query
+2. Join query
+
+For anything else, please define a new interface!
+-------------------------------------------------------------------------------
+*/
 interface BaseModel {
   id: number,
   createdAt: string,
@@ -42,14 +57,20 @@ interface Product extends BaseModel {
   price: number
   warranty: string
   description: string
-  subCategory?: SubCategory
   subCategoryId: number
+  subCategory?: SubCategory
+  variants?: Variant[]
+  productImages?: ProductImage[]
+  shopProducts?: ShopProduct[]
 }
 
 interface Variant extends BaseModel {
   name: string
   productId: number,
-  product?: Product
+  product?: Product,
+  supplierStocks?: SupplierStock[]
+  shopStocks?: ShopStock[]
+  orderDetails?: OrderDetail[]
 }
 
 interface ProductImage extends BaseModel {
@@ -98,6 +119,15 @@ interface ShopStock extends BaseModel {
   variant?: Variant
 }
 
+interface ShopProduct extends BaseModel {
+  price: number
+  preOrder: boolean
+  poLength: number
+  disable: boolean
+  productId: number
+  shopId: number
+}
+
 interface Supplier extends BaseModel {
   name: string,
   location: string,
@@ -122,3 +152,14 @@ interface Promotion extends BaseModel {
   productId: number
   imageFilename: string
 }
+
+interface OrderDetail extends BaseModel {
+  quantity: number
+  price: number
+  po: boolean
+}
+
+/*
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+*/

@@ -4,7 +4,9 @@ import { Model } from 'sequelize'
 import * as Promise from 'bluebird'
 
 import AppConfig from '../app-config'
-
+/*
+  Used for shop-specific code. This should re-use what's in shop-service as much as possible, though.
+ */
 class LocalShopService extends CRUDService {
   private localShopId: number = -1
 
@@ -35,10 +37,22 @@ class LocalShopService extends CRUDService {
     }
   }
 
+  getProductsWithPrimaryImage () {
+    return ShopService.getProducts(this.localShopId, true).then(resp => {
+      if (!resp.status) {
+        return resp
+      } else if (resp.status && resp.data) {
+        return { status: true, data: resp.data.filter(product => product.disable) }
+      } else {
+        return { status: false, errMessage: 'Data is expected but not found!' }
+      }
+    })
+  }
 
   // Get all products with all images
-  getProductWithAllImages (searchClause): Promise<NCResponse<Product[]>> {
-    return super.getModels('Product').findAll<Product>({
+  getProductWithAllImages (productSearchClause): Promise<NCResponse<Product[]>> {
+    return ShopService.getProducts(this.localShopId, false, productSearchClause)
+    /* return super.getModels('Product').findAll<Product>({
       where: searchClause,
       include: [
         {
@@ -62,7 +76,7 @@ class LocalShopService extends CRUDService {
       ]//, order: ['product.productImages.primary']
     }).then(readData => {
       return { status: true, data: readData.map(data => data.get({ plain: true })) }
-    })
+    }) */
   }
 }
 export default new LocalShopService()

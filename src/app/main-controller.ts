@@ -8,6 +8,7 @@ import LocalShopService from '../services/local-shop-service'
 import SequelizeService from '../services/sequelize-service'
 import { SiteData } from '../site-definitions'
 import * as Utils from '../libs/utils'
+import shopService from '../services/shop-service';
 
 const path = require('path')
 
@@ -43,17 +44,11 @@ class Controller extends BaseController {
           next()
         })
 
-        this.routeGet('/test', (req, res, next) => {
-          ProductService.getProductsWithPrimaryImage().then(resp => {
-            res.json(resp)
-          })
-        })
-
         this.routeGet('/', (req, res, next) => {
           Promise.join<NCResponse<any[]>>(
             LocalShopService.getPromotion(),
             ProductService.getCategories({}, true),
-            ProductService.getProductsWithPrimaryImage()
+            LocalShopService.getProductsWithPrimaryImage()
           ).spread((resp: NCResponse<Promotion[]>, resp2: NCResponse<Category[]>, resp3: NCResponse<Product[]>) => {
             if (resp.status && resp.data &&
                 resp2.status && resp2.data &&
@@ -65,7 +60,7 @@ class Controller extends BaseController {
               res.locals.products = resp3.data
               res.render('home')
             } else {
-              res.status(500).send('Failed to retrieve promotion: ' + resp.errMessage)
+              next('Failed to retrieve some information: ' + resp.errMessage || resp2.errMessage || resp3.errMessage)
             }
           }).catch(next)
         })

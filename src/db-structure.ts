@@ -84,6 +84,7 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
 
   models.SupplierStock.belongsTo(models.Supplier)
   models.SupplierStock.belongsTo(models.Variant)
+  models.Variant.hasMany(models.SupplierStock)
 
   models.Shop = sequelize.define('shop', {
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
@@ -112,6 +113,8 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
     disable: { type: Sequelize.BOOLEAN, defaultValue: false } // when enabled, the item is not sold on the store
   })
   models.ShopProduct.belongsTo(models.Product)
+  models.ShopProduct.belongsTo(models.Shop)
+  models.Product.hasMany(models.ShopProduct)
 
   models.Promotion = sequelize.define('promotion', {
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true }
@@ -120,13 +123,23 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
   models.Promotion.belongsTo(models.Product)
   models.Promotion.belongsTo(models.Image, { targetKey: 'filename', foreignKey: 'imageFilename' })
 
-  models.Transaction = sequelize.define('transaction', {
+  models.Order = sequelize.define('order', {
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
-    quantity: { type: Sequelize.INTEGER },
-    price: { type: Sequelize.INTEGER }
+    status: { type: Sequelize.ENUM(['Open', 'Close', 'Pending PO']) }
+  }, {
+    paranoid: true
   })
 
-  models.Transaction.belongsTo(models.Variant)
+  models.OrderDetail = sequelize.define('orderDetail', {
+    id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
+    quantity: { type: Sequelize.INTEGER, allowNull: false },
+    price: { type: Sequelize.INTEGER, allowNull: false },
+    po: { type: Sequelize.BOOLEAN, allowNull: false }
+  })
+
+  models.OrderDetail.belongsTo(models.Variant)
+  models.OrderDetail.belongsTo(models.Order)
+  models.Variant.hasMany(models.OrderDetail)
 
   return models
 }

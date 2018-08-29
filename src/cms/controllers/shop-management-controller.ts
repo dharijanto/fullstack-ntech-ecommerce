@@ -5,6 +5,7 @@ import { ImageService } from '../../site-definitions'
 
 import AppConfig from '../../app-config'
 import ShopService from '../../services/shop-service'
+import LocalShopService from '../../services/local-shop-service'
 
 let log = require('npmlog')
 
@@ -54,9 +55,6 @@ export default class ShopManagementController extends BaseController {
       }
     })
 
-    super.routePost('/promotion/delete', (req, res, next) => {
-    })
-
     super.routeGet('/shops', (req, res, next) => {
       ShopService.read<Shop>('Shop', {}).then(resp => {
         res.json(resp)
@@ -75,10 +73,36 @@ export default class ShopManagementController extends BaseController {
       ShopService.delete<Shop>('Shop', { id: req.body.id }).then(res.json.bind(res)).catch(next)
     })
 
+    super.routeGet('/products', (req, res, next) => {
+      const shopId = req.query.shopId
+      if (shopId) {
+        ShopService.getProducts(shopId).then(res.json.bind(res)).catch(next)
+      } else {
+        res.json({ status: false, errMessage: 'shopId is required!' })
+      }
+    })
+
+    super.routePost('/product/edit', (req, res, next) => {
+      const shopId = req.query.shopId
+      const productId = req.body.id
+      const data = {
+        price: req.body['price'],
+        preOrder: req.body['preOrder'],
+        poLength: req.body['poLength'],
+        disable: req.body['disable']
+      }
+
+      if (shopId) {
+        ShopService.updateProduct(shopId, productId, data).then(res.json.bind(res)).catch(next)
+      } else {
+        res.json({ status: false, errMessage: 'shopId is required!' })
+      }
+    })
+
     super.routeGet('/shop-stocks', (req, res, next) => {
       const shopId = req.query.shopId
       if (!shopId) {
-        res.send({ status: false, errMessage: 'shopId is required' })
+        res.json({ status: false, errMessage: 'shopId is required' })
       } else {
         ShopService.getShopStock(shopId).then(res.json.bind(res)).catch(next)
       }
