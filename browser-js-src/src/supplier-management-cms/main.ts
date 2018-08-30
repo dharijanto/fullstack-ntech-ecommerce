@@ -125,7 +125,7 @@ $(document).ready(() => {
         { id: 'variant.product.name', desc: 'Product Name', dataTable: true, input: 'text', disabled: true },
         { id: 'variant.name', desc: 'Variant', dataTable: true, input: 'text', disabled: true },
         { id: 'price', desc: 'Supplier Price', dataTable: true, input: 'text' },
-        { id: 'date', desc: 'Date', dataTable: true, input: 'date' }
+        { id: 'date', desc: 'Date', dataTable: true, input: 'date', data: { dateFormat: 'YYYY-MM-DD' } }
       ],
       conf: {
         order: [['updatedAt', 'desc']],

@@ -86,10 +86,10 @@ export default class ShopManagementController extends BaseController {
       const shopId = req.query.shopId
       const productId = req.body.id
       const data = {
-        price: req.body['price'],
-        preOrder: req.body['preOrder'],
-        poLength: req.body['poLength'],
-        disable: req.body['disable']
+        price: req.body['shopPrice'],
+        preOrderAllowed: req.body['preOrderAllowed'],
+        preOrderDuration: req.body['preOrderDuration'],
+        disabled: req.body['disabled']
       }
 
       if (shopId) {
@@ -99,12 +99,23 @@ export default class ShopManagementController extends BaseController {
       }
     })
 
+    super.routeGet('/variants', (req, res, next) => {
+      const shopId = req.query.shopId
+      const productId = req.query.productId
+      if (shopId) {
+        ShopService.getVariants(shopId, productId).then(res.json.bind(res)).catch(next)
+      } else {
+        res.json({ status: false, errMessage: 'shopId is required!' })
+      }
+    })
+
     super.routeGet('/shop-stocks', (req, res, next) => {
       const shopId = req.query.shopId
+      const variantId = req.query.variantId
       if (!shopId) {
         res.json({ status: false, errMessage: 'shopId is required' })
       } else {
-        ShopService.getShopStock(shopId).then(res.json.bind(res)).catch(next)
+        ShopService.getShopStock({ shopId, variantId }).then(res.json.bind(res)).catch(next)
       }
     })
 

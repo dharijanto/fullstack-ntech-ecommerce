@@ -19,13 +19,13 @@ $(document).ready(() => {
     table: {
       ui: [
         { id: 'id', desc: 'ID', dataTable: true, input: 'text', disabled: true },
-        { id: 'createdAt', desc: 'Date Created', dataTable: true, input: 'text', disabled: true },
-        { id: 'updatedAt', desc: 'Date Updated', dataTable: true, input: 'text', disabled: true },
         { id: 'name', desc: 'Name', dataTable: true, input: 'text', disabled: false },
         { id: 'city', desc: 'City', dataTable: true, input: 'text', disabled: false },
         { id: 'location', desc: 'Location', dataTable: true, input: 'text', disabled: false },
         { id: 'address', desc: 'Address', dataTable: true, input: 'text', disabled: false },
-        { id: 'zipCode', desc: 'Zip Code', dataTable: true, input: 'text', disabled: false }
+        { id: 'zipCode', desc: 'Zip Code', dataTable: true, input: 'text', disabled: false },
+        { id: 'createdAt', desc: 'Date Created', dataTable: true, input: 'text', disabled: true },
+        { id: 'updatedAt', desc: 'Date Updated', dataTable: true, input: 'text', disabled: true }
       ],
       conf: {
         order: [['updatedAt', 'desc']],
@@ -33,7 +33,7 @@ $(document).ready(() => {
         numColumn: 3,
         onRowClicked: (data: Shop) => {
           shop = data
-          ncShopStock.reloadTable()
+          ncProduct.reloadTable()
         }
       }
     },
@@ -49,6 +49,25 @@ $(document).ready(() => {
     }
   })
 
+  /*
+interface ShopifiedProduct {
+  id: number,
+  name: string,
+  description: string,
+  warranty: string,
+  defaultPrice: number,
+  // The following can be null as they come from LEFT OUTER JOIN between Product and
+  // respective table. This is intentional because we want to be able to manage
+  // them in CMS
+  shopId?: number,
+  stockQuantity?: number,
+  supplierCount?: number,
+  shopPrice?: number,
+  preOrderAllowed?: boolean,
+  preOrderDuration?: number,
+  disabled?: boolean
+}
+  */
   const ncProduct = $('#product').NCInputLibrary({
     design: {
       title: 'Products'
@@ -56,14 +75,20 @@ $(document).ready(() => {
     table: {
       ui: [
         { id: 'id', desc: 'ID', dataTable: true, input: 'hidden', disabled: true },
-        { id: 'createdAt', desc: 'Date Created', dataTable: true, input: 'hidden', disabled: true },
-        { id: 'updatedAt', desc: 'Date Updated', dataTable: true, input: 'hidden', disabled: true },
         { id: 'name', desc: 'Name', dataTable: true, input: 'hidden' },
-        { id: 'price', desc: 'Price', dataTable: true, input: 'hidden' }
+        { id: 'disabled', desc: 'Disabled', dataTable: true, input: 'select', selectData: () => ['true', 'false'] },
+        { id: 'defaultPrice', desc: 'Default Price', dataTable: true, input: 'hidden' },
+        { id: 'shopPrice', desc: 'Shop Price', dataTable: true, input: 'text' },
+        { id: 'preOrderAllowed', desc: 'PO Allowed', dataTable: true, input: 'select', selectData: () => ['true', 'false'] },
+        { id: 'preOrderDuration', desc: 'PO Duration (days) ', dataTable: true, input: 'text' },
+        { id: 'supplierCount', desc: '# Suppliers', dataTable: true, input: 'hidden' },
+        { id: 'stockQuantity', desc: '# Stocks', dataTable: true, input: 'hidden' },
+        { id: 'createdAt', desc: 'Date Created', dataTable: true, input: 'hidden', disabled: true },
+        { id: 'updatedAt', desc: 'Date Updated', dataTable: true, input: 'hidden', disabled: true }
       ],
       conf: {
         order: [['updatedAt', 'desc']],
-        getURL: `/${window['siteHash']}/product-management/products` ,
+        getURL: () => `/${window['siteHash']}/shop-management/products?shopId=${shop.id}` ,
         numColumn: 3,
         onRowClicked: (data: Product) => {
           product = data
@@ -72,7 +97,9 @@ $(document).ready(() => {
       }
     },
     buttons: {
-      ui: [],
+      ui: [
+        { id: 'edit', desc: 'Edit', postTo: () => `/${window['siteHash']}/shop-management/product/edit?shopId=${shop.id}` }
+      ],
       conf: {
         networkTimeout: 2000 // timeout for postTo request
       }
@@ -90,16 +117,17 @@ $(document).ready(() => {
     table: {
       ui: [
         { id: 'id', desc: 'ID', dataTable: true, input: 'hidden', disabled: true },
-        { id: 'createdAt', desc: 'Date Created', dataTable: true, input: 'hidden', disabled: true },
-        { id: 'updatedAt', desc: 'Date Updated', dataTable: true, input: 'hidden', disabled: true },
-        { id: 'name', desc: 'Name', dataTable: true, input: 'hidden' }
+        { id: 'name', desc: 'Name', dataTable: true, input: 'hidden' },
+        { id: 'supplierCount', desc: '# Suppliers', dataTable: true, input: 'hidden' },
+        { id: 'stockQuantity', desc: '# Stocks', dataTable: true, input: 'hidden' }
       ],
       conf: {
-        order: [['updatedAt', 'desc']],
-        getURL: () => `/${window['siteHash']}/product-management/variants?productId=${product.id}`,
+        order: [['name', 'asc']],
+        getURL: () => `/${window['siteHash']}/shop-management/variants?shopId=${shop.id}&productId=${product.id}`,
         numColumn: 3,
         onRowClicked: (data: Variant) => {
           variant = data
+          ncShopStock.reloadTable()
         }
       }
     },
@@ -118,17 +146,17 @@ $(document).ready(() => {
     table: {
       ui: [
         { id: 'id', desc: 'ID', dataTable: true, input: 'text', disabled: true },
-        { id: 'createdAt', desc: 'Date Created', dataTable: true, input: 'hidden', disabled: true },
-        { id: 'updatedAt', desc: 'Date Updated', dataTable: true, input: 'hidden', disabled: true },
-        { id: 'variant.product.name', desc: 'Product Name', dataTable: true, input: 'text', disabled: true },
-        { id: 'variant.name', desc: 'Variant', dataTable: true, input: 'text', disabled: true },
+        { id: 'variant.product.name', desc: 'Product Name', dataTable: true, input: 'hidden', disabled: true },
+        { id: 'variant.name', desc: 'Variant', dataTable: true, input: 'hidden', disabled: true },
+        { id: 'date', desc: 'Date', dataTable: true, input: 'date', data: { dateFormat: 'YYYY-MM-DD' } },
         { id: 'price', desc: 'Purchase Price', dataTable: true, input: 'text' },
         { id: 'quantity', desc: 'Quantity', dataTable: true, input: 'text' },
-        { id: 'date', desc: 'Date', dataTable: true, input: 'date' }
+        { id: 'createdAt', desc: 'Date Created', dataTable: true, input: 'hidden', disabled: true },
+        { id: 'updatedAt', desc: 'Date Updated', dataTable: true, input: 'hidden', disabled: true }
       ],
       conf: {
         order: [['updatedAt', 'desc']],
-        getURL: () => `/${window['siteHash']}/shop-management/shop-stocks?shopId=${shop.id}` ,
+        getURL: () => `/${window['siteHash']}/shop-management/shop-stocks?shopId=${shop.id}&variantId=${variant.id}` ,
         numColumn: 3,
         onRowClicked: (data: ShopStock) => {
           shopStock = data
@@ -148,10 +176,13 @@ $(document).ready(() => {
       ],
       conf: {
         networkTimeout: 2000 // timeout for postTo request
+      },
+      onPostFinished: () => {
+        ncProduct.reloadTable()
+        ncVariant.reloadTable()
       }
     }
   })
 
   ncShop.reloadTable()
-  ncProduct.reloadTable()
 })

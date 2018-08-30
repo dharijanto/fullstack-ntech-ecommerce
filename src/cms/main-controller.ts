@@ -2,6 +2,7 @@ import BaseController from './controllers/base-controller'
 import ProductManagementController from './controllers/product-management-controller'
 import ShopManagementController from './controllers/shop-management-controller'
 import SupplierManagementController from './controllers/supplier-management-controller'
+import SQLViewService from '../services/sql-view-service'
 
 import { SiteData, ImageService } from '../site-definitions'
 import * as Utils from '../libs/utils'
@@ -52,6 +53,12 @@ class MainController extends BaseController {
     this.routeGet('/', (req, res, next) => {
       res.locals.renderSidebar = true
       res.render('product-management')
+    })
+
+    this.routeGet('/populate-views', (req, res, next) => {
+      SQLViewService.populateViews().then(resp => {
+        res.json(resp)
+      }).catch(next)
     })
 
     this.routeUse('/product-management', new ProductManagementController(initData).getRouter())

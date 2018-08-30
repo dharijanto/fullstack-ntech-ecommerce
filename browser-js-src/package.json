@@ -34,7 +34,7 @@
     "lodash": "^4.17.4",
     "marked": "^0.3.6",
     "nc-image-picker": "^1.1.1",
-    "nc-input-library": "^1.2.4",
+    "nc-input-library": "^1.4.0",
     "toastr": "^2.1.4",
     "tsify": "^4.0.0",
     "typescript": "^3.0.0-dev.20180630",

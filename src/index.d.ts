@@ -121,9 +121,9 @@ interface ShopStock extends BaseModel {
 
 interface ShopProduct extends BaseModel {
   price: number
-  preOrder: boolean
-  poLength: number
-  disable: boolean
+  preOrderAllowed: boolean
+  preOrderDuration: number
+  disabled: boolean
   productId: number
   shopId: number
 }
@@ -157,6 +157,80 @@ interface OrderDetail extends BaseModel {
   quantity: number
   price: number
   po: boolean
+}
+
+/*
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+*/
+
+/*
+-------------------------------------------------------------------------------
+Model that directly map to SQL views (created in services/sql-view-service.ts)
+For anything else, please define a new interface!
+-------------------------------------------------------------------------------
+*/
+
+interface ShopifiedProduct {
+  id: number,
+  name: string,
+  description: string,
+  warranty: string,
+  defaultPrice: number,
+  // The following can be null as they come from LEFT OUTER JOIN between Product and
+  // respective table. This is intentional because we want to be able to manage
+  // them in CMS
+  shopId?: number,
+  stockQuantity: number,
+  supplierCount: number,
+  shopPrice: number,
+  preOrderAllowed: boolean,
+  preOrderDuration: number,
+  disabled: boolean
+}
+
+interface ShopifiedVariant {
+  id: number,
+  productId: number,
+  name: string,
+  stockQuantity: number,
+  supplierCount: number
+}
+
+interface InStockProduct {
+  id: number,
+  shopId: number,
+  name: string,
+  description: string,
+  warranty: string,
+  price: number,
+  stockQuantity: number,
+  variants?: InStockVariant
+}
+
+interface InStockVariant {
+  id: number,
+  shopId: number,
+  productId: number,
+  name: string,
+  stock: number
+}
+
+interface POProduct {
+  id: number,
+  shopId: number,
+  name: string,
+  description: string,
+  warranty: string,
+  preOrderDuration: number
+  variants?: POVariant
+}
+
+interface POVariant {
+  id: number,
+  shopId: number
+  productId: number,
+  name: string
 }
 
 /*

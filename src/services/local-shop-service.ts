@@ -4,6 +4,11 @@ import { Model } from 'sequelize'
 import * as Promise from 'bluebird'
 
 import AppConfig from '../app-config'
+
+export interface LocalShopifiedProduct {
+
+}
+
 /*
   Used for shop-specific code. This should re-use what's in shop-service as much as possible, though.
  */

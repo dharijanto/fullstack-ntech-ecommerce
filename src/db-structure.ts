@@ -78,7 +78,7 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
     date: { type: Sequelize.DATE }
   }, {
     indexes: [
-      { fields: ['supplierId', 'variantId'] }
+      { fields: ['supplierId', 'variantId'], unique: true }
     ]
   })
 
@@ -108,9 +108,9 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
   models.ShopProduct = sequelize.define('shopProduct', {
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
     price: { type: Sequelize.INTEGER }, // sell price. If unset, use product.price
-    preOrder: { type: Sequelize.BOOLEAN },
-    poLength: { type: Sequelize.INTEGER },
-    disable: { type: Sequelize.BOOLEAN, defaultValue: false } // when enabled, the item is not sold on the store
+    preOrderAllowed: { type: Sequelize.BOOLEAN },
+    preOrderDuration: { type: Sequelize.INTEGER },
+    disabled: { type: Sequelize.BOOLEAN, defaultValue: false } // when enabled, the item is not sold on the store
   })
   models.ShopProduct.belongsTo(models.Product)
   models.ShopProduct.belongsTo(models.Shop)
@@ -135,6 +135,8 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
     quantity: { type: Sequelize.INTEGER, allowNull: false },
     price: { type: Sequelize.INTEGER, allowNull: false },
     po: { type: Sequelize.BOOLEAN, allowNull: false }
+  }, {
+    paranoid: true
   })
 
   models.OrderDetail.belongsTo(models.Variant)
