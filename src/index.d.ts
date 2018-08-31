@@ -192,6 +192,7 @@ interface ShopifiedProduct {
 interface ShopifiedVariant {
   id: number,
   productId: number,
+  shopId: number,
   name: string,
   stockQuantity: number,
   supplierCount: number
@@ -213,7 +214,7 @@ interface InStockVariant {
   shopId: number,
   productId: number,
   name: string,
-  stock: number
+  stockQuantity: number
 }
 
 interface POProduct {
@@ -222,6 +223,7 @@ interface POProduct {
   name: string,
   description: string,
   warranty: string,
+  price: number,
   preOrderDuration: number
   variants?: POVariant
 }

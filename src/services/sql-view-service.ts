@@ -4,6 +4,9 @@ import * as Promise from 'bluebird'
 
 import AppConfig from '../app-config'
 
+let log = require('npmlog')
+
+const TAG = 'SQLViewService'
 /*
   This is used by ShopManagement in the CMS.
   We have LocalShopService, this is specifically for shop-specific code.
@@ -17,7 +20,8 @@ class SQLViewService extends CRUDService {
     4. OrderDetail -> figure out how many of the physical stocks have been used up
     5. SupplierStock -> figure out how many suppliers available
   */
-  createShopifiedProductView () {
+  createShopifiedProductsView () {
+    log.info(TAG, 'createShopifiedProductsView()')
     return super.getSequelize().query(`
 CREATE VIEW shopifiedProductsView AS
 (SELECT products.id, products.name as name, products.description as description, products.warranty as warranty, products.price as defaultPrice,
@@ -47,7 +51,8 @@ LEFT OUTER JOIN shopProducts ON products.id = shopProducts.productId AND stockTa
     `)
   }
 
-  createShopifiedVariantView () {
+  createShopifiedVariantsView () {
+    log.info(TAG, 'createShopifiedVariantsView()')
     return super.getSequelize().query(`
 CREATE VIEW shopifiedVariantsView AS
 (SELECT variants.id as id, variants.productId as productId, variants.name as name,
@@ -70,29 +75,85 @@ ON variants.id = supplierStocksTable.variantId
     `)
   }
 
-  createInShopProductView () {
-
+  createInStockProductsView () {
+    log.info(TAG, 'createInStockProductsView()')
+    return super.getSequelize().query(`
+CREATE VIEW inStockProductsView AS
+(SELECT spView.id as id, spView.shopId as shopId, spView.name as name, spView.description as description,
+         spView.warranty as warranty, IFNULL(spView.shopPrice, spView.defaultPrice) as price, spView.stockQuantity as stockQuantity
+  FROM shopifiedProductsView as spView WHERE disabled = FALSE and stockQuantity > 0
+);`)
   }
 
-  createInShopVariantView () {
-
+  createInStockVariantsView () {
+    log.info(TAG, 'createInStockVariantsView()')
+    return super.getSequelize().query(`
+CREATE VIEW inStockVariantsView AS
+(
+SELECT svView.id as id, svView.shopId as shopId, svView.productId as productId,
+       svView.name as name, svView.stockQuantity as stockQuantity
+FROM shopifiedVariantsView as svView WHERE stockQuantity > 0
+);
+`)
   }
 
-  createPOProductView () {
-
+  createPOProductsView () {
+    log.info(TAG, 'createPOProductsView()')
+    return super.getSequelize().query(`
+CREATE VIEW poProductsView AS
+(
+SELECT spView.id as id, spView.shopId as shopId, spView.name as name, spView.description as description,
+        spView.warranty as warranty, IFNULL(spView.shopPrice, spView.defaultPrice) as price, spView.preOrderDuration as preOrderDurati\
+on
+FROM shopifiedProductsView as spView WHERE disabled = FALSE AND preOrderAllowed = TRUE AND supplierCount > 0
+);
+`)
   }
 
-  createPOVariantView () {
+  createPOVariantsView () {
+    log.info(TAG, 'createPOVariantsView()')
+    return super.getSequelize().query(`
+CREATE VIEW poVariantsView AS
+(
+SELECT svView.id as id, svView.shopId as shopId, svView.productId as productId,
+        svView.name as name, svView.supplierCount as supplierCount
+FROM shopifiedVariantsView as svView WHERE supplierCount > 0
+);`)
+  }
 
+  destroyViews () {
+    log.info(TAG, 'destroyViews()')
+
+    const views = ['shopifiedProductsView', 'shopifiedVariantsView',
+      'inStockProductsView', 'inStockVariantsView', 'poProductsView', 'poVariantsView']
+
+    return views.reduce((acc, view) => {
+      return acc.then(() => {
+        return
+      }).catch(err => {
+        log.info(TAG, err)
+      }).finally(() => {
+        return super.getSequelize().query(`DROP VIEW ${view};`)
+      })
+    }, Promise.resolve())
   }
 
   populateViews () {
-    const promises: Array<() => Promise<any>> = [this.createShopifiedProductView, this.createShopifiedVariantView]
-    return promises.reduce((acc, promise) => {
-      return acc.then(() => {
-        return promise()
-      })
-    }, Promise.resolve())
+    const promises: Array<() => Promise<any>> = [
+      this.createShopifiedProductsView,
+      this.createShopifiedVariantsView,
+      this.createInStockProductsView,
+      this.createInStockVariantsView,
+      this.createPOProductsView,
+      this.createPOVariantsView
+    ]
+    return this.destroyViews().then(result => {
+      return promises.reduce((acc, promise) => {
+        return acc.then(() => {
+          return promise()
+        })
+      }, Promise.resolve())
+    })
   }
 }
 
