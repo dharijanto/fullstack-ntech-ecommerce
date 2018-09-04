@@ -5,8 +5,8 @@ import * as Promise from 'bluebird'
 import AppConfig from '../app-config'
 
 /*
-  This is used by ShopManagement in the CMS.
-  We have LocalShopService, this is specifically for shop-specific code.
+  This is used to do shop management.
+  For example, to customize price for product
 */
 class ShopService extends CRUDService {
   /*

@@ -13,11 +13,20 @@ const DEFAULT_SHOP_PRODUCT_BEHAVIOR = {
   disabled: false // By default, all products are enabled
 }
 
+const DB = {
+  USERNAME: 'root',
+  PASSWORD: '',
+  HOST: 'localhost',
+  PORT: 3306,
+  DB_NAME: 'app_ntech'
+}
+
 export default {
   BASE_URL: 'http://ntech.nusantara-local.com',
   IMAGE_PATH: path.join(__dirname, '../images/'),
   IMAGE_MOUNT_PATH: '/images/',
   CLOUD_SERVER: false,
   LOCAL_SHOP_INFORMATION,
-  DEFAULT_SHOP_PRODUCT_BEHAVIOR
+  DEFAULT_SHOP_PRODUCT_BEHAVIOR,
+  DB
 }

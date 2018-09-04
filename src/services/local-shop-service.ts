@@ -14,7 +14,6 @@ export interface LocalShopifiedProduct {
  */
 class LocalShopService extends CRUDService {
   private localShopId: number = -1
-
   initialize (): Promise<NCResponse<null>> {
     if (!AppConfig.LOCAL_SHOP_INFORMATION || !AppConfig.LOCAL_SHOP_INFORMATION.NAME) {
       return Promise.resolve({ status: false, errMessage: 'Local Shop Information is not defined!' })
@@ -40,6 +39,55 @@ class LocalShopService extends CRUDService {
     } else {
       return ShopService.getPromotion(this.localShopId)
     }
+  }
+
+  /*
+    -Primary image only
+  */
+  getInStockProducts (pageSize = 10, pageIndex = 0): Promise<NCResponse<InStockProduct[]>> {
+    return this.getSequelize().query(`
+SELECT * FROM inStockProductsView ORDER BY id OFFSET ${pageSize * pageIndex} LIMIT ${pageSize}
+    `, { type: this.getSequelize().QueryTypes.SELECT }).then(data => {
+      return { status: true, data }
+    })
+  }
+
+  getInStockProduct (productId): Promise<NCResponse<InStockProduct>> {
+    // Unfortunately, join raw query doesn't get parsed nicely by Sequelize by default
+    // for that, we have to manually parse the SELECT clause
+    return this.getSequelize().query(`
+SELECT
+    p.id as id,
+    p.shopId as shopId,
+    p.name as name,
+    p.description as description,
+    p.warranty as warranty,
+    p.price as price,
+    p.stockQuantity as stockQuantity,
+    v.id as \`variants.id\`,
+    v.shopId as \`variants.shopId\`,
+    v.productId as \`variants.productId\`,
+    v.name as \`variants.name\`,
+    v.stockQuantity as \`variants.stockQuantity\`,
+    v.name as \`variants.name\`
+FROM inStockProductsView AS p
+INNER JOIN inStockVariantsView AS v ON p.id = v.productId AND p.shopId = v.shopId
+WHERE p.id=${productId} AND p.shopId=${this.localShopId}
+    `, { type: this.getSequelize().QueryTypes.SELECT, nest: true }).then(data => {
+      if (data.length > 0) {
+        return { status: true, data: data[0] }
+      } else {
+        return { status: false, errMessage: 'Product is not found!' }
+      }
+    })
+  }
+
+  getPOProducts (numPerPage, page = 0) {
+    return
+  }
+
+  getPOProduct (productId) {
+
   }
 
   getProductsWithPrimaryImage () {
