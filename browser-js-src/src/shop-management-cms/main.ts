@@ -34,6 +34,7 @@ $(document).ready(() => {
         onRowClicked: (data: Shop) => {
           shop = data
           ncProduct.reloadTable()
+          ncShopStock.reloadTable()
         }
       }
     },
@@ -98,7 +99,7 @@ interface ShopifiedProduct {
     },
     buttons: {
       ui: [
-        { id: 'edit', desc: 'Edit', postTo: () => `/${window['siteHash']}/shop-management/product/edit?shopId=${shop.id}` }
+        /* { id: 'edit', desc: 'Edit', postTo: () => `/${window['siteHash']}/shop-management/product/edit?shopId=${shop.id}` } */
       ],
       conf: {
         networkTimeout: 2000 // timeout for postTo request
@@ -127,7 +128,6 @@ interface ShopifiedProduct {
         numColumn: 3,
         onRowClicked: (data: Variant) => {
           variant = data
-          ncShopStock.reloadTable()
         }
       }
     },
@@ -156,7 +156,7 @@ interface ShopifiedProduct {
       ],
       conf: {
         order: [['updatedAt', 'desc']],
-        getURL: () => `/${window['siteHash']}/shop-management/shop-stocks?shopId=${shop.id}&variantId=${variant.id}` ,
+        getURL: () => `/${window['siteHash']}/shop-management/shop-stocks?shopId=${shop.id}` ,
         numColumn: 3,
         onRowClicked: (data: ShopStock) => {
           shopStock = data
@@ -165,14 +165,14 @@ interface ShopifiedProduct {
     },
     buttons: {
       ui: [
-        { id: 'add', desc: 'Add', postTo: () => {
+        /* { id: 'add', desc: 'Add', postTo: () => {
           const shopId = shop ? shop.id : null
           const productId = product ? product.id : null
           const variantId = variant ? variant.id : null
           return `/${window['siteHash']}/shop-management/shop-stock?shopId=${shopId}&productId=${productId}&variantId=${variantId}`
         }},
         { id: 'edit', desc: 'Edit', postTo: () => `/${window['siteHash']}/shop-management/shop-stock/edit` },
-        { id: 'delete', desc: 'Delete', postTo: () => `/${window['siteHash']}/shop-management/shop-stock/delete` }
+        { id: 'delete', desc: 'Delete', postTo: () => `/${window['siteHash']}/shop-management/shop-stock/delete` } */
       ],
       conf: {
         networkTimeout: 2000 // timeout for postTo request

@@ -55,7 +55,7 @@ LEFT OUTER JOIN shopProducts ON products.id = shopProducts.productId AND stockTa
     log.info(TAG, 'createShopifiedVariantsView()')
     return super.getSequelize().query(`
 CREATE VIEW shopifiedVariantsView AS
-(SELECT variants.id as id, variants.productId as productId, variants.name as name,
+(SELECT variants.id as id, variants.productId as productId, variants.name as name, variants.createdAt as createdAt, variants.updatedAt as updatedAt,
         shopStocksTable.shopId as shopId, IFNULL(shopStocksTable.stockQuantity, 0) as stockQuantity,
         IFNULL(supplierStocksTable.supplierCount, 0) as supplierCount
  FROM variants
@@ -79,7 +79,7 @@ ON variants.id = supplierStocksTable.variantId
     log.info(TAG, 'createInStockProductsView()')
     return super.getSequelize().query(`
 CREATE VIEW inStockProductsView AS
-(SELECT spView.id as id, spView.shopId as shopId, spView.name as name, spView.description as description,
+(SELECT spView.id as id, spView.shopId as shopId, spView.name as name, spView.description as description, spView.createdAt as createdAt, spView.updatedAt as updatedAt,
          spView.warranty as warranty, IFNULL(spView.shopPrice, spView.defaultPrice) as price, spView.stockQuantity as stockQuantity
   FROM shopifiedProductsView as spView WHERE disabled = FALSE and stockQuantity > 0
 );`)
@@ -91,7 +91,7 @@ CREATE VIEW inStockProductsView AS
 CREATE VIEW inStockVariantsView AS
 (
 SELECT svView.id as id, svView.shopId as shopId, svView.productId as productId,
-       svView.name as name, svView.stockQuantity as stockQuantity
+       svView.name as name, svView.stockQuantity as stockQuantity, svView.createdAt as createdAt, svView.updatedAt as updatedAt
 FROM shopifiedVariantsView as svView WHERE stockQuantity > 0
 );
 `)
@@ -102,7 +102,7 @@ FROM shopifiedVariantsView as svView WHERE stockQuantity > 0
     return super.getSequelize().query(`
 CREATE VIEW poProductsView AS
 (
-SELECT spView.id as id, spView.shopId as shopId, spView.name as name, spView.description as description,
+SELECT spView.id as id, spView.shopId as shopId, spView.name as name, spView.description as description, spView.createdAt as createdAt, spView.updatedAt as updatedAt,
         spView.warranty as warranty, IFNULL(spView.shopPrice, spView.defaultPrice) as price, spView.preOrderDuration as preOrderDurati\
 on
 FROM shopifiedProductsView as spView WHERE disabled = FALSE AND preOrderAllowed = TRUE AND supplierCount > 0
@@ -115,9 +115,40 @@ FROM shopifiedProductsView as spView WHERE disabled = FALSE AND preOrderAllowed 
     return super.getSequelize().query(`
 CREATE VIEW poVariantsView AS
 (
-SELECT svView.id as id, svView.shopId as shopId, svView.productId as productId,
+SELECT svView.id as id, svView.shopId as shopId, svView.productId as productId, svView.createdAt as createdAt, svView.updatedAt as updatedAt,
         svView.name as name, svView.supplierCount as supplierCount
 FROM shopifiedVariantsView as svView WHERE supplierCount > 0
+);`)
+  }
+
+  createOrderView () {
+    return super.getSequelize().query(`
+CREATE VIEW ordersView AS
+(
+SELECT orders.id as id, orders.fullName as fullName, orders.phoneNumber as phoneNumber, orders.notes as notes, orders.status as status, orders.createdAt as createdAt, orders.updatedAt as updatedAt,
+SUM(orderDetails.quantity) as quantity, SUM(orderDetails.price) as price, orders.shopId as shopId
+FROM orders
+INNER JOIN orderDetails on  orderDetails.orderId = orders.id
+GROUP BY orderDetails.orderId
+);`)
+  }
+
+  createOrderDetailsView () {
+    return super.getSequelize().query(`
+CREATE VIEW orderDetailsView AS
+(
+SELECT orderDetails.id AS id, orderDetails.orderId AS orderId, orderDetails.quantity AS quantity,
+       orderDetails.price AS price, orderDetails.status AS status,
+       orderDetails.createdAt AS createdAt, orderDetails.updatedAt AS updatedAt,
+       variants.name AS variantName, variants.id AS variantId,
+       products.name AS productName, products.id AS productId,
+       shopifiedProductsView.preOrderDuration AS preOrderDuration
+FROM orderDetails
+INNER JOIN variants ON orderDetails.variantId = variants.id
+INNER JOIN products ON variants.productId = products.id
+INNER JOIN orders ON orders.id = orderDetails.orderId
+INNER JOIN shopifiedProductsView on variants.productId = shopifiedProductsView.id AND shopifiedProductsView.shopId = orders.shopId
+WHERE orderDetails.deletedAt IS NULL
 );`)
   }
 
@@ -125,7 +156,7 @@ FROM shopifiedVariantsView as svView WHERE supplierCount > 0
     log.info(TAG, 'destroyViews()')
 
     const views = ['shopifiedProductsView', 'shopifiedVariantsView',
-      'inStockProductsView', 'inStockVariantsView', 'poProductsView', 'poVariantsView']
+      'inStockProductsView', 'inStockVariantsView', 'poProductsView', 'poVariantsView', 'ordersView', 'orderDetailsView']
 
     return views.reduce((acc, view) => {
       return acc.then(() => {
@@ -133,7 +164,11 @@ FROM shopifiedVariantsView as svView WHERE supplierCount > 0
       }).catch(err => {
         log.info(TAG, err)
       }).finally(() => {
-        return super.getSequelize().query(`DROP VIEW ${view};`)
+        // Even if there's an error (i.e. the view to be dropped doesn't exist, we want
+        // to continue
+        return super.getSequelize().query(`DROP VIEW ${view};`).catch(() => {
+          return
+        })
       })
     }, Promise.resolve())
   }
@@ -145,7 +180,9 @@ FROM shopifiedVariantsView as svView WHERE supplierCount > 0
       this.createInStockProductsView,
       this.createInStockVariantsView,
       this.createPOProductsView,
-      this.createPOVariantsView
+      this.createPOVariantsView,
+      this.createOrderView,
+      this.createOrderDetailsView
     ]
     return this.destroyViews().then(result => {
       return promises.reduce((acc, promise) => {

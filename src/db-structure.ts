@@ -1,6 +1,12 @@
 import * as Sequelize from 'sequelize'
 
 export default function addTables (sequelize: Sequelize.Sequelize, models: Sequelize.Models) {
+  /*
+    ----------------------------
+      Cloud-specific Database
+      Local shop shouldn't modify the following tables at all!
+    ----------------------------
+   */
   models.Image = sequelize.define('image', {
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
     filename: { type: sequelize.Sequelize.STRING, unique: true }
@@ -94,7 +100,18 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
     address: { type: Sequelize.STRING },
     zipCode: { type: Sequelize.INTEGER }
   })
+  /*
+  ----------------------------
+  End of Cloud-only database
+  ----------------------------
+  */
 
+  /*
+  ----------------------------
+    Local-shop specific Database
+    Cloud shouldn't modify the following tables at all!
+  ----------------------------
+  */
   models.ShopStock = sequelize.define('shopStock', {
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
     price: { type: Sequelize.INTEGER }, // purchase price, not sell price
@@ -117,7 +134,8 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
   models.Product.hasMany(models.ShopProduct)
 
   models.Promotion = sequelize.define('promotion', {
-    id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true }
+    id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
+    name: { type: Sequelize.STRING }
   })
   models.Promotion.belongsTo(models.Shop)
   models.Promotion.belongsTo(models.Product)
@@ -125,16 +143,20 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
 
   models.Order = sequelize.define('order', {
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
-    status: { type: Sequelize.ENUM(['Open', 'Close', 'Pending PO']) }
+    fullName: { type: Sequelize.STRING },
+    phoneNumber: { type: Sequelize.STRING },
+    status: { type: Sequelize.ENUM(['Open', 'Close', 'PO']) },
+    notes: Sequelize.STRING
   }, {
     paranoid: true
   })
+  models.Order.belongsTo(models.Shop)
 
   models.OrderDetail = sequelize.define('orderDetail', {
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
     quantity: { type: Sequelize.INTEGER, allowNull: false },
     price: { type: Sequelize.INTEGER, allowNull: false },
-    po: { type: Sequelize.BOOLEAN, allowNull: false }
+    status: { type: Sequelize.ENUM(['PO', 'Ready']) }
   }, {
     paranoid: true
   })
@@ -142,7 +164,11 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
   models.OrderDetail.belongsTo(models.Variant)
   models.OrderDetail.belongsTo(models.Order)
   models.Variant.hasMany(models.OrderDetail)
-
+  /*
+  ----------------------------
+    End of local-only database
+  ----------------------------
+  */
   return models
 }
 

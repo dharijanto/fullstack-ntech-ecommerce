@@ -26,6 +26,10 @@ const modules = [
   {
     input: 'supplier-management-cms',
     output: 'cms'
+  },
+  {
+    input: 'order-management-cms',
+    output: 'cms'
   }
 ]
 

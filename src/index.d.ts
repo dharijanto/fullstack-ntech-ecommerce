@@ -1,9 +1,3 @@
-declare enum OrderStatus {
-  Open = 'Open',
-  Close = 'Close',
-  PendingPO = 'Pending PO'
-}
-
 interface NCResponse<T> {
   status: boolean,
   data?: T,
@@ -153,12 +147,6 @@ interface Promotion extends BaseModel {
   imageFilename: string
 }
 
-interface OrderDetail extends BaseModel {
-  quantity: number
-  price: number
-  po: boolean
-}
-
 /*
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
@@ -171,8 +159,7 @@ For anything else, please define a new interface!
 -------------------------------------------------------------------------------
 */
 
-interface ShopifiedProduct {
-  id: number,
+interface ShopifiedProduct extends BaseModel {
   name: string,
   description: string,
   warranty: string,
@@ -189,8 +176,7 @@ interface ShopifiedProduct {
   disabled: boolean
 }
 
-interface ShopifiedVariant {
-  id: number,
+interface ShopifiedVariant extends BaseModel {
   productId: number,
   shopId: number,
   name: string,
@@ -198,8 +184,7 @@ interface ShopifiedVariant {
   supplierCount: number
 }
 
-interface InStockProduct {
-  id: number,
+interface InStockProduct extends BaseModel {
   shopId: number,
   name: string,
   description: string,
@@ -209,16 +194,14 @@ interface InStockProduct {
   variants?: InStockVariant
 }
 
-interface InStockVariant {
-  id: number,
+interface InStockVariant extends BaseModel {
   shopId: number,
   productId: number,
   name: string,
   stockQuantity: number
 }
 
-interface POProduct {
-  id: number,
+interface POProduct extends BaseModel {
   shopId: number,
   name: string,
   description: string,
@@ -228,11 +211,31 @@ interface POProduct {
   variants?: POVariant
 }
 
-interface POVariant {
-  id: number,
+interface POVariant extends BaseModel {
   shopId: number
   productId: number,
   name: string
+}
+
+interface Order extends BaseModel {
+  fullName: string,
+  quantity: number,
+  price: number,
+  notes: string,
+  status: 'Open' | 'Close' | 'PO',
+  shopId: number
+}
+
+interface OrderDetail extends BaseModel {
+  quantity: number
+  price: number
+  status: 'PO' | 'Ready'
+  preOrderDuration: number
+  orderId: number
+  productName: string
+  variantName: string
+  variantId: number
+  productId: number
 }
 
 /*

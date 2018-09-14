@@ -128,6 +128,31 @@ export default class ProductManagementController extends BaseController {
       }).catch(next)
     })
 
+    super.routeGet('/variant/qr-code', (req, res, next) => {
+      const variantId = req.query.variantId
+      if (variantId) {
+        ProductService.readOne<Variant>('Variant', { id: variantId }).then(resp => {
+          if (resp.status && resp.data) {
+            res.locals.serializedQRData = resp.data.id
+            res.locals.variant = resp.data
+            return ProductService.readOne<Product>('Product', { id: resp.data.productId }).then(resp2 => {
+              if (resp2.status && resp2.data) {
+                res.locals.product = resp2.data
+                // QRCode contains variantId
+                res.render('qrcode')
+              } else {
+                next(new Error(resp2.errMessage))
+              }
+            })
+          } else {
+            next(new Error(resp.errMessage))
+          }
+        }).catch(next)
+      } else {
+        res.status(500).send('variantId is required!')
+      }
+    })
+
     // Product Description
     super.routeGet('/product/description', (req, res, next) => {
       const id = req.query.id

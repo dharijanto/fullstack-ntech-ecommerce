@@ -56,12 +56,12 @@ export default class ShopManagementController extends BaseController {
     })
 
     super.routeGet('/shops', (req, res, next) => {
-      ShopService.read<Shop>('Shop', {}).then(resp => {
+      ShopService.getShops().then(resp => {
         res.json(resp)
       }).catch(next)
     })
 
-    super.routePost('/shop', (req, res, next) => {
+    /* super.routePost('/shop', (req, res, next) => {
       ShopService.create<Shop>('Shop', req.body).then(res.json.bind(res)).catch(next)
     })
 
@@ -71,7 +71,7 @@ export default class ShopManagementController extends BaseController {
 
     super.routePost('/shop/delete', (req, res, next) => {
       ShopService.delete<Shop>('Shop', { id: req.body.id }).then(res.json.bind(res)).catch(next)
-    })
+    }) */
 
     super.routeGet('/products', (req, res, next) => {
       const shopId = req.query.shopId
@@ -82,7 +82,7 @@ export default class ShopManagementController extends BaseController {
       }
     })
 
-    super.routePost('/product/edit', (req, res, next) => {
+    /* super.routePost('/product/edit', (req, res, next) => {
       const shopId = req.query.shopId
       const productId = req.body.id
       const data = {
@@ -97,7 +97,7 @@ export default class ShopManagementController extends BaseController {
       } else {
         res.json({ status: false, errMessage: 'shopId is required!' })
       }
-    })
+    }) */
 
     super.routeGet('/variants', (req, res, next) => {
       const shopId = req.query.shopId
@@ -111,15 +111,14 @@ export default class ShopManagementController extends BaseController {
 
     super.routeGet('/shop-stocks', (req, res, next) => {
       const shopId = req.query.shopId
-      const variantId = req.query.variantId
       if (!shopId) {
         res.json({ status: false, errMessage: 'shopId is required' })
       } else {
-        ShopService.getShopStock({ shopId, variantId }).then(res.json.bind(res)).catch(next)
+        ShopService.getShopStock({ shopId }).then(res.json.bind(res)).catch(next)
       }
     })
 
-    super.routePost('/shop-stock', (req, res, next) => {
+    /* super.routePost('/shop-stock', (req, res, next) => {
       const variantId = req.query.variantId
       const shopId = req.query.shopId
 
@@ -136,7 +135,7 @@ export default class ShopManagementController extends BaseController {
 
     super.routePost('/shop-stock/delete', (req, res, next) => {
       ShopService.delete<ShopStock>('ShopStock', { id: req.body.id }).then(res.json.bind(res)).catch(next)
-    })
+    }) */
   }
 
 }

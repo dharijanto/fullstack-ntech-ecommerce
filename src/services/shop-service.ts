@@ -21,6 +21,12 @@ class ShopService extends CRUDService {
     }
   */
 
+  getShops () {
+    return this.read<Shop>('Shop', {}).then(resp => {
+      return resp
+    })
+  }
+
   // TODO: We should create test cases to ensure this is correct...
   // i.e. when there are suppliers, supplier count is correct
   //      when there are shopStocks, the count is correct
@@ -46,27 +52,6 @@ class ShopService extends CRUDService {
       })
   }
 
-  // Update shopProduct entry
-  // In actuality, this can be insert/update
-  updateProduct (shopId: number, productId: number, data: Partial<ShopProduct>) {
-    const { price, preOrderAllowed, preOrderDuration, disabled } = data
-    return this.getModels('ShopProduct').findOne({ where: { shopId, productId } }).then(data => {
-      return {
-        id: data && data.id,
-        productId,
-        shopId,
-        price,
-        preOrderAllowed,
-        preOrderDuration,
-        disabled
-      }
-    }).then(shopProduct => {
-      return this.getModels('ShopProduct').upsert(shopProduct).then(count => {
-        return { status: true }
-      })
-    })
-  }
-
   getShopStock (searchClause) {
     return (this.getModels('ShopStock') as Model<Instance<ShopStock>, Partial<ShopStock>>).findAll({
       where: searchClause,
@@ -82,17 +67,6 @@ class ShopService extends CRUDService {
       ]
     }).then(data => {
       return { status: true, data }
-    })
-  }
-
-  addShopStock (data: Partial<ShopStock>) {
-    const { shopId, variantId, price, quantity, date } = data
-    return this.create<ShopStock>('ShopStock', {
-      shopId,
-      variantId,
-      price,
-      quantity,
-      date
     })
   }
 

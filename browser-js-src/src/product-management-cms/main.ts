@@ -8,6 +8,8 @@ import * as _ from 'lodash'
 import axios from '../libs/axios-wrapper'
 
 console.log(_.random(true))
+
+let variant: Variant
 const ncCategory = $('#category').NCInputLibrary({
   design: {
     title: 'Category'
@@ -117,7 +119,10 @@ const ncVariant = $('#variant').NCInputLibrary({
     conf: {
       order: [['updatedAt', 'desc']],
       getURL: () => `/${window['siteHash']}/product-management/variants?productId=${selectedProduct && selectedProduct.id}` ,
-      numColumn: 3
+      numColumn: 3,
+      onRowClicked: (data: Variant) => {
+        variant = data
+      }
     }
   },
   buttons: {
@@ -131,6 +136,16 @@ const ncVariant = $('#variant').NCInputLibrary({
     }
   }
 })
+
+const btnPrintQRCode = $(`<button class="btn btn-primary"> Print QR </button>`)
+btnPrintQRCode.on('click', () => {
+  if (variant && variant.id) {
+    window.open(`/${window['siteHash']}/product-management/variant/qr-code?variantId=${variant.id}`)
+  } else {
+    alert('Varian harus dipilih!')
+  }
+})
+ncVariant.setFirstCustomView(btnPrintQRCode)
 
 ncCategory.reloadTable()
 

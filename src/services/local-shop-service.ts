@@ -1,5 +1,6 @@
 import { CRUDService } from './crud-service'
 import ShopService from './shop-service'
+import OrderService from './order-service'
 import { Model } from 'sequelize'
 import * as Promise from 'bluebird'
 
@@ -87,7 +88,38 @@ WHERE p.id=${productId} AND p.shopId=${this.localShopId}
   }
 
   getPOProduct (productId) {
+    return
+  }
+// Update shopProduct entry
+  // In actuality, this can be insert/update
+  updateProduct (productId: number, data: Partial<ShopProduct>) {
+    const { price, preOrderAllowed, preOrderDuration, disabled } = data
+    return this.getModels('ShopProduct').findOne({ where: { shopId: this.localShopId, productId } }).then(data => {
+      return {
+        id: data && data.id,
+        productId,
+        shopId: this.localShopId,
+        price,
+        preOrderAllowed,
+        preOrderDuration,
+        disabled
+      }
+    }).then(shopProduct => {
+      return this.getModels('ShopProduct').upsert(shopProduct).then(count => {
+        return { status: true }
+      })
+    })
+  }
 
+  addShopStock (data: Partial<ShopStock>) {
+    const { variantId, price, quantity, date } = data
+    return this.create<ShopStock>('ShopStock', {
+      shopId: this.localShopId,
+      variantId,
+      price,
+      quantity,
+      date
+    })
   }
 
   getProductsWithPrimaryImage () {
@@ -103,7 +135,7 @@ WHERE p.id=${productId} AND p.shopId=${this.localShopId}
   }
 
   // Get all products with all images
-  getProductWithAllImages (productSearchClause): Promise<NCResponse<Product[]>> {
+  getProductWithAllImages (productSearchClause): Promise<NCResponse<ShopifiedProduct[]>> {
     return ShopService.getProducts(this.localShopId, false, productSearchClause)
     /* return super.getModels('Product').findAll<Product>({
       where: searchClause,
@@ -130,6 +162,14 @@ WHERE p.id=${productId} AND p.shopId=${this.localShopId}
     }).then(readData => {
       return { status: true, data: readData.map(data => data.get({ plain: true })) }
     }) */
+  }
+
+  getOrders () {
+    return OrderService.getOrders(this.localShopId)
+  }
+
+  getOrderDetails (orderId) {
+    return OrderService.getOrderDetails(orderId)
   }
 }
 export default new LocalShopService()
