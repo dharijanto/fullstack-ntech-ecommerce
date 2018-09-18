@@ -186,12 +186,16 @@ interface ShopifiedVariant extends BaseModel {
 
 interface InStockProduct extends BaseModel {
   shopId: number,
+  subCategoryId: number,
   name: string,
   description: string,
   warranty: string,
   price: number,
   stockQuantity: number,
   variants?: InStockVariant
+  subCategory?: SubCategory
+  images?: ProductImage[]
+  primaryImage?: ProductImage
 }
 
 interface InStockVariant extends BaseModel {

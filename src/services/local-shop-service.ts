@@ -47,8 +47,56 @@ class LocalShopService extends CRUDService {
   */
   getInStockProducts (pageSize = 10, pageIndex = 0): Promise<NCResponse<InStockProduct[]>> {
     return this.getSequelize().query(`
-SELECT * FROM inStockProductsView ORDER BY id OFFSET ${pageSize * pageIndex} LIMIT ${pageSize}
-    `, { type: this.getSequelize().QueryTypes.SELECT }).then(data => {
+SELECT
+  inStockProductsView.shopId as shopId,
+  inStockProductsView.name as name,
+  inStockProductsView.description as description,
+  inStockProductsView.warranty as warranty,
+  inStockProductsView.price as price,
+  inStockProductsView.stockQuantity as stockQuantity,
+  productImages.imageFilename as \`primaryImage.imageFilename\`,
+  productImages.productId as \`primaryImage.productId\`,
+  subCategories.name as \`subCategory.name\`,
+  subCategories.description as \`subCategory.description\`,
+  subCategories.categoryId as \`subCategory.categoryId\`,
+  subCategories.imageFilename as \`subCategory.imageFilename\`,
+  categories.name as \`subCategory.category.name\`,
+  categories.description as \`subCategory.category.description\`
+ FROM inStockProductsView
+ LEFT OUTER JOIN productImages on inStockProductsView.id = productImages.productId
+ LEFT OUTER JOIN subCategories on subCategories.id = inStockProductsView.subCategoryId
+ LEFT OUTER JOIN categories on subCategories.categoryId = categories.id
+ WHERE inStockProductsView.shopId = ${this.localShopId} AND productImages.primary = TRUE
+ ORDER BY inStockProductsView.id LIMIT ${pageSize * pageIndex}, ${pageSize};
+    `, { type: this.getSequelize().QueryTypes.SELECT, nest: true }).then(data => {
+      return { status: true, data }
+    })
+  }
+
+  getPOProducts (pageSize = 10, pageIndex = 0) {
+    return this.getSequelize().query(`
+SELECT
+  poProductsView.shopId as shopId,
+  poProductsView.name as name,
+  poProductsView.description as description,
+  poProductsView.warranty as warranty,
+  poProductsView.price as price,
+  poProductsView.preOrderDuration as preOrderDuration,
+  productImages.imageFilename as \`primaryImage.imageFilename\`,
+  productImages.productId as \`primaryImage.productId\`,
+  subCategories.name as \`subCategory.name\`,
+  subCategories.description as \`subCategory.description\`,
+  subCategories.categoryId as \`subCategory.categoryId\`,
+  subCategories.imageFilename as \`subCategory.imageFilename\`,
+  categories.name as \`subCategory.category.name\`,
+  categories.description as \`subCategory.category.description\`
+ FROM poProductsView
+ LEFT OUTER JOIN productImages on poProductsView.id = productImages.productId
+ LEFT OUTER JOIN subCategories on subCategories.id = poProductsView.subCategoryId
+ LEFT OUTER JOIN categories on subCategories.categoryId = categories.id
+ WHERE poProductsView.shopId = ${this.localShopId} AND productImages.primary = TRUE
+ ORDER BY poProductsView.id LIMIT ${pageSize * pageIndex}, ${pageSize};
+    `, { type: this.getSequelize().QueryTypes.SELECT, nest: true }).then(data => {
       return { status: true, data }
     })
   }
@@ -81,10 +129,6 @@ WHERE p.id=${productId} AND p.shopId=${this.localShopId}
         return { status: false, errMessage: 'Product is not found!' }
       }
     })
-  }
-
-  getPOProducts (numPerPage, page = 0) {
-    return
   }
 
   getPOProduct (productId) {

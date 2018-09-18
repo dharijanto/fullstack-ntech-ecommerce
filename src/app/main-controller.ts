@@ -8,7 +8,7 @@ import LocalShopService from '../services/local-shop-service'
 import SequelizeService from '../services/sequelize-service'
 import { SiteData } from '../site-definitions'
 import * as Utils from '../libs/utils'
-import shopService from '../services/shop-service';
+import shopService from '../services/shop-service'
 
 const path = require('path')
 
@@ -48,8 +48,9 @@ class Controller extends BaseController {
           Promise.join<NCResponse<any[]>>(
             LocalShopService.getPromotion(),
             ProductService.getCategories({}, true),
-            LocalShopService.getProductsWithPrimaryImage()
-          ).spread((resp: NCResponse<Promotion[]>, resp2: NCResponse<Category[]>, resp3: NCResponse<Product[]>) => {
+            LocalShopService.getInStockProducts(),
+            LocalShopService.getPOProducts()
+          ).spread((resp: NCResponse<Promotion[]>, resp2: NCResponse<Category[]>, resp3: NCResponse<InStockProduct[]>, resp4: NCResponse<POProduct[]>) => {
             if (resp.status && resp.data &&
                 resp2.status && resp2.data &&
                 resp3.status && resp3.data) {
@@ -57,7 +58,8 @@ class Controller extends BaseController {
               res.locals.promotions = resp.data.slice(0, 2)
               res.locals.smallPromotions = resp.data.slice(2, resp.data.length)
               res.locals.categories = resp2.data
-              res.locals.products = resp3.data
+              res.locals.inStockProducts = resp3.data
+              res.locals.poProducts = resp4.data
               res.render('home')
             } else {
               next('Failed to retrieve some information: ' + resp.errMessage || resp2.errMessage || resp3.errMessage)
