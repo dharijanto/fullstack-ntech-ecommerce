@@ -90,7 +90,8 @@ WHERE p.id=${productId} AND p.shopId=${this.localShopId}
   getPOProduct (productId) {
     return
   }
-// Update shopProduct entry
+
+  // Update shopProduct entry
   // In actuality, this can be insert/update
   updateProduct (productId: number, data: Partial<ShopProduct>) {
     const { price, preOrderAllowed, preOrderDuration, disabled } = data

@@ -18,14 +18,14 @@ const ncShop = $('#shop').NCInputLibrary({
   },
   table: {
     ui: [
-      { id: 'id', desc: 'ID', dataTable: true, input: 'text', disabled: true },
-      { id: 'name', desc: 'Name', dataTable: true, input: 'text', disabled: false },
-      { id: 'city', desc: 'City', dataTable: true, input: 'text', disabled: false },
-      { id: 'location', desc: 'Location', dataTable: true, input: 'text', disabled: false },
-      { id: 'address', desc: 'Address', dataTable: true, input: 'text', disabled: false },
-      { id: 'zipCode', desc: 'Zip Code', dataTable: true, input: 'text', disabled: false },
-      { id: 'createdAt', desc: 'Date Created', dataTable: true, input: 'text', disabled: true },
-      { id: 'updatedAt', desc: 'Date Updated', dataTable: true, input: 'text', disabled: true }
+      { id: 'id', desc: 'ID', dataTable: true, input: 'hidden', disabled: true },
+      { id: 'name', desc: 'Name', dataTable: true, input: 'hidden', disabled: false },
+      { id: 'city', desc: 'City', dataTable: true, input: 'hidden', disabled: false },
+      { id: 'location', desc: 'Location', dataTable: true, input: 'hidden', disabled: false },
+      { id: 'address', desc: 'Address', dataTable: true, input: 'hidden', disabled: false },
+      { id: 'zipCode', desc: 'Zip Code', dataTable: true, input: 'hidden', disabled: false },
+      { id: 'createdAt', desc: 'Date Created', dataTable: true, input: 'hidden', disabled: true },
+      { id: 'updatedAt', desc: 'Date Updated', dataTable: true, input: 'hidden', disabled: true }
     ],
     conf: {
       order: [['updatedAt', 'desc']],
@@ -51,14 +51,14 @@ const ncOrder = $('#order').NCInputLibrary({
   },
   table: {
     ui: [
-      { id: 'id', desc: 'ID', dataTable: true, input: 'text', disabled: true },
-      { id: 'fullName', desc: 'Name', dataTable: true, input: 'text' },
-      { id: 'notes', desc: 'Notes', dataTable: true, input: 'text' },
-      { id: 'quantity', desc: 'Quantity', dataTable: true, input: 'text' },
-      { id: 'price', desc: 'Price', dataTable: true, input: 'text' },
-      { id: 'status', desc: 'Status', dataTable: true, input: 'text' },
-      { id: 'createdAt', desc: 'Date Created', dataTable: true, input: 'text', disabled: true },
-      { id: 'updatedAt', desc: 'Date Updated', dataTable: true, input: 'text', disabled: true }
+      { id: 'id', desc: 'ID', dataTable: true, input: 'hidden', disabled: true },
+      { id: 'fullName', desc: 'Name', dataTable: true, input: 'hidden' },
+      { id: 'notes', desc: 'Notes', dataTable: true, input: 'hidden' },
+      { id: 'quantity', desc: 'Quantity', dataTable: true, input: 'hidden' },
+      { id: 'price', desc: 'Price', dataTable: true, input: 'hidden' },
+      { id: 'status', desc: 'Status', dataTable: true, input: 'hidden' },
+      { id: 'createdAt', desc: 'Date Created', dataTable: true, input: 'hidden', disabled: true },
+      { id: 'updatedAt', desc: 'Date Updated', dataTable: true, input: 'hidden', disabled: true }
     ],
     conf: {
       order: [['updatedAt', 'desc']],
@@ -84,18 +84,18 @@ const ncOrderDetail = $('#order-detail').NCInputLibrary({
   },
   table: {
     ui: [
-      { id: 'id', desc: 'ID', dataTable: true, input: 'text', disabled: true },
-      { id: 'productName', desc: 'Product', dataTable: true, input: 'text' },
-      { id: 'variantName', desc: 'Variant', dataTable: true, input: 'text' },
-      { id: 'quantity', desc: 'Quantity', dataTable: true, input: 'text' },
-      { id: 'price', desc: 'Price', dataTable: true, input: 'text' },
-      { id: 'status', desc: 'Status', dataTable: true, input: 'text' },
-      { id: 'preOrderDuration', desc: 'PO Duration', dataTable: true, input: 'text' },
-      { id: 'productId', desc: 'Product ID', dataTable: true, input: 'text', disabled: true },
-      { id: 'variantId', desc: 'Variant ID', dataTable: true, input: 'text', disabled: true },
-      { id: 'orderId', desc: 'Order ID', dataTable: true, input: 'text', disabled: true },
-      { id: 'createdAt', desc: 'Date Created', dataTable: true, input: 'text', disabled: true },
-      { id: 'updatedAt', desc: 'Date Updated', dataTable: true, input: 'text', disabled: true }
+      { id: 'id', desc: 'ID', dataTable: true, input: 'hidden', disabled: true },
+      { id: 'productName', desc: 'Product', dataTable: true, input: 'hidden' },
+      { id: 'variantName', desc: 'Variant', dataTable: true, input: 'hidden' },
+      { id: 'quantity', desc: 'Quantity', dataTable: true, input: 'hidden' },
+      { id: 'price', desc: 'Price', dataTable: true, input: 'hidden' },
+      { id: 'status', desc: 'Status', dataTable: true, input: 'hidden' },
+      { id: 'preOrderDuration', desc: 'PO Duration', dataTable: true, input: 'hidden' },
+      { id: 'productId', desc: 'Product ID', dataTable: true, input: 'hidden', disabled: true },
+      { id: 'variantId', desc: 'Variant ID', dataTable: true, input: 'hidden', disabled: true },
+      { id: 'orderId', desc: 'Order ID', dataTable: true, input: 'hidden', disabled: true },
+      { id: 'createdAt', desc: 'Date Created', dataTable: true, input: 'hidden', disabled: true },
+      { id: 'updatedAt', desc: 'Date Updated', dataTable: true, input: 'hidden', disabled: true }
     ],
     conf: {
       order: [['updatedAt', 'desc']],
