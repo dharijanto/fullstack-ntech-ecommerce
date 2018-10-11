@@ -12,7 +12,7 @@ block content
           article
             span.image
               img(src=`${getImageURL(promotion.imageFilename)}`)
-            a(href="")
+            a(href=`${getProductURL(promotion.product)}`)
               .content
                 p
                   =promotion.product.name
@@ -32,7 +32,7 @@ block content
             article
               span.image
                 img(src=`${getImageURL(smallPromotion.imageFilename)}`)
-              a(href="")
+              a(href=`${getProductURL(smallPromotion.product)}`)
                 .content
                   p
                     =smallPromotion.product.name

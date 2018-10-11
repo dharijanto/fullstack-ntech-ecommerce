@@ -70,7 +70,7 @@ article.product {
 .product > .images > section.thumbnail-images {
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
+  justify-content: normal;
 }
 
 .product > .images > section.thumbnail-images > article {

@@ -76,7 +76,7 @@ export default class ShopManagementController extends BaseController {
     super.routeGet('/products', (req, res, next) => {
       const shopId = req.query.shopId
       if (shopId) {
-        ShopService.getProducts(shopId).then(res.json.bind(res)).catch(next)
+        ShopService.getShopifiedProducts(shopId).then(res.json.bind(res)).catch(next)
       } else {
         res.json({ status: false, errMessage: 'shopId is required!' })
       }
@@ -103,7 +103,7 @@ export default class ShopManagementController extends BaseController {
       const shopId = req.query.shopId
       const productId = req.query.productId
       if (shopId) {
-        ShopService.getVariants(shopId, productId).then(res.json.bind(res)).catch(next)
+        ShopService.getShopifiedVariants(shopId, productId).then(res.json.bind(res)).catch(next)
       } else {
         res.json({ status: false, errMessage: 'shopId is required!' })
       }

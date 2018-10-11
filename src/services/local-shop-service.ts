@@ -1,3 +1,5 @@
+import * as util from 'util'
+
 import { CRUDService } from './crud-service'
 import ShopService from './shop-service'
 import OrderService from './order-service'
@@ -5,6 +7,7 @@ import { Model } from 'sequelize'
 import * as Promise from 'bluebird'
 
 import AppConfig from '../app-config'
+import * as Utils from '../libs/utils'
 
 export interface LocalShopifiedProduct {
 
@@ -43,96 +46,46 @@ class LocalShopService extends CRUDService {
   }
 
   /*
-    -Primary image only
-  */
-  getInStockProducts (pageSize = 10, pageIndex = 0): Promise<NCResponse<InStockProduct[]>> {
-    return this.getSequelize().query(`
-SELECT
-  inStockProductsView.shopId as shopId,
-  inStockProductsView.name as name,
-  inStockProductsView.description as description,
-  inStockProductsView.warranty as warranty,
-  inStockProductsView.price as price,
-  inStockProductsView.stockQuantity as stockQuantity,
-  productImages.imageFilename as \`primaryImage.imageFilename\`,
-  productImages.productId as \`primaryImage.productId\`,
-  subCategories.name as \`subCategory.name\`,
-  subCategories.description as \`subCategory.description\`,
-  subCategories.categoryId as \`subCategory.categoryId\`,
-  subCategories.imageFilename as \`subCategory.imageFilename\`,
-  categories.name as \`subCategory.category.name\`,
-  categories.description as \`subCategory.category.description\`
- FROM inStockProductsView
- LEFT OUTER JOIN productImages on inStockProductsView.id = productImages.productId
- LEFT OUTER JOIN subCategories on subCategories.id = inStockProductsView.subCategoryId
- LEFT OUTER JOIN categories on subCategories.categoryId = categories.id
- WHERE inStockProductsView.shopId = ${this.localShopId} AND productImages.primary = TRUE
- ORDER BY inStockProductsView.id LIMIT ${pageSize * pageIndex}, ${pageSize};
-    `, { type: this.getSequelize().QueryTypes.SELECT, nest: true }).then(data => {
-      return { status: true, data }
-    })
-  }
+    InStockProduct[] with:
+    -primaryImage
+    -subCategories
 
-  getPOProducts (pageSize = 10, pageIndex = 0) {
-    return this.getSequelize().query(`
-SELECT
-  poProductsView.shopId as shopId,
-  poProductsView.name as name,
-  poProductsView.description as description,
-  poProductsView.warranty as warranty,
-  poProductsView.price as price,
-  poProductsView.preOrderDuration as preOrderDuration,
-  productImages.imageFilename as \`primaryImage.imageFilename\`,
-  productImages.productId as \`primaryImage.productId\`,
-  subCategories.name as \`subCategory.name\`,
-  subCategories.description as \`subCategory.description\`,
-  subCategories.categoryId as \`subCategory.categoryId\`,
-  subCategories.imageFilename as \`subCategory.imageFilename\`,
-  categories.name as \`subCategory.category.name\`,
-  categories.description as \`subCategory.category.description\`
- FROM poProductsView
- LEFT OUTER JOIN productImages on poProductsView.id = productImages.productId
- LEFT OUTER JOIN subCategories on subCategories.id = poProductsView.subCategoryId
- LEFT OUTER JOIN categories on subCategories.categoryId = categories.id
- WHERE poProductsView.shopId = ${this.localShopId} AND productImages.primary = TRUE
- ORDER BY poProductsView.id LIMIT ${pageSize * pageIndex}, ${pageSize};
-    `, { type: this.getSequelize().QueryTypes.SELECT, nest: true }).then(data => {
-      return { status: true, data }
-    })
+    This is used by landing page, where we display
+  */
+  getInStockProducts ({ pageSize = 10, pageIndex = 0, productId = null }): Promise<NCResponse<InStockProduct[]>> {
+    return ShopService.getInStockProducts({ pageSize, pageIndex, productId }, this.localShopId)
   }
 
   getInStockProduct (productId): Promise<NCResponse<InStockProduct>> {
-    // Unfortunately, join raw query doesn't get parsed nicely by Sequelize by default
-    // for that, we have to manually parse the SELECT clause
-    return this.getSequelize().query(`
-SELECT
-    p.id as id,
-    p.shopId as shopId,
-    p.name as name,
-    p.description as description,
-    p.warranty as warranty,
-    p.price as price,
-    p.stockQuantity as stockQuantity,
-    v.id as \`variants.id\`,
-    v.shopId as \`variants.shopId\`,
-    v.productId as \`variants.productId\`,
-    v.name as \`variants.name\`,
-    v.stockQuantity as \`variants.stockQuantity\`,
-    v.name as \`variants.name\`
-FROM inStockProductsView AS p
-INNER JOIN inStockVariantsView AS v ON p.id = v.productId AND p.shopId = v.shopId
-WHERE p.id=${productId} AND p.shopId=${this.localShopId}
-    `, { type: this.getSequelize().QueryTypes.SELECT, nest: true }).then(data => {
-      if (data.length > 0) {
-        return { status: true, data: data[0] }
+    return this.getInStockProducts({ productId, pageSize: 1, pageIndex: 0 }).then(resp => {
+      if (resp.status && resp.data) {
+        if (resp.data && resp.data.length > 0) {
+          return { status: true, data: resp.data[0] }
+        } else {
+          return { status: false, errMessage: 'Product not found!' }
+        }
       } else {
-        return { status: false, errMessage: 'Product is not found!' }
+        return { status: false, errMessage: resp.errMessage }
       }
     })
   }
 
-  getPOProduct (productId) {
-    return
+  getPOProducts ({ pageSize = 10, pageIndex = 0, productId = null }): Promise<NCResponse<POProduct[]>> {
+    return ShopService.getPOProducts({ pageSize, pageIndex, productId }, this.localShopId)
+  }
+
+  getPOProduct (productId): Promise<NCResponse<POProduct>> {
+    return this.getPOProducts({ pageSize: 1, pageIndex: 0, productId }).then(resp => {
+      if (resp.status && resp.data) {
+        if (resp.data.length) {
+          return { status: true, data: resp.data[0] }
+        } else {
+          return { status: false, errMessage: 'Product not found!' }
+        }
+      } else {
+        return { status: false, errMessage: resp.errMessage }
+      }
+    })
   }
 
   // Update shopProduct entry
@@ -165,48 +118,6 @@ WHERE p.id=${productId} AND p.shopId=${this.localShopId}
       quantity,
       date
     })
-  }
-
-  getProductsWithPrimaryImage () {
-    return ShopService.getProducts(this.localShopId, true).then(resp => {
-      if (!resp.status) {
-        return resp
-      } else if (resp.status && resp.data) {
-        return { status: true, data: resp.data.filter(product => product.disable) }
-      } else {
-        return { status: false, errMessage: 'Data is expected but not found!' }
-      }
-    })
-  }
-
-  // Get all products with all images
-  getProductWithAllImages (productSearchClause): Promise<NCResponse<ShopifiedProduct[]>> {
-    return ShopService.getProducts(this.localShopId, false, productSearchClause)
-    /* return super.getModels('Product').findAll<Product>({
-      where: searchClause,
-      include: [
-        {
-          model: super.getModels('ProductImage')
-        },
-        {
-          model: super.getModels('SubCategory'),
-          include: [{ model: super.getModels('Category') }]
-        },
-        {
-          model: super.getModels('Variant'),
-          include: [
-            {
-              model: super.getModels('ShopStock'),
-              where: {
-                shopId: this.localShopId
-              }
-            }
-          ]
-        }
-      ]//, order: ['product.productImages.primary']
-    }).then(readData => {
-      return { status: true, data: readData.map(data => data.get({ plain: true })) }
-    }) */
   }
 
   getOrders () {

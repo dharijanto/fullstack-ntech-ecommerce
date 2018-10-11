@@ -1,3 +1,5 @@
+import * as util from 'util'
+
 import * as Sequelize from 'sequelize'
 import AppConfig from '../app-config'
 const sequelizeSync = require('../db-structure')
@@ -33,7 +35,14 @@ function main () {
   /* LocalShopService.getInStockProduct(5).then(resp => {
     console.log(JSON.stringify(resp))
   }) */
-  LocalShopService.getInStockProducts().then(resp => {
-    console.log(JSON.stringify(resp))
+  LocalShopService.getInStockProducts({}).then(resp => {
+    if (resp.status && resp.data) {
+      console.log(util.inspect(resp, false, null, true))
+      /* resp.data.forEach(product => {
+        console.log(product.name)
+      }) */
+    } else {
+      console.log('unexpected!')
+    }
   })
 }

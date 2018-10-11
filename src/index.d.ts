@@ -42,7 +42,7 @@ interface SubCategory extends BaseModel {
   name: string
   description: string
   categoryId: number
-  category?: Category
+  category: Category
   imageFilename: string
 }
 
@@ -52,9 +52,9 @@ interface Product extends BaseModel {
   warranty: string
   description: string
   subCategoryId: number
-  subCategory?: SubCategory
-  variants?: Variant[]
-  productImages?: ProductImage[]
+  subCategory: SubCategory
+  variants: Variant[]
+  productImages: ProductImage[]
   shopProducts?: ShopProduct[]
 }
 
@@ -192,10 +192,10 @@ interface InStockProduct extends BaseModel {
   warranty: string,
   price: number,
   stockQuantity: number,
-  variants?: InStockVariant
+  variants?: InStockVariant[]
   subCategory?: SubCategory
   images?: ProductImage[]
-  primaryImage?: ProductImage
+  primaryImage?: ProductImage[]
 }
 
 interface InStockVariant extends BaseModel {
@@ -212,7 +212,10 @@ interface POProduct extends BaseModel {
   warranty: string,
   price: number,
   preOrderDuration: number
-  variants?: POVariant
+  variants?: POVariant[]
+  subCategory?: SubCategory
+  images?: ProductImage[]
+  primaryImage?: ProductImage
 }
 
 interface POVariant extends BaseModel {

@@ -4,14 +4,14 @@ block content
   header
     h1
       | Nusantara Gizmo - Solusi Gadget & Elektronik Anda
-    section.information #[a(href=`/category/${product.subCategory.category.id}`) #{product.subCategory.category.name}] > #[a(href=`/subCategory/${product.subCategory.id}`) #{product.subCategory.name}]
+    section.information #[a(href=getProductCategoryURL(product)) #{getProductCategory(product)}] > #[a(href=getProductSubCategoryURL(product)) #{getProductSubCategory(product)}]
     section.product
       section.images
-        if (product.productImages.length > 0)
+        if (product.images.length > 0)
           article.main-image
-            img(src=`${getImageURL(product.productImages[0].imageFilename)}`)
+            img(src=`${getImageURL(product.images[0].imageFilename)}`)
           section.thumbnail-images
-            each productImage in product.productImages
+            each productImage in product.images
               article
                 img(src=`${getImageURL(productImage.imageFilename)}`)
       //section.images
@@ -40,20 +40,10 @@ block content
             span= formatPrice(product.price)
           .detail
             label Garansi: 
-            span= product.warranty
-          if product.variants.length
-            .detail
-              label Availability:
-              span Ready Stock
-            .detail
-              label Varian: 
-              select
-                each variant in product.variants
-                  option(data=variant.id)= variant.name
-          else
-            .detail
-              label Availability:
-              span Pre-order
+            span= product.warranty || '-'
+          .detail
+            label Availability:
+            span Pre-order
           .purchase
             button Add to Cart
       //section.description

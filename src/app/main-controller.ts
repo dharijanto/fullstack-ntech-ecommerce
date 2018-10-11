@@ -48,8 +48,8 @@ class Controller extends BaseController {
           Promise.join<NCResponse<any[]>>(
             LocalShopService.getPromotion(),
             ProductService.getCategories({}, true),
-            LocalShopService.getInStockProducts(),
-            LocalShopService.getPOProducts()
+            LocalShopService.getInStockProducts({}),
+            LocalShopService.getPOProducts({})
           ).spread((resp: NCResponse<Promotion[]>, resp2: NCResponse<Category[]>, resp3: NCResponse<InStockProduct[]>, resp4: NCResponse<POProduct[]>) => {
             if (resp.status && resp.data &&
                 resp2.status && resp2.data &&
@@ -67,23 +67,28 @@ class Controller extends BaseController {
           }).catch(next)
         })
 
-        this.routeGet('/:categoryId/*/:subCategoryId/*/:productId/*', (req, res, next) => {
+        this.routeGet('/:categoryId/*/:subCategoryId/*/:productId/*/', (req, res, next) => {
           const categoryId = req.params.categoryId
           const subCategoryId = req.params.subCategoryId
           const productId = req.params.productId
-
-          Promise.join<NCResponse<any[]>>(
-            LocalShopService.getProductWithAllImages({ id: productId })
-          ).spread((resp: NCResponse<Product[]>) => {
-            if (resp.status && resp.data && resp.data.length) {
-              res.locals.product = resp.data[0]
-              log.verbose(TAG, 'product=' + JSON.stringify(resp.data))
-              res.render('product')
+          Promise.join<NCResponse<any>>(
+            LocalShopService.getInStockProduct(productId),
+            LocalShopService.getPOProduct(productId)
+          ).spread((resp1: NCResponse<InStockProduct>, resp2: NCResponse<POProduct>) => {
+            if (resp1.status) {
+              res.locals.product = resp1.data
+              log.verbose(TAG, 'product=' + JSON.stringify(resp1.data))
+              res.render('ready-product')
+            } else if (resp2.status) {
+              res.locals.product = resp2.data
+              log.verbose(TAG, 'product=' + JSON.stringify(resp2.data))
+              res.render('po-product')
             } else {
-              res.status(500).send('Failed to retrieve product information')
+              next(new Error('Product with id=' + productId + ' is not found!'))
             }
-          }).catch(next)
-          // res.send(`categoryId=${categoryId} subCategoryId=${subCategoryId} productId=${productId}`)
+          }).catch(err => {
+            next(err)
+          })
         })
       }
     })

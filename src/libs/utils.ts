@@ -1,5 +1,10 @@
+import * as util from 'util'
+
 import AppConfig from '../app-config'
 import * as getSlug from 'speakingurl'
+
+import * as Treeize from 'treeize'
+import * as flatToTrees from 'flatToTrees'
 
 // Depending whether the server is locally hosted or on the cloud,
 // image mount path could be differentz
@@ -22,14 +27,63 @@ export function formatPrice (price) {
   }
   return `Rp. ${result}`
 }
-// Return: URL of format: /1/aksesoris-komputer/3/mouse/logitech-m235
+
 export function getProductURL (product: Product) {
+  /* if (product.subCategory.length > 0 && product.subCategory[0].category.length > 0) {
+    return `/${product.subCategory[0].category[0].id}/${getSlug(product.subCategory[0].category[0].name)}` +
+      `/${product.subCategory[0].id}/${getSlug(product.subCategory[0].name)}` +
+      `/${product.id}/${getSlug(product.name)}`
+  } else {
+    throw new Error('Product needs to have subCategory and category')
+  } */
+
   if (product.subCategory && product.subCategory.category) {
-    return `/${product.subCategory.category.id}/` +
-      `${getSlug(product.subCategory.category.name)}/` +
-      `${product.subCategory.id}/${getSlug(product.subCategory.name)}/` +
-      `${product.id}/${getSlug(product.name)}`
+    return `/${product.subCategory.category.id}/${getSlug(product.subCategory.category.name)}` +
+      `/${product.subCategory.id}/${getSlug(product.subCategory.name)}` +
+      `/${product.id}/${getSlug(product.name)}`
   } else {
     throw new Error('Product needs to have subCategory and category')
   }
+}
+
+export function getProductCategoryURL (product: Product) {
+  /* return `/category/${product.subCategory[0].category[0].id}/${getSlug(product.subCategory[0].category[0].name)}` */
+  console.dir(product)
+  return `/category/${product.subCategory.category.id}/${getSlug(product.subCategory.category.name)}`
+}
+
+export function getProductCategory (product: Product) {
+  return product.subCategory.category.name
+}
+
+export function getProductSubCategoryURL (product: Product) {
+  return `/category/${product.subCategory.category.id}/${getSlug(product.subCategory.category.name)}/sub-category/${product.subCategory.id}/${getSlug(product.subCategory.name)}`
+}
+
+export function getProductSubCategory (product: Product) {
+  return product.subCategory.name
+}
+
+// If data is already array, leave it.
+// If data is object, returns [data]
+// If data is null, returns []
+export function arrayify (data) {
+  if (Array.isArray(data)) {
+    return data
+  } else if (data) {
+    return [data]
+  } else {
+    return []
+  }
+}
+
+// Convert flat SQL array into Object. Delimiter is "."
+// NOTE: flatToTrees always convert sub-child into array, i.e. a.b: 3' into a.b = [3]
+// Due to this, we need to manually parse the array into object
+export function objectify (flatArray) {
+  const result = flatToTrees(flatArray, {
+    removeDuplicateLeaves: true
+  })
+
+  return result
 }
