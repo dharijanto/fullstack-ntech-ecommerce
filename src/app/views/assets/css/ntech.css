@@ -130,8 +130,8 @@ article.product {
 }
 
 .cart-item-container {
-  height: 200px;
   display: flex;
+  height: 200px;
   text-align: center;
 }
 

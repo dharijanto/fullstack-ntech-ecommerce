@@ -5,28 +5,29 @@ block content
     h1
       | Nusantara Gizmo - Solusi Gadget & Elektronik Anda
     section.cart
-      .cart-item-container
-        for item in cart.readyStock
-          img.cart-item-picture(src="http://ntech.nusantara-local.com/images/1532682638445_1.png", alt="")
-          .cart-item-info
-            .cart-item-info-child
-              strong Sand Disk Cruzer 32GB
-            .cart-item-info-child
-              | Hitam
-            .cart-item-info-child
-              | @ Rp. 150.000
-            .cart-item-info-child
-              | (Ready Stock)
-          .cart-item-qtty
-            button +
-            span 5
-            button -
-          .cart-item-subtotal
-            h3 Rp. 300.000
-            button X
-        .cart-total-container
+      for itemGroup in ['readyStock', 'preOrder']
+        for item in cart[itemGroup]
+          .cart-item-container
+            img.cart-item-picture(src=item.image, alt="")
+            .cart-item-info
+              .cart-item-info-child
+                strong= item.product.name
+              .cart-item-info-child
+                | #{item.variant.name}
+              .cart-item-info-child
+                | #{formatPrice(item.product.shopPrice)}
+              .cart-item-info-child
+                | #{itemGroup === 'readyStock' ? '(Ready Stock)' : '(Pre-Order)'} 
+            .cart-item-qtty
+              button +
+              span= item.quantity
+              button -
+            .cart-item-subtotal
+              h3= formatPrice(parseInt(item.quantity) * parseInt(item.product.shopPrice))
+              button X
+      .cart-total-container
           .cart-total-price
-            h2 Total: Rp. 1.500.000
+            h2= formatPrice(cart.totalPrice)
             .cart-customer-info
               label Nama Lengkap:
                 input(type="text")

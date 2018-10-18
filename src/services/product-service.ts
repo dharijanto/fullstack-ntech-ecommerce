@@ -89,7 +89,6 @@ class ProductService extends CRUDService {
     }).then(resp => {
       if (resp.status) {
         if (resp.data && resp.data.length > 0) {
-          const d= resp.data
           const image: ProductImage = resp.data.find(image => image.primary === true) || resp.data[0]
           return { status: true, data: image }
         } else {

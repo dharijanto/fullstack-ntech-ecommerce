@@ -9,10 +9,6 @@ import * as Promise from 'bluebird'
 import AppConfig from '../app-config'
 import * as Utils from '../libs/utils'
 
-export interface LocalShopifiedProduct {
-
-}
-
 /*
   Used for shop-specific code. This should re-use what's in shop-service as much as possible, though.
  */
@@ -126,6 +122,36 @@ class LocalShopService extends CRUDService {
 
   getOrderDetails (orderId) {
     return OrderService.getOrderDetails(orderId)
+  }
+
+  getProductInformation (variantId): Promise<NCResponse<{product: ShopifiedProduct, variant: ShopifiedVariant}>> {
+    return this.readOne<Variant>('Variant', {
+      id: variantId
+    }).then(resp => {
+      if (resp.status && resp.data) {
+        const productId = resp.data.productId
+        return Promise.join(
+          super.getSequelize().query(
+            `SELECT * FROM shopifiedVariantsView WHERE id = ${variantId} AND shopId=${this.localShopId}`,
+            { type: super.getSequelize().QueryTypes.SELECT }),
+          super.getSequelize().query(
+            `SELECT * FROM shopifiedProductsView WHERE id = ${productId} AND shopId=${this.localShopId}`,
+            { type: super.getSequelize().QueryTypes.SELECT })
+        ).spread((rawVariant, rawProduct) => {
+          if (rawVariant && rawProduct) {
+            const variant = Utils.objectify(rawVariant)[0]
+            const product = Utils.objectify(rawProduct)[0]
+            return { status: true, data: { variant, product } }
+          } else if (!rawVariant) {
+            return { status: false, errMessage: `variantId=${variantId} is not found!` }
+          } else {
+            return { status: false, errMessage: `productId=${productId} is not found!` }
+          }
+        })
+      } else {
+        return { status: false, errMessage: 'variantId=' + variantId + ' is not found!' }
+      }
+    })
   }
 
   getVariantPrice (variantId) {

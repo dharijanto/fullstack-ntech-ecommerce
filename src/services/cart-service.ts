@@ -16,9 +16,17 @@ interface CartMetaData {
   preOrder: Array<CartItemMeta>
 }
 
+export interface CartItem {
+  variantId: number
+  quantity: number
+  image: string
+  product: ShopifiedProduct
+  variant: ShopifiedVariant
+}
+
 export interface Cart {
-  readyStock: Array<{variantId: number, quantity: number, price: number, image: string}>
-  preOrder: Array<{variantId: number, quantity: number, price: number, image: string}>
+  readyStock: Array<CartItem>
+  preOrder: Array<CartItem>
   totalPrice: number
 }
 
@@ -79,15 +87,16 @@ class CartService extends CRUDService {
   }
 
   private getCartItemDetail (item: CartItemMeta) {
-    return Promise.join(
-      LocalShopService.getVariantPrice(item.variantId),
-      ProductService.getVariantImage(item.variantId)
-    ).spread((resp: NCResponse<number>, resp2: NCResponse<ProductImage>) => {
-      if (resp.status) {
+    return Promise.join<NCResponse<any>>(
+      ProductService.getVariantImage(item.variantId),
+      LocalShopService.getProductInformation(item.variantId)
+    ).spread((resp2: NCResponse<ProductImage>, resp: NCResponse<{variant: ShopifiedVariant, product: ShopifiedProduct}>) => {
+      if (resp.status && resp.data) {
         return {
           variantId: item.variantId,
           quantity: item.quantity,
-          price: resp.data,
+          product: resp.data.product,
+          variant: resp.data.variant,
           image: resp2.data && Utils.getImageURL(resp2.data.imageFilename)
         }
       } else {
@@ -109,7 +118,7 @@ class CartService extends CRUDService {
         })
       ).spread((readyStock: Array<any>, preOrder: Array<any>) => {
         const totalPrice = readyStock.concat(preOrder).reduce((acc, item) => {
-          return acc + item.price * item.quantity
+          return acc + item.product.shopPrice * item.quantity
         }, 0)
         return {
           status: true,

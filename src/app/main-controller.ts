@@ -134,7 +134,18 @@ class Controller extends BaseController {
         })
 
         this.routeGet('/cart', (req, res, next) => {
-          res.render('cart')
+          if (req.session) {
+            CartService.getCart(req.session.cart).then(resp => {
+              if (resp.status) {
+                res.locals.cart = resp.data
+                res.render('cart')
+              } else {
+                next(new Error(resp.errMessage))
+              }
+            })
+          } else {
+            next(new Error('Session is not defined!'))
+          }
         })
       }
     })
