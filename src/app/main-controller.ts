@@ -3,12 +3,12 @@ import AppConfig from '../app-config'
 import * as Promise from 'bluebird'
 
 import BaseController from './controllers/base-controller'
+import CartService from '../services/cart-service'
 import ProductService from '../services/product-service'
 import LocalShopService from '../services/local-shop-service'
 import SequelizeService from '../services/sequelize-service'
 import { SiteData } from '../site-definitions'
 import * as Utils from '../libs/utils'
-import shopService from '../services/shop-service'
 
 const path = require('path')
 
@@ -84,11 +84,57 @@ class Controller extends BaseController {
               log.verbose(TAG, 'product=' + JSON.stringify(resp2.data))
               res.render('po-product')
             } else {
-              next(new Error('Product with id=' + productId + ' is not found!'))
+              /* next(new Error('Product with id=' + productId + ' is not found!')) */
+              // TODO: render "maaf produk ini sedang tidak tersedia"
+              res.render('product-unavailable')
             }
           }).catch(err => {
             next(err)
           })
+        })
+
+        this.routePost('/cart/add-item', (req, res, next) => {
+          console.dir(req.session)
+          if (req.session) {
+            CartService.addItemToCart(req.session.cart, req.body).then(resp => {
+              if (resp.status) {
+                if (req.session) {
+                  req.session.cart = resp.data
+                  res.json({ status: true, data: resp.data })
+                } else {
+                  res.json({ status: false, errMessage: 'Session is not defined!' })
+                }
+              } else {
+                res.json(resp)
+              }
+            })
+          } else {
+            res.json({ status: false, errMessage: 'Session is not defined!' })
+          }
+        })
+
+        this.routePost('/cart/add-po-item', (req, res, next) => {
+          console.dir(req.session)
+          if (req.session) {
+            CartService.addPOItemToCart(req.session.cart, req.body).then(resp => {
+              if (resp.status) {
+                if (req.session) {
+                  req.session.cart = resp.data
+                  res.json({ status: true, data: resp.data })
+                } else {
+                  res.json({ status: false, errMessage: 'Session is not defined!' })
+                }
+              } else {
+                res.json(resp)
+              }
+            })
+          } else {
+            res.json({ status: false, errMessage: 'Session is not defined!' })
+          }
+        })
+
+        this.routeGet('/cart', (req, res, next) => {
+          res.render('cart')
         })
       }
     })

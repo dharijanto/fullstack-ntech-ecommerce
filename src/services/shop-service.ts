@@ -6,7 +6,6 @@ import * as Promise from 'bluebird'
 import { CRUDService } from './crud-service'
 import AppConfig from '../app-config'
 import * as Utils from '../libs/utils'
-import { inflateSync } from 'zlib';
 
 /*
   This is used to do shop management.

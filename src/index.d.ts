@@ -70,6 +70,7 @@ interface Variant extends BaseModel {
 interface ProductImage extends BaseModel {
   imageFilename: string
   productId: number
+  primary?: boolean
 }
 
 // TODO: Add foreign key ids

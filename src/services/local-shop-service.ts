@@ -127,5 +127,28 @@ class LocalShopService extends CRUDService {
   getOrderDetails (orderId) {
     return OrderService.getOrderDetails(orderId)
   }
+
+  getVariantPrice (variantId) {
+    return this.readOne<Variant>('Variant', {
+      id: variantId
+    }).then(resp => {
+      if (resp.status && resp.data) {
+        const productId = resp.data.productId
+        return super.getSequelize().query(
+          `SELECT shopPrice FROM shopifiedProductsView WHERE id = ${productId}`,
+          { type: super.getSequelize().QueryTypes.SELECT }).then(result => {
+            if (result && result.length > 0) {
+              const shopifiedProduct = result[0]
+              return { status: true, data: shopifiedProduct.shopPrice }
+            } else {
+              return { status: false, errMessage: 'productId=' + productId + ' is not found!' }
+            }
+          })
+      } else {
+        return { status: false, errMessage: 'variantId=' + variantId + ' is not found!' }
+      }
+    })
+  }
 }
+
 export default new LocalShopService()

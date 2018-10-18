@@ -141,11 +141,11 @@ export default class ProductManagementController extends BaseController {
                 // QRCode contains variantId
                 res.render('qrcode')
               } else {
-                next(new Error(resp2.errMessage))
+                throw new Error(resp2.errMessage)
               }
             })
           } else {
-            next(new Error(resp.errMessage))
+            throw new Error(resp.errMessage)
           }
         }).catch(next)
       } else {

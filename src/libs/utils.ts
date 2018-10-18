@@ -29,14 +29,6 @@ export function formatPrice (price) {
 }
 
 export function getProductURL (product: Product) {
-  /* if (product.subCategory.length > 0 && product.subCategory[0].category.length > 0) {
-    return `/${product.subCategory[0].category[0].id}/${getSlug(product.subCategory[0].category[0].name)}` +
-      `/${product.subCategory[0].id}/${getSlug(product.subCategory[0].name)}` +
-      `/${product.id}/${getSlug(product.name)}`
-  } else {
-    throw new Error('Product needs to have subCategory and category')
-  } */
-
   if (product.subCategory && product.subCategory.category) {
     return `/${product.subCategory.category.id}/${getSlug(product.subCategory.category.name)}` +
       `/${product.subCategory.id}/${getSlug(product.subCategory.name)}` +
@@ -47,8 +39,6 @@ export function getProductURL (product: Product) {
 }
 
 export function getProductCategoryURL (product: Product) {
-  /* return `/category/${product.subCategory[0].category[0].id}/${getSlug(product.subCategory[0].category[0].name)}` */
-  console.dir(product)
   return `/category/${product.subCategory.category.id}/${getSlug(product.subCategory.category.name)}`
 }
 
@@ -84,6 +74,15 @@ export function objectify (flatArray) {
   const result = flatToTrees(flatArray, {
     removeDuplicateLeaves: true
   })
+
+  return result
+}
+
+export function range (start: number, end: number, step: number = 1) {
+  let result: Array<number> = []
+  for (let i = start ; i < end ; i += step) {
+    result.push(i)
+  }
 
   return result
 }

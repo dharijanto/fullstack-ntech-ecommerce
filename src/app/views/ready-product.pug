@@ -5,99 +5,39 @@ block content
     h1
       | Nusantara Gizmo - Solusi Gadget & Elektronik Anda
     section.information #[a(href=getProductCategoryURL(product)) #{getProductCategory(product)}] > #[a(href=getProductSubCategoryURL(product)) #{getProductSubCategory(product)}]
-    section.product
-      section.images
-        if (product.images.length > 0)
-          article.main-image
-            img(src=`${getImageURL(product.images[0].imageFilename)}`)
-          section.thumbnail-images
-            each productImage in product.images
-              article
-                img(src=`${getImageURL(productImage.imageFilename)}`)
-      //section.images
+  section.product
+    section.images
+      if (product.images.length > 0)
         article.main-image
-          img()
+          img(src=`${getImageURL(product.images[0].imageFilename)}`)
         section.thumbnail-images
-          article
-            img
-          article
-            img
-          article
-            img
-          article
-            img
-          article
-            img
-          article
-            img
-      section.description
-        article
-          h1= product.name
-          section.information
-            | !{product.description}
-          .detail
-            label Harga:
-            span= formatPrice(product.price)
-          .detail
-            label Garansi:
-            span= product.warranty
-          .detail
-            label Availability:
-            span Ready Stock
-          .detail
-            label Varian:
-            select#select-variant
-              each variant in product.variants
-                option(data-id=variant.id data-quantity=variant.stockQuantity)= variant.name
-          .detail
-            label Quantity:
-            select#select-quantity
-            // select
-              each qtty in range(product.variants)
-                option(data-id=variant.id)= variant.name
-          .purchase
-            button Add to Cart
-      //section.description
-        article
-          h1 SanDisk Cruzer Blade 32GB
-          p This is the best USB 2.0 on the market.
-          .detail
-            label Harga:
-            span Rp. 125.000
-          .detail
-            label Garansi:
-            span 1 bulan
-          .detail
-            label Varian:
-            span Hitam
-          .detail
-            label Stock:
-            span 10 pcs
-          .detail
-            label Quantity:
-            select
-              option 1
-              option 2
-              option 3
-              option 4
-              option 5
-          .purchase
-            button Add to Cart
+          each productImage in product.images
+            article
+              img(src=`${getImageURL(productImage.imageFilename)}`)
+    section.description
+      article
+        h1= product.name
+        section.information
+          | !{product.description}
+        .detail
+          label Harga:
+          span= formatPrice(product.price)
+        .detail
+          label Garansi:
+          span= product.warranty
+        .detail
+          label Availability:
+          span Ready Stock
+        .detail
+          label Varian:
+          select#select-variant
+            each variant in product.variants
+              option(data-id=variant.id data-quantity=variant.stockQuantity)= variant.name
+        .detail
+          label Quantity:
+          select#select-quantity
+        .purchase
+          button(type="button")#add-to-cart Add to Cart
 append scripts
+  script(src='/assets/js/instock-product-app-bundle.js')
   script.
-    const selectVariant = $('#select-variant')
-    const selectQuantity = $('#select-quantity')
-    function onSelectedVariantChanged () {
-      const selectedId = selectVariant.find(':selected').data('id')
-      const selectedQuantity = selectVariant.find(':selected').data('quantity')
-      selectQuantity.empty()
-      for (var i = 1; i <= selectedQuantity; i++) {
-        selectQuantity.append(`<option data-quantity=${i}>${i}</option>`)
-      }
-    }
-    $(document).ready(function () {
-      onSelectedVariantChanged()
-    })
-    $('#select-variant').on('change', function () {
-      onSelectedVariantChanged()
-    })
