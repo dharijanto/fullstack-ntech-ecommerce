@@ -30,8 +30,34 @@ const modules = [
   {
     input: 'order-management-cms',
     output: 'cms'
+  },
+  {
+    input: 'instock-product-app',
+    output: 'app'
+  },
+  {
+    input: 'po-product-app',
+    output: 'app'
   }
 ]
+/*
+fs.readdir(path.join(__dirname, 'src'), (err, files) => {
+  if (!err) {
+
+  } else {
+    throw err
+  }
+}) */
+
+function getAssetFolder(outputFolder, moduleName) {
+  if (outputFolder === 'app') {
+    return path.join(__dirname, `../dist/${outputFolder}/views/assets/js/${moduleName}-bundle.js`)
+  } else if (outputFolder === 'cms') {
+    return path.join(__dirname, `../dist/${outputFolder}/views/v1/assets/js/${moduleName}-bundle.js`)
+  } else {
+    throw new Error('Unexpected outputFolder=' + outputFolder)
+  }
+}
 
 modules.forEach(module => {
   log(`Watching module: ${module.input}...`)
@@ -50,12 +76,12 @@ modules.forEach(module => {
   bundle(b, module.input, module.output)
 })
 
-function bundle (b, module, outputFolder) {
-  log(`Bundling module: ${module}...`)
+function bundle (b, moduleName, outputFolder) {
+  log(`Bundling module: ${moduleName}...`)
   b.bundle()
     .on('error', err => log.error(err.message))
-    .pipe(fs.createWriteStream(path.join(__dirname, `../dist/${outputFolder}/views/v1/assets/js/${module}-bundle.js`)))
+    .pipe(fs.createWriteStream(getAssetFolder(outputFolder, moduleName)))
     .on('finish', () => {
-      log(`Finished Bundling module: ${module}...`)
+      log(`Finished Bundling module: ${moduleName}...`)
     })
 }
