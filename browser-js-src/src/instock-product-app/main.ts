@@ -31,6 +31,7 @@ $('#add-to-cart').on('click', function () {
     console.dir(resp)
     if (resp.status) {
       toastr.success('Success!')
+      $('#cart-modal').modal()
     } else {
       toastr.error('Error: ' + resp.errMessage)
     }

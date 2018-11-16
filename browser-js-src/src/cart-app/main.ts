@@ -1,0 +1,43 @@
+import * as $ from 'jquery'
+import * as toastr from 'toastr'
+import axios from '../libs/axios-wrapper'
+
+console.log('hehe')
+
+function addItem (variantId: number, quantity: number) {
+  axios.post('/cart/add-item', {
+    variantId,
+    quantity
+  }).then(rawResp => {
+    const resp = rawResp.data
+    if ('status' in resp) {
+      if (resp.status) {
+        location.reload()
+      } else {
+        toastr.error('Failed to addItem(): ' + resp.errMessage)
+        console.error('Failed to addItem(): ' + resp.errMessage)
+      }
+    } else {
+      throw new Error('Unexpected data returned by server: ' + JSON.stringify(resp))
+    }
+  }).catch(err => {
+    console.error(err)
+    toastr.error(err.status)
+  })
+}
+
+$(window).ready(() => {
+  $('.add-item').on('click', function () {
+    console.log('add item clicked')
+    const variantId = $(this).data('variant-id')
+    const quantity = 1
+    addItem(variantId, quantity)
+  })
+
+  $('.reduce-item').on('click', function () {
+    console.log('reeduce item clicked')
+    const variantId = $(this).data('variant-id')
+    const quantity = -1
+    addItem(variantId, quantity)
+  })
+})

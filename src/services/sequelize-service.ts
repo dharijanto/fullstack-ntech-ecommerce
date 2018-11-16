@@ -1,5 +1,5 @@
-import {Sequelize, Models} from 'sequelize'
-var log = require('npmlog')
+import { Sequelize, Models } from 'sequelize'
+let log = require('npmlog')
 
 const TAG = 'SequelizeService'
 

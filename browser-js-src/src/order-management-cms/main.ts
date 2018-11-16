@@ -1,7 +1,6 @@
 import * as $ from 'jquery'
 import 'nc-input-library'
 import 'nc-image-picker'
-/* import * as toastr from 'toastr' */
 import * as toastr from 'toastr'
 import * as _ from 'lodash'
 
@@ -53,10 +52,11 @@ const ncOrder = $('#order').NCInputLibrary({
     ui: [
       { id: 'id', desc: 'ID', dataTable: true, input: 'hidden', disabled: true },
       { id: 'fullName', desc: 'Name', dataTable: true, input: 'hidden' },
+      { id: 'phoneNumber', desc: 'Phone Number', dataTable: true, input: 'hidden' },
       { id: 'notes', desc: 'Notes', dataTable: true, input: 'hidden' },
+      { id: 'status', desc: 'Status', dataTable: true, input: 'hidden' },
       { id: 'quantity', desc: 'Quantity', dataTable: true, input: 'hidden' },
       { id: 'price', desc: 'Price', dataTable: true, input: 'hidden' },
-      { id: 'status', desc: 'Status', dataTable: true, input: 'hidden' },
       { id: 'createdAt', desc: 'Date Created', dataTable: true, input: 'hidden', disabled: true },
       { id: 'updatedAt', desc: 'Date Updated', dataTable: true, input: 'hidden', disabled: true }
     ],
@@ -91,9 +91,6 @@ const ncOrderDetail = $('#order-detail').NCInputLibrary({
       { id: 'price', desc: 'Price', dataTable: true, input: 'hidden' },
       { id: 'status', desc: 'Status', dataTable: true, input: 'hidden' },
       { id: 'preOrderDuration', desc: 'PO Duration', dataTable: true, input: 'hidden' },
-      { id: 'productId', desc: 'Product ID', dataTable: true, input: 'hidden', disabled: true },
-      { id: 'variantId', desc: 'Variant ID', dataTable: true, input: 'hidden', disabled: true },
-      { id: 'orderId', desc: 'Order ID', dataTable: true, input: 'hidden', disabled: true },
       { id: 'createdAt', desc: 'Date Created', dataTable: true, input: 'hidden', disabled: true },
       { id: 'updatedAt', desc: 'Date Updated', dataTable: true, input: 'hidden', disabled: true }
     ],

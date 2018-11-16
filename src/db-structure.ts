@@ -161,6 +161,15 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
     paranoid: true
   })
 
+  models.User = sequelize.define('user', {
+    id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
+    username: { type: Sequelize.STRING }, // The pair of (username, schoolId) should be unique, we should use MySQL composite key for this
+    saltedPass: { type: Sequelize.STRING },
+    salt: { type: Sequelize.STRING },
+    fullName: { type: Sequelize.STRING },
+    privilege: { type: Sequelize.ENUM, values: ['Admin', 'Cashier', 'Opnamer'], allowNull: false }
+  })
+  models.User.belongsTo(models.Shop)
   models.OrderDetail.belongsTo(models.Variant)
   models.OrderDetail.belongsTo(models.Order)
   models.Variant.hasMany(models.OrderDetail)

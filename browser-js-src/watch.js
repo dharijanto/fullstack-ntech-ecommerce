@@ -32,11 +32,19 @@ const modules = [
     output: 'cms'
   },
   {
+    input: 'account-management-cms',
+    output: 'cms'
+  },
+  {
     input: 'instock-product-app',
     output: 'app'
   },
   {
     input: 'po-product-app',
+    output: 'app'
+  },
+  {
+    input: 'cart-app',
     output: 'app'
   }
 ]
@@ -64,7 +72,9 @@ modules.forEach(module => {
   const b = browserify(
     [path.join(__dirname, 'src', module.input, 'main.ts'), path.join(__dirname, 'src/index.d.ts')],
       {cache: {}, packageCache: {}, debug: true})
-  .plugin(tsify, {target: 'es6'})
+  // When option 'files: []' passed, only browserify entry point is watched.
+  // Otherwise, any changes in any of the .ts file, even unrelated ones, will trigger 'update' events
+  .plugin(tsify, {target: 'es6', files: []})
   .transform('babelify', {presets: ['es2015']})
   .transform({global: true}, 'browserify-shim')
   /* .transform('uglifyify', {global: true}) */

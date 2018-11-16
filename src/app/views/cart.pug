@@ -19,9 +19,9 @@ block content
               .cart-item-info-child
                 | #{itemGroup === 'readyStock' ? '(Ready Stock)' : '(Pre-Order)'}
             .cart-item-qtty
-              button +
+              button.add-item(type="button" data-variant-id=item.variantId) +
               span= item.quantity
-              button -
+              button.reduce-item(type="button" data-variant-id=item.variantId) -
             .cart-item-subtotal
               h3= formatPrice(parseInt(item.quantity) * parseInt(item.product.shopPrice))
               button X
@@ -33,6 +33,8 @@ block content
                 input(type="text")
               label No Telp:
                 input(type="text")
+              label Notes:
+                textarea(rows="3")
               button Order
     //section.cart
       .cart-item-container
@@ -64,4 +66,4 @@ block content
             button Order
 
 append scripts
-  // script(src='/assets/js/po-product-app-bundle.js')
+  script(src='/assets/js/cart-app-bundle.js')

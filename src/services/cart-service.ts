@@ -36,54 +36,28 @@ Functions in this service requires currentCart, which is cart information stored
 on the session.
  */
 class CartService extends CRUDService {
-  addItemToCart (currentCart, { variantId, quantity }): Promise<NCResponse<CartMetaData>> {
-    let cart
-    let readyStock
+  addItemToCart (type: 'readyStock' | 'preOrder', currentCart: CartMetaData, item: CartItemMeta): Promise<NCResponse<CartMetaData>> {
+    let cart: CartMetaData
     if (currentCart) {
-      if (!currentCart.readyStock) {
-        currentCart.readyStock = []
-      }
       cart = currentCart
-      readyStock = currentCart.readyStock
     } else {
-      cart = { readyStock: [] }
-      readyStock = cart.readyStock
+      cart = { readyStock: [], preOrder: [] }
     }
-    const existingItem = readyStock.find(item => {
-      return item.variantId === variantId
+    const existingItem: CartItemMeta | undefined = cart[type].find(currentItem => {
+      return currentItem.variantId === item.variantId
     })
     if (existingItem) {
-      existingItem.quantity = parseInt(existingItem.quantity, 10) + parseInt(quantity, 10)
+      existingItem.quantity = existingItem.quantity + item.quantity
+      if (existingItem.quantity <= 0) {
+        cart[type] = cart[type].filter(currentItem => {
+          return currentItem.variantId !== existingItem.variantId
+        })
+      }
     } else {
-      readyStock.push({ variantId, quantity })
+      cart[type].push(item)
     }
 
     return this.getCart(cart)
-  }
-
-  addPOItemToCart (currentCart, { variantId, quantity }): Promise<NCResponse<CartMetaData>> {
-    let cart
-    let preOrder
-    if (currentCart) {
-      if (!currentCart.preOrder) {
-        currentCart.preOrder = []
-      }
-      cart = currentCart
-      preOrder = currentCart.preOrder
-    } else {
-      cart = { preOrder: [] }
-      preOrder = cart.preOrder
-    }
-    const existingItem = preOrder.find(item => {
-      return item.variantId === variantId
-    })
-    if (existingItem) {
-      existingItem.quantity = parseInt(existingItem.quantity, 10) + parseInt(quantity, 10)
-    } else {
-      preOrder.push({ variantId, quantity })
-    }
-
-    return this.getCart(currentCart)
   }
 
   private getCartItemDetail (item: CartItemMeta) {

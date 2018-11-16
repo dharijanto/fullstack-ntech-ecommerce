@@ -1,5 +1,6 @@
 import BaseController from './controllers/base-controller'
 import OrderManagementController from './controllers/order-management-controller'
+import AccountManagementController from './controllers/account-management-controller'
 import ProductManagementController from './controllers/product-management-controller'
 import ShopManagementController from './controllers/shop-management-controller'
 import SupplierManagementController from './controllers/supplier-management-controller'
@@ -66,6 +67,7 @@ class MainController extends BaseController {
     this.routeUse('/shop-management', new ShopManagementController(initData).getRouter())
     this.routeUse('/supplier-management', new SupplierManagementController(initData).getRouter())
     this.routeUse('/order-management', new OrderManagementController(initData).getRouter())
+    this.routeUse('/account-management', new AccountManagementController(initData).getRouter())
   }
 }
 

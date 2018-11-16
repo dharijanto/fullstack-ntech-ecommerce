@@ -1,6 +1,7 @@
 extend layout/base
 
 block content
+  include include/cart-modal
   header
     h1
       | Nusantara Gizmo - Solusi Gadget & Elektronik Anda
@@ -38,6 +39,9 @@ block content
           select#select-quantity
         .purchase
           button(type="button")#add-to-cart Add to Cart
+          // button.btn.btn-primary(type='button', data-toggle='modal', data-target='#exampleModal')
+            | Launch demo modal
+
 append scripts
   script(src='/assets/js/instock-product-app-bundle.js')
   script.

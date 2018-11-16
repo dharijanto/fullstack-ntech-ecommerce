@@ -9,15 +9,15 @@ const selectQuantity = $('#select-quantity')
 $('#add-to-cart').on('click', function () {
   const variantId = selectVariant.find(':selected').data('id')
   const quantity = selectQuantity.val()
-  axios.post('/cart/add-po-item', {
+  axios.post('/cart/add-item', {
     variantId,
     quantity
   }).then(rawResp => {
     const resp = rawResp.data
     console.dir(resp)
-    // TODO: Show up modal
     if (resp.status) {
       toastr.success('Success!')
+      $('#cart-modal').modal()
     } else {
       toastr.error('Error: ' + resp.errMessage)
     }

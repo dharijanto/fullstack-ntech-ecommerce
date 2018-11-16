@@ -148,6 +148,17 @@ interface Promotion extends BaseModel {
   imageFilename: string
 }
 
+interface User extends BaseModel {
+  username: string
+  password?: string
+  confirmPassword?: string
+  salt?: string
+  saltedPass?: string
+  fullName: string
+  privilege: ['Admin', 'Cashier', 'Opnamer']
+  shopId: number
+}
+
 /*
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------

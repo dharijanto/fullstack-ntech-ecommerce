@@ -9,6 +9,8 @@ import * as Promise from 'bluebird'
 import AppConfig from '../app-config'
 import * as Utils from '../libs/utils'
 
+export type ProductAvailability = 'readyStock' | 'preOrder' | 'unavailable'
+
 /*
   Used for shop-specific code. This should re-use what's in shop-service as much as possible, though.
  */
@@ -30,6 +32,14 @@ class LocalShopService extends CRUDService {
       } else {
         return Promise.resolve({ status: true, data: null })
       }
+    }
+  }
+
+  getLocalShopId () {
+    if (this.localShopId !== -1) {
+      return Promise.resolve({ status: true, data: this.localShopId })
+    } else {
+      throw new Error('Local shop id is not yet retrieved!')
     }
   }
 
@@ -172,6 +182,34 @@ class LocalShopService extends CRUDService {
           })
       } else {
         return { status: false, errMessage: 'variantId=' + variantId + ' is not found!' }
+      }
+    })
+  }
+
+  getProductAvailability (productId: number): Promise<NCResponse<ProductAvailability>> {
+    return Promise.join<NCResponse<any>>(
+      this.getInStockProduct(productId),
+      this.getPOProduct(productId)
+    ).spread((resp1: NCResponse<InStockProduct>, resp2: NCResponse<POProduct>) => {
+      let status: ProductAvailability = 'unavailable'
+      if (resp1.status) {
+        status = 'readyStock'
+      } else if (resp2.status) {
+        status = 'preOrder'
+      }
+      return { status: true, data: status }
+    })
+  }
+
+  getVariantAvailability (variantId: number): Promise<NCResponse<ProductAvailability>> {
+    return this.readOne<Variant>('Variant', {
+      id: variantId
+    }).then(resp => {
+      if (resp.status && resp.data) {
+        const productId = resp.data.productId
+        return this.getProductAvailability(productId)
+      } else {
+        return { status: false, errMessage: resp.errMessage }
       }
     })
   }

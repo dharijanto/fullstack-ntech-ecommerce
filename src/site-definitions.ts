@@ -5,6 +5,8 @@ import * as Promise from 'bluebird'
 
 import { Sequelize, Models } from 'sequelize'
 
+import AppConfig from './app-config'
+
 export interface Database {
   sequelize: Sequelize
   models: {}
@@ -92,7 +94,7 @@ export abstract class AppController {
 
     this.router.set('views', this.viewPath)
     this.router.set('view engine', 'pug')
-    this.router.use('/assets', express.static(this.assetsPath, { maxAge: '1h' }))
+    this.router.use('/assets', express.static(this.assetsPath, { maxAge: AppConfig.PRODUCTION ? '1h' : '0' }))
   }
   // Initialize the class. The reason this can't be done using constructor is because
   // we may have to wait until the initialization is compelte before preceeding
