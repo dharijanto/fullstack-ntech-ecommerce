@@ -18,7 +18,7 @@ export default class CartController extends BaseController {
   constructor (siteData: SiteData) {
     super(Object.assign(siteData, { viewPath: path.join(__dirname, '../views') }))
     this.routePost('/add-item', (req, res, next) => {
-      console.dir(req.session)
+      log.verbose(TAG, '/add-item.POST:' + JSON.stringify(req.session, null, 2))
       if (req.body.variantId && req.body.quantity) {
         const data = {
           variantId: req.body.variantId,
@@ -54,36 +54,29 @@ export default class CartController extends BaseController {
         res.json({ status: false, errMessage: 'variantId and quantity are required!' })
       }
     })
-/*
-    // TODO: This should be removed! /add-item should detect whether the item is PO or ready stock!
-    // we don't wanna maintain two separate logic
-    this.routePost('/add-po-item', (req, res, next) => {
-      console.dir(req.session)
+
+    this.routePost('/place-order', (req, res, next) => {
       if (req.session) {
-        if (req.body.variantId && req.body.quantity) {
-          const data = {
-            variantId: req.body.variantId,
-            quantity: parseInt(req.body.quantity, 10)
-          }
-          CartService.addItemToCart('preOrder', req.session.cart, data).then(resp => {
-            if (resp.status) {
-              if (req.session) {
-                req.session.cart = resp.data
-                res.json({ status: true, data: resp.data })
-              } else {
-                res.json({ status: false, errMessage: 'Session is not defined!' })
+        CartService.placeOrder(req.body.fullName, req.body.phoneNumber, req.body.notes, req.session.cart).then(resp => {
+          if (req.session) {
+            CartService.emptyCart(req.session.cart).then(resp2 => {
+              if (!resp2.status) {
+                log.error(TAG, 'place-order.POST: emptyCart failed!')
               }
-            } else {
               res.json(resp)
-            }
-          })
-        } else {
-          res.json({ status: false, errMessage: 'variantId and quantity are required!' })
-        }
+            })
+          } else {
+            res.json(resp)
+          }
+        }).catch(next)
       } else {
         res.json({ status: false, errMessage: 'Session is not defined!' })
       }
-    }) */
+    })
+
+    this.routeGet('/order-placed', (req, res, next) => {
+      res.render('order-placed')
+    })
 
     this.routeGet('/', (req, res, next) => {
       if (req.session) {

@@ -5,6 +5,7 @@ import * as Utils from '../libs/utils'
 import { CRUDService } from './crud-service'
 import LocalShopService from './local-shop-service'
 import ProductService from './product-service';
+import OrderManagementController from '../cms/controllers/order-management-controller';
 
 interface CartItemMeta {
   variantId: number
@@ -77,6 +78,72 @@ class CartService extends CRUDService {
         throw new Error('variantId=' + item.variantId + ' is not found!')
       }
     })
+  }
+
+  private createOrderDetail (orderId: number, variantId: number, quantity: number, itemStatus: 'PO' | 'Ready'): Promise<NCResponse<Partial<OrderDetail>>> {
+    return LocalShopService.getVariantPrice(variantId).then(resp2 => {
+      if (resp2.status && resp2.data) {
+        return super.create<OrderDetail>('OrderDetail', {
+          orderId,
+          status: 'PO',
+          variantId: variantId,
+          quantity,
+          price: resp2.data
+        })
+      } else {
+        throw new Error(`variantId=${variantId} is not found!`)
+      }
+    })
+  }
+
+  placeOrder (fullName: string, phoneNumber: string, notes: string, currentCart: CartMetaData): Promise<NCResponse<any>> {
+    // TODO: Use transaction so we can rollback
+    if (fullName) {
+      return LocalShopService.getLocalShopId().then(resp2 => {
+        if (resp2.status) {
+          return super.create<Order>('Order', {
+            fullName,
+            phoneNumber,
+            notes,
+            shopId: resp2.data,
+            status: 'Open'
+          }).then(resp => {
+            if (resp.status && resp.data) {
+              const orderId = resp.data.id
+              return Promise.join(
+                Promise.map(currentCart.preOrder, cartItem => {
+                  return this.createOrderDetail(orderId, cartItem.variantId, cartItem.quantity, 'PO')
+                }),
+                Promise.map(currentCart.readyStock, cartItem => {
+                  return this.createOrderDetail(orderId, cartItem.variantId, cartItem.quantity, 'Ready')
+                })
+              ).spread((poResults: Array<NCResponse<any>>, readyResults: Array<NCResponse<any>>) => {
+                const finalResult = poResults.concat(readyResults).reduce((acc, result) => {
+                  return { status: acc.status && result.status, errMessage: acc.errMessage || result.errMessage }
+                }, { status: true, errMessage: '' })
+                return finalResult
+              })
+            } else {
+              return Promise.resolve({ status: false, errMessage: resp.errMessage })
+            }
+          })
+        } else {
+          return { status: false, errMessage: resp2.errMessage }
+        }
+      })
+    } else {
+      return Promise.resolve({ status: false, errMessage: 'fullName is required!' })
+    }
+  }
+
+  emptyCart (currentCart: CartMetaData) {
+    if (currentCart) {
+      currentCart.preOrder = []
+      currentCart.readyStock = []
+      return Promise.resolve({ status: true })
+    } else {
+      return Promise.resolve({ status: false, errMessage: 'currentCart is not defined!' })
+    }
   }
 
   getCart (currentCart: CartMetaData): Promise<NCResponse<Cart>> {

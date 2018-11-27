@@ -1,4 +1,12 @@
 /*
+  Generic
+*/
+
+.large-text {
+  font-size: 150%;
+}
+
+/*
   Home Page
 */
 section.promotion .tiles article {

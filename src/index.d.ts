@@ -238,9 +238,10 @@ interface POVariant extends BaseModel {
 
 interface Order extends BaseModel {
   fullName: string,
+  phoneNumber: string
+  notes: string,
   quantity: number,
   price: number,
-  notes: string,
   status: 'Open' | 'Close' | 'PO',
   shopId: number
 }

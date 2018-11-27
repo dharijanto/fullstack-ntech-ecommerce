@@ -40,4 +40,21 @@ $(window).ready(() => {
     const quantity = -1
     addItem(variantId, quantity)
   })
+
+  $('#place-order').on('click', function () {
+    const orderData = $('#order-form').serialize()
+    axios.post('/cart/place-order', orderData).then(rawResp => {
+      const resp = rawResp.data
+      if (resp.status) {
+        toastr.success('Order has been placed!')
+        window.location.replace('/cart/order-placed')
+      } else {
+        console.error(resp.errMessage)
+        toastr.error('Failed: ' + resp.errMessage)
+      }
+    }).catch(err => {
+      console.error(err)
+      toastr.error('Error: ' + err.message)
+    })
+  })
 })

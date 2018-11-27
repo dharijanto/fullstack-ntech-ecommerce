@@ -35,7 +35,7 @@ class LocalShopService extends CRUDService {
     }
   }
 
-  getLocalShopId () {
+  getLocalShopId (): Promise<NCResponse<number>> {
     if (this.localShopId !== -1) {
       return Promise.resolve({ status: true, data: this.localShopId })
     } else {
@@ -164,7 +164,7 @@ class LocalShopService extends CRUDService {
     })
   }
 
-  getVariantPrice (variantId) {
+  getVariantPrice (variantId): Promise<NCResponse<number>> {
     return this.readOne<Variant>('Variant', {
       id: variantId
     }).then(resp => {

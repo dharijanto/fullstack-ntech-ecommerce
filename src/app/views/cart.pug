@@ -28,14 +28,15 @@ block content
       .cart-total-container
           .cart-total-price
             h2= formatPrice(cart.totalPrice)
-            .cart-customer-info
-              label Nama Lengkap:
-                input(type="text")
-              label No Telp:
-                input(type="text")
-              label Notes:
-                textarea(rows="3")
-              button Order
+            form#order-form(action="")
+              .cart-customer-info
+                label Nama Lengkap:
+                  input(type="text" name="fullName")
+                label No Telp:
+                  input(type="text" name="phoneNumber")
+                label Notes:
+                  textarea(rows="3" name="notes")
+                button#place-order(type="button") Order
     //section.cart
       .cart-item-container
         img.cart-item-picture(src="http://ntech.nusantara-local.com/images/1532682638445_1.png", alt="")
@@ -58,12 +59,13 @@ block content
       .cart-total-container
         .cart-total-price
           h2 Total: Rp. 1.500.000
-          .cart-customer-info
-            label Nama Lengkap:
-              input(type="text")
-            label No Telp:
-              input(type="text")
-            button Order
+          form
+            .cart-customer-info
+              label Nama Lengkap:
+                input(type="text")
+              label No Telp:
+                input(type="text")
+              button Order
 
 append scripts
   script(src='/assets/js/cart-app-bundle.js')
