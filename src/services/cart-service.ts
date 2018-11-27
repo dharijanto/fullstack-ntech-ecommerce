@@ -47,18 +47,50 @@ class CartService extends CRUDService {
     const existingItem: CartItemMeta | undefined = cart[type].find(currentItem => {
       return currentItem.variantId === item.variantId
     })
-    if (existingItem) {
-      existingItem.quantity = existingItem.quantity + item.quantity
-      if (existingItem.quantity <= 0) {
-        cart[type] = cart[type].filter(currentItem => {
-          return currentItem.variantId !== existingItem.variantId
-        })
+    const requestedQuantity = existingItem ? existingItem.quantity + item.quantity : item.quantity
+    return LocalShopService.getVariantAvailability(item.variantId).then(resp => {
+      if (resp.status && resp.data) {
+        const availableQuantity = resp.data.quantity || 0
+        if (resp.data.status === 'readyStock') {
+          if (type === 'preOrder') {
+            return { status: false, errMessage: 'Product is ready stock!' }
+          } else {
+            if (requestedQuantity > availableQuantity) {
+              return { status: false, errMessage: `Only ${availableQuantity} items left!` }
+            } else {
+              return { status: true }
+            }
+          }
+        } else if (resp.data.status === 'preOrder') {
+          if (type === 'readyStock') {
+            return { status: false, errMessage: 'Product is not ready stock!' }
+          } else {
+            return { status: true }
+          }
+        } else {
+          return { status: false, errMessage: 'Product is not available!' }
+        }
+      } else {
+        return { status: false, errMessage: resp.errMessage }
       }
-    } else {
-      cart[type].push(item)
-    }
-
-    return this.getCart(cart)
+    }).then(resp => {
+      if (resp.status) {
+        if (existingItem) {
+          existingItem.quantity = requestedQuantity
+          // Remove the item from the cart
+          if (existingItem.quantity <= 0) {
+            cart[type] = cart[type].filter(currentItem => {
+              return currentItem.variantId !== existingItem.variantId
+            })
+          }
+        } else {
+          cart[type].push(item)
+        }
+        return this.getCart(cart)
+      } else {
+        return resp
+      }
+    })
   }
 
   private getCartItemDetail (item: CartItemMeta) {
@@ -85,7 +117,7 @@ class CartService extends CRUDService {
       if (resp2.status && resp2.data) {
         return super.create<OrderDetail>('OrderDetail', {
           orderId,
-          status: 'PO',
+          status: itemStatus,
           variantId: variantId,
           quantity,
           price: resp2.data

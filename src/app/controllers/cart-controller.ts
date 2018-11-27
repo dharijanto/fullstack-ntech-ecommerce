@@ -17,6 +17,8 @@ const TAG = 'MainController'
 export default class CartController extends BaseController {
   constructor (siteData: SiteData) {
     super(Object.assign(siteData, { viewPath: path.join(__dirname, '../views') }))
+
+    // TODO: This should take into account the case where number thing to add > available stocks
     this.routePost('/add-item', (req, res, next) => {
       log.verbose(TAG, '/add-item.POST:' + JSON.stringify(req.session, null, 2))
       if (req.body.variantId && req.body.quantity) {
@@ -26,11 +28,11 @@ export default class CartController extends BaseController {
         }
         LocalShopService.getVariantAvailability(req.body.variantId).then(resp => {
           if (resp.status && resp.data) {
-            if (resp.data === 'unavailable') {
+            if (resp.data.status === 'unavailable') {
               res.json({ status: false, errMessage: 'Product is not available!' })
             } else {
               if (req.session) {
-                CartService.addItemToCart(resp.data, req.session.cart, data).then(resp => {
+                CartService.addItemToCart(resp.data.status, req.session.cart, data).then(resp => {
                   if (resp.status) {
                     if (req.session) {
                       req.session.cart = resp.data
@@ -53,6 +55,11 @@ export default class CartController extends BaseController {
       } else {
         res.json({ status: false, errMessage: 'variantId and quantity are required!' })
       }
+    })
+
+    // Used for debugging purposes
+    this.routeGet('/details', (req, res, next) => {
+      res.json(req.session ? req.session.cart : 'Your cart is empty!')
     })
 
     this.routePost('/place-order', (req, res, next) => {

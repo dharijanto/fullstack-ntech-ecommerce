@@ -98,7 +98,7 @@ class AccountService extends CRUDService {
       return this.validateCredential(shopId, credential, false, false).then(resp => {
         if (resp.status) {
           const data = Object.assign({}, resp.data, { shopId })
-          return super.create('User', data)
+          return super.create<User>('User', data)
         } else {
           return { status: false, errMessage: resp.errMessage }
         }

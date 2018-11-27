@@ -22,7 +22,7 @@ export abstract class CRUDService {
     }
   }
 
-  create<T extends BaseModel> (modelName: string, data: Partial<T>): Promise<NCResponse<BaseModel>> {
+  create<T extends BaseModel> (modelName: string, data: Partial<T>): Promise<NCResponse<T>> {
     log.verbose(TAG, `create(): modelName=${modelName} data=${JSON.stringify(data)}`)
     return (this.getModels(modelName) as Model<Instance<T>, Partial<T>>).create(Object.assign(data, { id: null })).then(createdData => {
       return { status: true, data: createdData.get({ plain: true }) }

@@ -9,7 +9,10 @@ import * as Promise from 'bluebird'
 import AppConfig from '../app-config'
 import * as Utils from '../libs/utils'
 
-export type ProductAvailability = 'readyStock' | 'preOrder' | 'unavailable'
+export interface ProductAvailability {
+  status: 'readyStock' | 'preOrder' | 'unavailable'
+  quantity?: number
+}
 
 /*
   Used for shop-specific code. This should re-use what's in shop-service as much as possible, though.
@@ -191,13 +194,18 @@ class LocalShopService extends CRUDService {
       this.getInStockProduct(productId),
       this.getPOProduct(productId)
     ).spread((resp1: NCResponse<InStockProduct>, resp2: NCResponse<POProduct>) => {
-      let status: ProductAvailability = 'unavailable'
-      if (resp1.status) {
-        status = 'readyStock'
-      } else if (resp2.status) {
-        status = 'preOrder'
+      let availability: ProductAvailability = {
+        status: 'unavailable'
       }
-      return { status: true, data: status }
+      if (resp1.status && resp1.data) {
+        availability.status = 'readyStock'
+        availability.quantity = resp1.data.stockQuantity
+      } else if (resp2.status) {
+        availability.status = 'preOrder'
+      } else {
+        return { status: false, errMessage: resp1.errMessage || resp2.errMessage }
+      }
+      return { status: true, data: availability }
     })
   }
 

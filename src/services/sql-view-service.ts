@@ -27,7 +27,7 @@ CREATE VIEW shopifiedProductsView AS
 (SELECT products.id, products.name as name, products.description as description,
         products.warranty as warranty, products.price as defaultPrice, products.subCategoryId as subCategoryId,
         shops.id as shopId,
-        IFNULL(stockTable.stockQuantity, 0) as stockQuantity,
+        IFNULL(stockTable.stockQuantity, 0) - IFNULL(orderTable.quantity, 0) as stockQuantity,
         IFNULL(supplierTable.supplierCount, 0) as supplierCount,
         IFNULL(shopProducts.createdAt, products.createdAt) as createdAt,
         IFNULL(shopProducts.updatedAt, products.updatedAt) as updatedAt,
@@ -46,6 +46,16 @@ LEFT OUTER JOIN
 ON products.id = stockTable.productId AND shops.id = stockTable.shopId
 
 LEFT OUTER JOIN
+  (SELECT orders.shopId AS shopId, SUM(orderDetails.quantity) AS quantity,
+          variants.productId
+    FROM orders
+    INNER JOIN orderDetails ON orderDetails.orderId = orders.id
+    INNER JOIN variants ON variants.id = orderDetails.variantId
+    WHERE orders.status = 'Close'
+    GROUP BY orders.shopId, variants.productId
+  ) AS orderTable ON orderTable.shopId = shops.id AND orderTable.productId = products.id
+
+LEFT OUTER JOIN
   (SELECT variants.productId AS productId, COUNT(*) AS supplierCount FROM variants
    INNER JOIN supplierStocks ON variants.id = supplierStocks.variantId
    GROUP BY variants.productId) as supplierTable
@@ -59,9 +69,10 @@ LEFT OUTER JOIN shopProducts ON products.id = shopProducts.productId AND stockTa
     log.info(TAG, 'createShopifiedVariantsView()')
     return super.getSequelize().query(`
 CREATE VIEW shopifiedVariantsView AS
-(SELECT variants.id as id, variants.productId as productId, variants.name as name, variants.createdAt as createdAt, variants.updatedAt as updatedAt,
+(SELECT variants.id as id, variants.productId as productId, variants.name as name,
+        variants.createdAt as createdAt, variants.updatedAt as updatedAt,
         shops.id as shopId,
-        IFNULL(shopStocksTable.stockQuantity, 0) as stockQuantity,
+        IFNULL(shopStocksTable.stockQuantity, 0) - IFNULL(orderTable.quantity, 0) as stockQuantity,
         IFNULL(supplierStocksTable.supplierCount, 0) as supplierCount
 FROM variants
 
@@ -72,6 +83,15 @@ LEFT OUTER JOIN
     FROM shopStocks
     GROUP BY shopStocks.variantId, shopStocks.shopId) as shopStocksTable
 ON variants.id = shopStocksTable.variantId AND shops.id = shopStocksTable.shopId
+
+LEFT OUTER JOIN
+  (SELECT orders.shopId AS shopId, SUM(orderDetails.quantity) AS quantity,
+          orderDetails.variantId
+    FROM orders
+    INNER JOIN orderDetails ON orderDetails.orderId = orders.id
+    WHERE orders.status = 'Close'
+    GROUP BY orders.shopId, orderDetails.variantId
+  ) AS orderTable ON orderTable.shopId = shops.id AND orderTable.variantId = variants.id
 
 LEFT OUTER JOIN
   (SELECT supplierStocks.variantId as variantId, COUNT(*) as supplierCount
@@ -86,8 +106,10 @@ ON variants.id = supplierStocksTable.variantId
     log.info(TAG, 'createInStockProductsView()')
     return super.getSequelize().query(`
 CREATE VIEW inStockProductsView AS
-(SELECT spView.id as id, spView.subCategoryId as subCategoryId, spView.shopId as shopId, spView.name as name, spView.description as description, spView.createdAt as createdAt, spView.updatedAt as updatedAt,
-         spView.warranty as warranty, IFNULL(spView.shopPrice, spView.defaultPrice) as price, spView.stockQuantity as stockQuantity
+(SELECT spView.id as id, spView.subCategoryId as subCategoryId, spView.shopId as shopId,
+        spView.name as name, spView.description as description, spView.createdAt as createdAt,
+        spView.updatedAt as updatedAt, spView.warranty as warranty,
+        IFNULL(spView.shopPrice, spView.defaultPrice) as price, spView.stockQuantity as stockQuantity
   FROM shopifiedProductsView as spView WHERE disabled = FALSE and stockQuantity > 0
 );`)
   }
