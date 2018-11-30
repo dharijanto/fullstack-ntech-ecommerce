@@ -51,6 +51,26 @@ export abstract class CRUDService {
     }).catch(this.errHandler)
   }
 
+  rawReadQuery (query): Promise<NCResponse<any[]>> {
+    return this.getSequelize().query(query, { type: this.getSequelize().QueryTypes.SELECT }).then(result => {
+      return { status: true, data: result }
+    })
+  }
+
+  rawReadOneQuery (query): Promise<NCResponse<any>> {
+    return this.rawReadQuery(query).then(resp => {
+      if (resp.status && resp.data) {
+        if (!resp.data.length) {
+          return { status: false, errMessage: 'Data not found!' }
+        } else {
+          return { status: true, data: resp.data[0] }
+        }
+      } else {
+        return resp
+      }
+    })
+  }
+
   update <T extends BaseModel> (modelName: string, data: Partial<T>, searchClause: WhereOptions<T>): Promise<NCResponse<number>> {
     log.verbose(TAG, `update(): modelName=${modelName} data=${JSON.stringify(data)}`)
     return (this.getModels(modelName) as Model<Instance<T>, Partial<T>>)

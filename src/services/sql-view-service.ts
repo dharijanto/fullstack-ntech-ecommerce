@@ -51,7 +51,7 @@ LEFT OUTER JOIN
     FROM orders
     INNER JOIN orderDetails ON orderDetails.orderId = orders.id
     INNER JOIN variants ON variants.id = orderDetails.variantId
-    WHERE orders.status = 'Close'
+    WHERE orders.status = 'Close' OR orders.status = 'PO'
     GROUP BY orders.shopId, variants.productId
   ) AS orderTable ON orderTable.shopId = shops.id AND orderTable.productId = products.id
 
@@ -154,8 +154,10 @@ FROM shopifiedVariantsView as svView WHERE supplierCount > 0
     return super.getSequelize().query(`
 CREATE VIEW ordersView AS
 (
-SELECT orders.id as id, orders.fullName as fullName, orders.phoneNumber as phoneNumber, orders.notes as notes, orders.status as status, orders.createdAt as createdAt, orders.updatedAt as updatedAt,
-SUM(orderDetails.quantity) as quantity, SUM(orderDetails.price) as price, orders.shopId as shopId
+SELECT orders.id as id, orders.fullName as fullName, orders.phoneNumber as phoneNumber,
+       orders.notes as notes, orders.status as status, orders.createdAt as createdAt,
+       orders.updatedAt as updatedAt, SUM(orderDetails.quantity) as quantity,
+       SUM(orderDetails.price * orderDetails.quantity) as price, orders.shopId as shopId
 FROM orders
 INNER JOIN orderDetails on  orderDetails.orderId = orders.id
 GROUP BY orderDetails.orderId

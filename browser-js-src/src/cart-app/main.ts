@@ -14,8 +14,8 @@ function addItem (variantId: number, quantity: number) {
       if (resp.status) {
         location.reload()
       } else {
-        toastr.error('Failed to addItem(): ' + resp.errMessage)
-        console.error('Failed to addItem(): ' + resp.errMessage)
+        toastr.error(resp.errMessage)
+        console.error('Failed to add item: ' + resp.errMessage)
       }
     } else {
       throw new Error('Unexpected data returned by server: ' + JSON.stringify(resp))

@@ -2,7 +2,6 @@ import * as util from 'util'
 
 import { CRUDService } from './crud-service'
 import ShopService from './shop-service'
-import OrderService from './order-service'
 import { Model } from 'sequelize'
 import * as Promise from 'bluebird'
 
@@ -38,9 +37,9 @@ class LocalShopService extends CRUDService {
     }
   }
 
-  getLocalShopId (): Promise<NCResponse<number>> {
+  getLocalShopId (): number {
     if (this.localShopId !== -1) {
-      return Promise.resolve({ status: true, data: this.localShopId })
+      return this.localShopId
     } else {
       throw new Error('Local shop id is not yet retrieved!')
     }
@@ -127,14 +126,6 @@ class LocalShopService extends CRUDService {
       quantity,
       date
     })
-  }
-
-  getOrders () {
-    return OrderService.getOrders(this.localShopId)
-  }
-
-  getOrderDetails (orderId) {
-    return OrderService.getOrderDetails(orderId)
   }
 
   getProductInformation (variantId): Promise<NCResponse<{product: ShopifiedProduct, variant: ShopifiedVariant}>> {

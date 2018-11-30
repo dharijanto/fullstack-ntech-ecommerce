@@ -242,7 +242,7 @@ interface Order extends BaseModel {
   notes: string,
   quantity: number,
   price: number,
-  status: 'Open' | 'Close' | 'PO',
+  status: 'Open' | 'Close' | 'PO' | 'Cancelled',
   shopId: number
 }
 
@@ -255,6 +255,7 @@ interface OrderDetail extends BaseModel {
   productName: string
   variantName: string
   variantId: number
+  variant?: Variant
   productId: number
 }
 

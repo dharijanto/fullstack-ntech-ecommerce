@@ -112,6 +112,17 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
     Cloud shouldn't modify the following tables at all!
   ----------------------------
   */
+
+  models.User = sequelize.define('user', {
+    id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
+    username: { type: Sequelize.STRING }, // The pair of (username, schoolId) should be unique, we should use MySQL composite key for this
+    saltedPass: { type: Sequelize.STRING },
+    salt: { type: Sequelize.STRING },
+    fullName: { type: Sequelize.STRING },
+    privilege: { type: Sequelize.ENUM, values: ['Admin', 'Cashier', 'Opnamer'], allowNull: false }
+  })
+  models.User.belongsTo(models.Shop)
+
   models.ShopStock = sequelize.define('shopStock', {
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
     price: { type: Sequelize.INTEGER }, // purchase price, not sell price
@@ -145,12 +156,19 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
     fullName: { type: Sequelize.STRING },
     phoneNumber: { type: Sequelize.STRING },
-    status: { type: Sequelize.ENUM(['Open', 'Close', 'PO']) },
+    status: { type: Sequelize.ENUM(['Open', 'Close', 'PO', 'Canceled']) },
     notes: Sequelize.STRING
   }, {
     paranoid: true
   })
   models.Order.belongsTo(models.Shop)
+
+  models.OrderHistory = sequelize.define('orderHistory', {
+    id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
+    action: Sequelize.STRING
+  })
+  models.OrderHistory.belongsTo(models.Order)
+  models.OrderHistory.belongsTo(models.User)
 
   models.OrderDetail = sequelize.define('orderDetail', {
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
@@ -161,15 +179,6 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
     paranoid: true
   })
 
-  models.User = sequelize.define('user', {
-    id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
-    username: { type: Sequelize.STRING }, // The pair of (username, schoolId) should be unique, we should use MySQL composite key for this
-    saltedPass: { type: Sequelize.STRING },
-    salt: { type: Sequelize.STRING },
-    fullName: { type: Sequelize.STRING },
-    privilege: { type: Sequelize.ENUM, values: ['Admin', 'Cashier', 'Opnamer'], allowNull: false }
-  })
-  models.User.belongsTo(models.Shop)
   models.OrderDetail.belongsTo(models.Variant)
   models.OrderDetail.belongsTo(models.Order)
   models.Variant.hasMany(models.OrderDetail)

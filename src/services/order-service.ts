@@ -20,6 +20,16 @@ class OrderService extends CRUDService {
       })
   }
 
+  getOrder (orderId): Promise<NCResponse<Order>> {
+    return super.rawReadOneQuery(`SELECT * FROM ordersView WHERE id = ${orderId}`).then(resp => {
+      if (resp.status && resp.data) {
+        return { status: true, data: resp.data }
+      } else {
+        return { status: false }
+      }
+    })
+  }
+
   getOrderDetails (orderId) {
     return this.getSequelize().query(`SELECT * FROM orderDetailsView WHERE orderId = ${orderId}`,
       { type: this.getSequelize().QueryTypes.SELECT }).then(result => {

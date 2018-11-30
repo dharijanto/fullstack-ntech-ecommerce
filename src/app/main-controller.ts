@@ -4,7 +4,7 @@ import * as Promise from 'bluebird'
 
 import BaseController from './controllers/base-controller'
 import CartController from './controllers/cart-controller'
-import CartService from '../services/cart-service'
+import CMSController from './controllers/cms-controller'
 import ProductService from '../services/product-service'
 import LocalShopService from '../services/local-shop-service'
 import SequelizeService from '../services/sequelize-service'
@@ -95,6 +95,7 @@ class Controller extends BaseController {
         })
       }
       this.routeUse('/cart', (new CartController(siteData).getRouter()))
+      this.routeUse('/cms', (new CMSController(siteData).getRouter()))
     })
     /* this.routeUse((new CredentialController(initData)).getRouter()) */
 

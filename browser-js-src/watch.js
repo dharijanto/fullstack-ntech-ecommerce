@@ -46,6 +46,10 @@ const modules = [
   {
     input: 'cart-app',
     output: 'app'
+  },
+  {
+    input: 'order-management-app',
+    output: 'app'
   }
 ]
 /*

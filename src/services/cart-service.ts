@@ -131,36 +131,31 @@ class CartService extends CRUDService {
   placeOrder (fullName: string, phoneNumber: string, notes: string, currentCart: CartMetaData): Promise<NCResponse<any>> {
     // TODO: Use transaction so we can rollback
     if (fullName) {
-      return LocalShopService.getLocalShopId().then(resp2 => {
-        if (resp2.status) {
-          return super.create<Order>('Order', {
-            fullName,
-            phoneNumber,
-            notes,
-            shopId: resp2.data,
-            status: 'Open'
-          }).then(resp => {
-            if (resp.status && resp.data) {
-              const orderId = resp.data.id
-              return Promise.join(
-                Promise.map(currentCart.preOrder, cartItem => {
-                  return this.createOrderDetail(orderId, cartItem.variantId, cartItem.quantity, 'PO')
-                }),
-                Promise.map(currentCart.readyStock, cartItem => {
-                  return this.createOrderDetail(orderId, cartItem.variantId, cartItem.quantity, 'Ready')
-                })
-              ).spread((poResults: Array<NCResponse<any>>, readyResults: Array<NCResponse<any>>) => {
-                const finalResult = poResults.concat(readyResults).reduce((acc, result) => {
-                  return { status: acc.status && result.status, errMessage: acc.errMessage || result.errMessage }
-                }, { status: true, errMessage: '' })
-                return finalResult
-              })
-            } else {
-              return Promise.resolve({ status: false, errMessage: resp.errMessage })
-            }
+      const localShopId = LocalShopService.getLocalShopId()
+      return super.create<Order>('Order', {
+        fullName,
+        phoneNumber,
+        notes,
+        shopId: localShopId,
+        status: 'Open'
+      }).then(resp => {
+        if (resp.status && resp.data) {
+          const orderId = resp.data.id
+          return Promise.join(
+            Promise.map(currentCart.preOrder, cartItem => {
+              return this.createOrderDetail(orderId, cartItem.variantId, cartItem.quantity, 'PO')
+            }),
+            Promise.map(currentCart.readyStock, cartItem => {
+              return this.createOrderDetail(orderId, cartItem.variantId, cartItem.quantity, 'Ready')
+            })
+          ).spread((poResults: Array<NCResponse<any>>, readyResults: Array<NCResponse<any>>) => {
+            const finalResult = poResults.concat(readyResults).reduce((acc, result) => {
+              return { status: acc.status && result.status, errMessage: acc.errMessage || result.errMessage }
+            }, { status: true, errMessage: '' })
+            return finalResult
           })
         } else {
-          return { status: false, errMessage: resp2.errMessage }
+          return Promise.resolve({ status: false, errMessage: resp.errMessage })
         }
       })
     } else {

@@ -1,0 +1,76 @@
+// Adapted from: https://codepen.io/Sambra22/pen/JNexJP
+
+html
+  head
+    link(rel="stylesheet" href="/assets/css/receipt-cms.css")
+  body
+    #invoice-POS
+      center#top
+        .logo
+        .info
+          h2 Nusantara Gizmo
+        // End Info
+        // End InvoiceTop
+        #mid
+          .info
+            p
+              | Setrasari Mall B3-22, Bandung, 40154
+              br
+              | info@nusantara-gizmo.com
+              br
+              | (022) 2011-796
+              br
+            h4 Customer Information:
+            p
+              | Tanggal: #{receipt.date.split(' ')[0]}
+              br
+              | Jam: #{receipt.date.split(' ')[1]}
+              br
+              | Nama: #{receipt.fullName}
+              br
+              | Telp: #{receipt.phoneNumber}
+              br
+        // End Invoice Mid
+        #bot
+          #table
+            table
+              tbody
+                tr.tabletitle
+                  td.item
+                    h2 Item
+                  td.quantity
+                    h2 Qty
+                  td.rate
+                    h2 Sub Total
+                  td.po
+                    h2 PO
+                - let total = 0
+                for item in receipt.items
+                  tr.service
+                    td.tableitem
+                      p.itemtext= item.name + ' - ' + item.variant
+                    td.tableitem
+                      p.itemtext= item.quantity
+                    td.tableitem
+                      - const subTotal= formatPrice(parseInt(item.quantity) * parseInt(item.price))
+                      - total += subTotal
+                      p.itemtext=subTotal
+                    td.tableitem
+                      p.itemtext=item.status === 'PO' ? 'Y' : 'N'
+                tr.tabletitle
+                  td
+                  td.Rate
+                    h2 Total
+                  td.payment
+                    h2=formatPrice(receipt.totalPrice)
+                  td
+          // End Table
+          #legalcopy
+            p.legal
+              strong Terima kasih telah berbelanja di Nusantara Gizmo
+            p.legal
+              | Bila ada item yang pre-order (PO), simpan dan gunakan struk ini untuk bukti pengambilan.
+              | Durasi PO 2-3 hari setelah order diterima.
+
+        // End InvoiceBot
+    // End Invoice

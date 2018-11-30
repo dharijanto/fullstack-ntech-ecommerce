@@ -33,6 +33,5 @@ export default class OrderManagementController extends BaseController {
         res.json({ status: false, errMessage: 'orderId is required!' })
       }
     })
-
   }
 }
