@@ -19,11 +19,23 @@ export default class OrderManagementController extends BaseController {
     super(Object.assign(siteData, { viewPath: path.join(__dirname, '../../views') }))
 
     super.routeGet('/', (req, res, next) => {
-      res.render('cms/order-management')
+      res.redirect(`${req.baseUrl}/open-order-management`)
     })
 
-    super.routeGet('/orders', (req, res, next) => {
-      OrderService.getOrders().then(res.json.bind(res)).catch(next)
+    super.routeGet('/open-order-management', (req, res, next) => {
+      res.render('cms/open-order-management')
+    })
+
+    super.routeGet('/closed-order-management', (req, res, next) => {
+      res.render('cms/closed-order-management')
+    })
+
+    super.routeGet('/open-orders', (req, res, next) => {
+      OrderService.getOpenOrders().then(res.json.bind(res)).catch(next)
+    })
+
+    super.routeGet('/closed-orders', (req, res, next) => {
+      OrderService.getClosedOrders().then(res.json.bind(res)).catch(next)
     })
 
     super.routePost('/order/edit', (req, res, next) => {

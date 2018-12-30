@@ -27,7 +27,7 @@ const ncOrder = $('#order').NCInputLibrary({
     ],
     conf: {
       order: [['updatedAt', 'desc']],
-      getURL: () => `/cms/order-management/orders` ,
+      getURL: () => `/cms/order-management/closed-orders` ,
       onRowClicked: (data: Order) => {
         order = data
         ncOrderDetail.reloadTable()

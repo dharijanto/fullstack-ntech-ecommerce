@@ -132,7 +132,7 @@ LEFT OUTER JOIN productImages on poProductsView.id = productImages.productId
 LEFT OUTER JOIN subCategories on subCategories.id = poProductsView.subCategoryId
 LEFT OUTER JOIN categories on subCategories.categoryId = categories.id
 LEFT OUTER JOIN poVariantsView ON poVariantsView.productId = poProductsView.id AND poVariantsView.shopId = ${shopId}
-ORDER BY poProductsView.id LIMIT ${pageSize * pageIndex}, ${pageSize};
+ORDER BY poProductsView.id;
     `, { type: this.getSequelize().QueryTypes.SELECT, nest: false }).then(flattenedProducts => {
       const treeifiedProducts = Utils.objectify(flattenedProducts).map(product => {
         product.subCategory = product.subCategory[0]

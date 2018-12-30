@@ -19,6 +19,9 @@ class SQLViewService extends CRUDService {
     3. ShopStock -> figure out how many physical stocks available
     4. OrderDetail -> figure out how many of the physical stocks have been used up
     5. SupplierStock -> figure out how many suppliers available
+
+    TODO:
+    1. Handle quantity of PO order correctly
   */
   createShopifiedProductsView () {
     log.info(TAG, 'createShopifiedProductsView()')
@@ -46,7 +49,9 @@ LEFT OUTER JOIN
 ON products.id = stockTable.productId AND shops.id = stockTable.shopId
 
 LEFT OUTER JOIN
-  (SELECT orders.shopId AS shopId, SUM(orderDetails.quantity) AS quantity,
+  (SELECT orders.shopId AS shopId,
+          # Only the quantity of 'Ready'-stock item is considered when calculating stockQuantity
+          SUM(IF(orderDetails.status = 'Ready', orderDetails.quantity, 0)) AS quantity,
           variants.productId
     FROM orders
     INNER JOIN orderDetails ON orderDetails.orderId = orders.id

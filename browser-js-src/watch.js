@@ -6,6 +6,7 @@ var log = require('fancy-log')
 var tsify = require('tsify')
 var watchify = require('watchify')
 
+// TODO: we should read each of folder on the directories instead of specifying each module...
 const modules = [
   {
     input: 'product-management-cms',
@@ -48,7 +49,11 @@ const modules = [
     output: 'app'
   },
   {
-    input: 'order-management-app',
+    input: 'open-order-management-app',
+    output: 'app'
+  },
+  {
+    input: 'closed-order-management-app',
     output: 'app'
   }
 ]
