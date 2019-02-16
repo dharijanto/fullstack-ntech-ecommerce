@@ -22,7 +22,8 @@ export interface OrderReceipt {
   status: 'Close' | 'PO' | 'Open' | 'Cancelled'
   totalPrice: number
   poDuration?: number
-  date: string
+  orderDate: string
+  printDate: string
   items: {
     status: 'PO' | 'Ready'
     name: string
@@ -276,7 +277,8 @@ class LocalOrderService extends CRUDService {
               status: order.status,
               totalPrice: order.price,
               poDuration: undefined,
-              date: moment().format('DD-MM-YY HH:mm'),
+              orderDate: moment(resp.data.updatedAt).format('DD-MM-YY HH:mm'),
+              printDate: moment().format('DD-MM-YY HH:mm'),
               items: []
             }
             return this.getOrderDetails(orderId).then(resp => {

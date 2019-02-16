@@ -24,9 +24,9 @@ html
               | (022) 2011-796
               br
             p
-              | Tanggal: #{receipt.date.split(' ')[0]}
+              | Status: #{receipt.status}
               br
-              | Jam: #{receipt.date.split(' ')[1]}
+              | Tanggal : #{receipt.orderDate}
               br
               | Customer: #{receipt.fullName}
               br
@@ -41,7 +41,11 @@ html
                 br
                 | #{item.quantity} x #{formatPrice(item.price)}
                 br
-                | #{item.status === 'PO' ? '(Pre-order)' : '' }
+                if (item.status === 'PO')
+                  if (receipt.status === 'Close')
+                    | #[strike (Pre-order)]
+                  else
+                    | (Pre-order)
             hr
           p
             strong Total: #{formatPrice(receipt.totalPrice)}
@@ -49,9 +53,18 @@ html
           #legalcopy.small-text
             if (receipt.status === 'PO')
               p.legal
-                | Gunakan struk ini untuk pengambilan PO.
                 | Barang akan siap diambil dalam #[strong #{receipt.poDuration} hari].
-            p.legal Terima kasih
+              if (originalCopy)
+                | Gunakan struk ini untuk pengambilan PO
+            p.legal
+              | THANK YOU
+              if (!originalCopy)
+                br
+                | (Merchant Copy)
+              br
+            p.legal
+              | #[i Tanggal Cetak: #{receipt.printDate}]
+
 
         // End InvoiceBot
     // End Invoice

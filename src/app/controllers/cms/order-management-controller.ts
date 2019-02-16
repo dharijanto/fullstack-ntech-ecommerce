@@ -61,19 +61,41 @@ export default class OrderManagementController extends BaseController {
     super.routePost('/order/close', (req, res, next) => {
       const orderId = req.body.id
       OrderService.closeOrder(orderId).then(resp => {
-        return OrderService.printReceipt(`${AppConfig.BASE_URL}${this.getRouter().path()}/order/receipt?orderId=${orderId}`, 1).then(resp => {
-          if (resp.status && resp.data) {
-            res.json({ status: true })
-          } else {
-            res.json(resp)
-            return
-          }
-        })
+        if (resp.status) {
+          return OrderService.printReceipt(`${AppConfig.BASE_URL}${this.getRouter().path()}/order/receipt?orderId=${orderId}&originalCopy=1`, 1).then(resp => {
+            if (resp.status && resp.data) {
+              res.json({ status: true })
+              return
+            } else {
+              res.json(resp)
+              return
+            }
+          })
+        } else {
+          res.json({ status: false, errMessage: resp.errMessage })
+          return
+        }
       })
     })
 
     super.routePost('/order/close-po', (req, res, next) => {
-      OrderService.finishPOOrder(req.body.id).then(res.json.bind(res)).catch(next)
+      const orderId = req.body.id
+      OrderService.finishPOOrder(orderId).then(resp => {
+        if (resp.status) {
+          return OrderService.printReceipt(`${AppConfig.BASE_URL}${this.getRouter().path()}/order/receipt?orderId=${orderId}&originalCopy=1`, 1).then(resp => {
+            if (resp.status && resp.data) {
+              res.json({ status: true })
+              return
+            } else {
+              res.json(resp)
+              return
+            }
+          })
+        } else {
+          res.json({ status: false, errMessage: resp.errMessage })
+          return
+        }
+      })
     })
 
     super.routePost('/order/print-receipt', (req, res, next) => {
@@ -101,13 +123,14 @@ export default class OrderManagementController extends BaseController {
 
     super.routeGet('/order/receipt', (req, res, next) => {
       const orderId = req.query.orderId
+      const originalCopy = req.query.originalCopy
       OrderService.getReceipt(orderId).then(resp => {
         if (resp.status && resp.data) {
           console.dir(resp.data)
           // Render using pug
           res.locals.receipt = resp.data
+          res.locals.originalCopy = originalCopy
           res.render('cms/receipt')
-          // res.json({ status: true, data: rendered })
         } else {
           res.status(500).send('Error: ' + resp.errMessage)
           // res.json(resp)
