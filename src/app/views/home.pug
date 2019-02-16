@@ -2,22 +2,19 @@ extend layout/base
 
 block content
   header
-    h1
-      | Nusantara Gizmo - Solusi Gadget & Elektronik Anda
-
     section.promotion.with-header
-      h2 Featured Products
+      h2 Promoted Products
       section.tiles
         each promotion in promotions
           article
             span.image
               img(src=`${getImageURL(promotion.imageFilename)}`)
-            a(href=`${getProductURL(promotion.product)}`)
+            a(href=`${getPromotionURL(promotion)}`)
               .content
                 p
-                  =promotion.product.name
+                  =promotion.name
                   br
-                  =formatPrice(promotion.product.price)
+                  =promotion.productName
         // article.style1
           span.image
             img(src="assets/images/promotion1.jpg" alt="")
@@ -32,12 +29,12 @@ block content
             article
               span.image
                 img(src=`${getImageURL(smallPromotion.imageFilename)}`)
-              a(href=`${getProductURL(smallPromotion.product)}`)
+              a(href=`${getPromotionURL(smallPromotion)}`)
                 .content
                   p
-                    =smallPromotion.product.name
+                    =smallPromotion.name
                     br
-                    =formatPrice(smallPromotion.product.price)
+                    =smallPromotion.productName
         // article.small-promotion
           span.image
             img(src="assets/images/promotion1.jpg" alt="")
@@ -47,7 +44,7 @@ block content
               p Sed nisl arcu euismod sit amet nisi lorem etiam dolor veroeros et feugiat.
 
   section.with-header
-    h2 Kategori
+    h2 Category
     section.tiles
       for category in categories
         // h3= category.name
@@ -55,7 +52,7 @@ block content
           article.style2
             span.image
               img(src=`${getImageURL(subCategory.imageFilename)}` alt="")
-            a(href="generic.html")
+            a(href=getSubCategoryURL(subCategory, category))
               h2= subCategory.name
               .content
                 p= category.name
@@ -75,7 +72,7 @@ block content
             img(src=`${getImageURL(product.primaryImage.imageFilename)}` alt="")
           a(href=`${getProductURL(product)}`)
             .content
-              p Sed nisl arcu euismod sit amet nisi lorem etiam dolor veroeros et feugiat.
+              p Click for more information
               .availability
           section.product-information
             h2
@@ -91,7 +88,7 @@ block content
             img(src=`${getImageURL(product.primaryImage.imageFilename)}` alt="")
           a(href=`${getProductURL(product)}`)
             .content
-              p Sed nisl arcu euismod sit amet nisi lorem etiam dolor veroeros et feugiat.
+              p Click for more information
               .availability
           section.product-information
             h2

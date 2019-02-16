@@ -9,8 +9,17 @@ import AppConfig from '../app-config'
 import * as Utils from '../libs/utils'
 
 export interface ProductAvailability {
-  status: 'readyStock' | 'preOrder' | 'unavailable'
+  status: 'readyStock' | 'preOrder'
   quantity?: number
+}
+
+export interface CategorizedProduct {
+  name: string // Category name
+  subCategories: Array<{
+    name: string
+    inStockProducts: Array<InStockProduct>
+    poProducts: Array<POProduct>
+  }>
 }
 
 /*
@@ -45,12 +54,12 @@ class LocalShopService extends CRUDService {
     }
   }
 
-  getPromotion (): Promise<NCResponse<Promotion[]>> {
-    if (this.localShopId === -1) {
-      return Promise.reject(new Error('localShopId is invalid!'))
-    } else {
-      return ShopService.getPromotion(this.localShopId)
-    }
+  getShopifiedProducts () {
+    return ShopService.getShopifiedProducts(this.getLocalShopId())
+  }
+
+  getShopStock (searchClause = {}) {
+    return ShopService.getShopStock(this.getLocalShopId(), searchClause)
   }
 
   /*
@@ -96,6 +105,81 @@ class LocalShopService extends CRUDService {
     })
   }
 
+  getProductsByCategories (): Promise<NCResponse<{categories: CategorizedProduct[], lastUpdated: string}>> {
+    /*
+      We'll have at most thousands of products and getting price list is
+      not something done too often. So for now, we can get by doing the product
+      grouping manually.
+    */
+    const categories: CategorizedProduct[] = []
+    let lastUpdated: string
+    // Helper function to help grouping
+    function addProduct (inStockProduct: boolean, product: InStockProduct | POProduct) {
+      function getSubCategory (categoryName, subCategoryName) {
+        function getCategory (categoryName) {
+          let category = categories.find(category => category.name === categoryName)
+          if (!category) {
+            category = {
+              name: categoryName,
+              subCategories: []
+            }
+            categories.push(category)
+          }
+          return category
+        }
+        const subCategories = getCategory(categoryName).subCategories
+        let subCategory = subCategories.find(subCategory => subCategory.name === subCategoryName)
+        if (!subCategory) {
+          subCategory = {
+            name: subCategoryName,
+            poProducts: [],
+            inStockProducts: []
+          }
+          subCategories.push(subCategory)
+        }
+        return subCategory
+      }
+      if (!product.subCategory || !product.subCategory.category) {
+        throw new Error('Product does not have category or subCategory defined!')
+      }
+      const subCategoryName = product.subCategory.name
+      const categoryName = product.subCategory.category.name
+      const subCategory = getSubCategory(categoryName, subCategoryName)
+      if (inStockProduct) {
+        subCategory.inStockProducts.push(product as InStockProduct)
+      } else {
+        subCategory.poProducts.push(product as POProduct)
+      }
+      if (!lastUpdated) {
+        lastUpdated = product.updatedAt
+      } else {
+        lastUpdated = product.updatedAt > lastUpdated ? product.updatedAt : lastUpdated
+      }
+    }
+
+    return Promise.join<NCResponse<any>>(
+      this.getInStockProducts({}),
+      this.getPOProducts({})
+    ).spread((resp1: NCResponse<InStockProduct[]>, resp2: NCResponse<POProduct[]>) => {
+      if (resp1.status && resp1.data && resp2.status && resp2.data) {
+        resp1.data.forEach(inStockProduct => {
+          addProduct(true, inStockProduct)
+        })
+        resp2.data.forEach(poProduct => {
+          addProduct(false, poProduct)
+        })
+
+        return { status: true, data: { categories, lastUpdated } }
+      } else {
+        return { status: false, errMessage: resp1.errMessage || resp2.errMessage }
+      }
+    })
+  }
+
+  getShopifiedVariants (productId): Promise<NCResponse<ShopifiedVariant[]>> {
+    return ShopService.getShopifiedVariants(this.localShopId, productId)
+  }
+
   // Update shopProduct entry
   // In actuality, this can be insert/update
   updateProduct (productId: number, data: Partial<ShopProduct>) {
@@ -128,7 +212,7 @@ class LocalShopService extends CRUDService {
     })
   }
 
-  getProductInformation (variantId): Promise<NCResponse<{product: ShopifiedProduct, variant: ShopifiedVariant}>> {
+  getVariantInformation (variantId): Promise<NCResponse<{product: ShopifiedProduct, variant: ShopifiedVariant}>> {
     return this.readOne<Variant>('Variant', {
       id: variantId
     }).then(resp => {
@@ -165,7 +249,7 @@ class LocalShopService extends CRUDService {
       if (resp.status && resp.data) {
         const productId = resp.data.productId
         return super.getSequelize().query(
-          `SELECT shopPrice FROM shopifiedProductsView WHERE id = ${productId}`,
+          `SELECT shopPrice FROM shopifiedProductsView WHERE id = ${productId} AND shopId = ${this.getLocalShopId()}`,
           { type: super.getSequelize().QueryTypes.SELECT }).then(result => {
             if (result && result.length > 0) {
               const shopifiedProduct = result[0]
@@ -186,7 +270,7 @@ class LocalShopService extends CRUDService {
       this.getPOProduct(productId)
     ).spread((resp1: NCResponse<InStockProduct>, resp2: NCResponse<POProduct>) => {
       let availability: ProductAvailability = {
-        status: 'unavailable'
+        status: 'readyStock'
       }
       if (resp1.status && resp1.data) {
         availability.status = 'readyStock'
@@ -211,6 +295,35 @@ class LocalShopService extends CRUDService {
         return { status: false, errMessage: resp.errMessage }
       }
     })
+  }
+
+  getPromotion (): Promise<NCResponse<ShopifiedPromotion[]>> {
+    return ShopService.getPromotion(this.getLocalShopId())
+  }
+
+  createPromotion (productId: number, data: Partial<Promotion>): Promise<NCResponse<Promotion>> {
+    if (productId) {
+      return super.create<Promotion>('Promotion', Object.assign({ shopId: this.getLocalShopId(), productId }, data))
+    } else {
+      return Promise.resolve({ status: false, errMessage: 'productId is required!' })
+    }
+  }
+
+  updatePromotion (productId: number, promotionId: number, data: Partial<Promotion>): Promise<NCResponse<number>> {
+    if (data.id) {
+      return super.update<Promotion>('Promotion',
+          Object.assign({ shopId: this.getLocalShopId(), productId }, data), { id: promotionId })
+    } else {
+      return Promise.resolve({ status: false, errMessage: 'promotionId is required!' })
+    }
+  }
+
+  deletePromotion (promotionId: number): Promise<NCResponse<number>> {
+    if (promotionId) {
+      return super.delete<Promotion>('Promotion', { id: promotionId })
+    } else {
+      return Promise.resolve({ status: false, errMessage: 'promoitonId is required!' })
+    }
   }
 }
 

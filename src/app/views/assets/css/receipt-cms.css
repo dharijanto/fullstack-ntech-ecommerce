@@ -1,8 +1,8 @@
 #invoice-POS {
-  box-shadow: 0 0 1in -0.25in rgba(0, 0, 0, 0.5);
+  /* box-shadow: 0 0 1in -0.25in rgba(0, 0, 0, 0.5); */
   padding: 2mm;
   margin: 0 auto;
-  width: 75mm;
+  width: 55mm;
   background: #FFF;
 }
 #invoice-POS ::selection {
@@ -29,13 +29,22 @@
   font-size: .7em;
 }
 #invoice-POS p {
-  font-size: .7em;
-  color: #666;
+  /* font-size: 1.2em; */
   line-height: 1.2em;
 }
+
+.small-text {
+  font-size: 0.8em;
+}
+
+.medium-text {
+  font-size: 1.2em;
+}
+
 #invoice-POS #top, #invoice-POS #mid, #invoice-POS #bot {
   /* Targets all id with 'col-' */
-  border-bottom: 1px solid #EEE;
+  font-size: 1em;
+  /* border-bottom: 1px solid #EEE; */
 }
 #invoice-POS #top {
   min-height: 100px;
@@ -46,7 +55,7 @@
 #invoice-POS #bot {
   min-height: 50px;
 }
-#invoice-POS #top .logo {
+#invoice-POS #logo {
   height: 60px;
   width: 60px;
   background: url('/assets/images/ntech-icon.png') no-repeat;

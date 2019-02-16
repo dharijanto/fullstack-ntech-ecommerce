@@ -10,7 +10,7 @@ block content
     section.images
       if (product.images.length > 0)
         article.main-image
-          img(src=`${getImageURL(product.images[0].imageFilename)}`)
+          img(src=`${getImageURL(product.primaryImage.imageFilename)}`)
         section.thumbnail-images
           each productImage in product.images
             article

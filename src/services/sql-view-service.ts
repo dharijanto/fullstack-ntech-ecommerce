@@ -12,6 +12,23 @@ const TAG = 'SQLViewService'
   We have LocalShopService, this is specifically for shop-specific code.
 */
 class SQLViewService extends CRUDService {
+  // Get quantity of orders that are inStock (i.e. not PO)
+  // This is used to compute the number of remaining stocks
+  // (i.e. stocks left for variant X = all shop stocks - all in-stock orders)
+  createInStockOrdersView () {
+    return super.getSequelize().query(`
+CREATE VIEW inStockOrdersView AS
+(SELECT orders.shopId AS shopId,
+        # Only the quantity of 'Ready'-stock item is considered when calculating stockQuantity
+        SUM(IF(orderDetails.status = 'Ready', orderDetails.quantity, 0)) AS quantity,
+        variants.productId, variants.id as variantId
+FROM orders
+LEFT OUTER JOIN orderDetails ON orderDetails.orderId = orders.id
+LEFT OUTER JOIN variants ON variants.id = orderDetails.variantId
+WHERE orders.status != 'Cancelled'
+GROUP BY orders.shopId, variants.productId, variants.id)
+`)
+  }
   /*
     This view combines:
     1. Product -> basic information about available products
@@ -21,7 +38,7 @@ class SQLViewService extends CRUDService {
     5. SupplierStock -> figure out how many suppliers available
 
     TODO:
-    1. Handle quantity of PO order correctly
+    1. This should depend on shopifiedVariantsView, so that we don't compute stocks from two different places
   */
   createShopifiedProductsView () {
     log.info(TAG, 'createShopifiedProductsView()')
@@ -49,15 +66,11 @@ LEFT OUTER JOIN
 ON products.id = stockTable.productId AND shops.id = stockTable.shopId
 
 LEFT OUTER JOIN
-  (SELECT orders.shopId AS shopId,
-          # Only the quantity of 'Ready'-stock item is considered when calculating stockQuantity
-          SUM(IF(orderDetails.status = 'Ready', orderDetails.quantity, 0)) AS quantity,
-          variants.productId
-    FROM orders
-    INNER JOIN orderDetails ON orderDetails.orderId = orders.id
-    INNER JOIN variants ON variants.id = orderDetails.variantId
-    WHERE orders.status = 'Close' OR orders.status = 'PO'
-    GROUP BY orders.shopId, variants.productId
+  (SELECT inStockOrdersView.shopId AS shopId,
+          inStockOrdersView.productId,
+          inStockOrdersView.quantity AS quantity
+    FROM inStockOrdersView
+    GROUP BY inStockOrdersView.shopId, inStockOrdersView.productId
   ) AS orderTable ON orderTable.shopId = shops.id AND orderTable.productId = products.id
 
 LEFT OUTER JOIN
@@ -90,12 +103,9 @@ LEFT OUTER JOIN
 ON variants.id = shopStocksTable.variantId AND shops.id = shopStocksTable.shopId
 
 LEFT OUTER JOIN
-  (SELECT orders.shopId AS shopId, SUM(orderDetails.quantity) AS quantity,
-          orderDetails.variantId
-    FROM orders
-    INNER JOIN orderDetails ON orderDetails.orderId = orders.id
-    WHERE orders.status = 'Close'
-    GROUP BY orders.shopId, orderDetails.variantId
+  (SELECT inStockOrdersView.shopId AS shopId, inStockOrdersView.quantity, inStockOrdersView.variantId
+    FROM inStockOrdersView
+    GROUP BY inStockOrdersView.shopId, inStockOrdersView.variantId
   ) AS orderTable ON orderTable.shopId = shops.id AND orderTable.variantId = variants.id
 
 LEFT OUTER JOIN
@@ -164,8 +174,9 @@ SELECT orders.id as id, orders.fullName as fullName, orders.phoneNumber as phone
        orders.updatedAt as updatedAt, SUM(orderDetails.quantity) as quantity,
        SUM(orderDetails.price * orderDetails.quantity) as price, orders.shopId as shopId
 FROM orders
-INNER JOIN orderDetails on  orderDetails.orderId = orders.id
-GROUP BY orderDetails.orderId
+LEFT OUTER JOIN orderDetails on orderDetails.orderId = orders.id
+LEFT OUTER JOIN variants ON variants.id = orderDetails.variantId
+GROUP BY orders.id
 );`)
   }
 
@@ -184,15 +195,34 @@ INNER JOIN variants ON orderDetails.variantId = variants.id
 INNER JOIN products ON variants.productId = products.id
 INNER JOIN orders ON orders.id = orderDetails.orderId
 INNER JOIN shopifiedProductsView on variants.productId = shopifiedProductsView.id AND shopifiedProductsView.shopId = orders.shopId
-WHERE orderDetails.deletedAt IS NULL
+);`)
+  }
+
+  createShopifiedPromotionsViews () {
+    return super.getSequelize().query(`
+CREATE VIEW shopifiedPromotionsView AS
+(
+SELECT promotions.id AS id, promotions.createdAt AS createdAt,
+       promotions.updatedAt AS updatedAt, promotions.shopId AS shopId,
+       promotions.name AS name,
+       promotions.productId AS productId, promotions.imageFilename AS imageFilename,
+       shopifiedProductsView.name AS productName,
+       shopifiedProductsView.shopPrice AS productPrice,
+       subCategories.id AS subCategoryId, subCategories.name AS subCategoryName,
+       categories.id AS categoryId, categories.name AS categoryName
+FROM promotions
+INNER JOIN shopifiedProductsView ON promotions.productId = shopifiedProductsView.id
+INNER JOIN subCategories ON subCategories.id = shopifiedProductsView.subCategoryId
+INNER JOIN categories ON categories.id = subCategories.categoryId
 );`)
   }
 
   destroyViews () {
     log.info(TAG, 'destroyViews()')
 
-    const views = ['shopifiedProductsView', 'shopifiedVariantsView',
-      'inStockProductsView', 'inStockVariantsView', 'poProductsView', 'poVariantsView', 'ordersView', 'orderDetailsView']
+    const views = ['inStockOrdersView', 'shopifiedProductsView', 'shopifiedVariantsView',
+      'inStockProductsView', 'inStockVariantsView', 'poProductsView', 'poVariantsView',
+      'ordersView', 'orderDetailsView', 'shopifiedPromotionsView']
 
     return views.reduce((acc, view) => {
       return acc.then(() => {
@@ -211,6 +241,7 @@ WHERE orderDetails.deletedAt IS NULL
 
   populateViews () {
     const promises: Array<() => Promise<any>> = [
+      this.createInStockOrdersView,
       this.createShopifiedProductsView,
       this.createShopifiedVariantsView,
       this.createInStockProductsView,
@@ -218,7 +249,8 @@ WHERE orderDetails.deletedAt IS NULL
       this.createPOProductsView,
       this.createPOVariantsView,
       this.createOrderView,
-      this.createOrderDetailsView
+      this.createOrderDetailsView,
+      this.createShopifiedPromotionsViews
     ]
     return this.destroyViews().then(result => {
       return promises.reduce((acc, promise) => {

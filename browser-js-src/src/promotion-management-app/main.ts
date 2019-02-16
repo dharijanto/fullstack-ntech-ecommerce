@@ -4,61 +4,28 @@ import { getURLQuery } from '../libs/utils'
 import axios from '../libs/axios-wrapper'
 import 'nc-image-picker'
 import 'nc-input-library'
+import Config from '../config'
 
-let shop: Shop
 let promotion: Promotion
 let product: Product
 
 $(document).ready(() => {
-  const ncShop = $('#shop').NCInputLibrary({
-    design: {
-      title: 'Shops '
-    },
-    table: {
-      ui: [
-        { id: 'id', desc: 'ID', dataTable: true, input: 'text', disabled: true },
-        { id: 'createdAt', desc: 'Date Created', dataTable: true, input: 'text', disabled: true },
-        { id: 'updatedAt', desc: 'Date Updated', dataTable: true, input: 'text', disabled: true },
-        { id: 'name', desc: 'Name', dataTable: true, input: 'text', disabled: false },
-        { id: 'city', desc: 'City', dataTable: true, input: 'text', disabled: false },
-        { id: 'location', desc: 'Location', dataTable: true, input: 'text', disabled: false },
-        { id: 'address', desc: 'Address', dataTable: true, input: 'text', disabled: false },
-        { id: 'zipCode', desc: 'Zip Code', dataTable: true, input: 'text', disabled: false }
-      ],
-      conf: {
-        order: [['updatedAt', 'desc']],
-        getURL: `/${window['siteHash']}/shop-management/shops` ,
-        numColumn: 3,
-        onRowClicked: (data: Shop) => {
-          shop = data
-          ncPromotion.reloadTable()
-        }
-      }
-    },
-    buttons: {
-      ui: [],
-      conf: {
-        networkTimeout: 2000 // timeout for postTo request
-      }
-    }
-  })
-
   const ncPromotion = $('#promotion').NCInputLibrary({
     design: {
       title: 'Promotion Management'
     },
     table: {
       ui: [
-        { id: 'id', desc: 'ID', dataTable: true, input: 'text', disabled: true },
+        { id: 'id', desc: 'ID', dataTable: true, input: 'hidden', disabled: true },
         { id: 'name', desc: 'Promotion Name', dataTable: true, input: 'text', disabled: false },
-        { id: 'product.name', desc: 'Product Name', dataTable: true, input: 'text', disabled: true },
+        { id: 'product.name', desc: 'Product Name', dataTable: true, input: 'hidden', disabled: true },
         { id: 'imageFilename', desc: 'Image (645x275)', dataTable: true, input: 'text', disabled: false },
         { id: 'createdAt', desc: 'Date Created', dataTable: true, input: 'hidden', disabled: true },
         { id: 'updatedAt', desc: 'Date Updated', dataTable: true, input: 'hidden', disabled: true }
       ],
       conf: {
         order: [['updatedAt', 'desc']],
-        getURL: () => `/${window['siteHash']}/shop-management/promotion?shopId=${shop.id}` ,
+        getURL: () => `/cms/promotion-management/promotions` ,
         numColumn: 3,
         onRowClicked: (data: Promotion) => {
           promotion = data
@@ -69,20 +36,18 @@ $(document).ready(() => {
     },
     buttons: {
       ui: [
-        /* { id: 'add', desc: 'Add', postTo: () => {
-          const shopId = shop ? shop.id : ''
+        { id: 'add', desc: 'Add', postTo: () => {
           const productId = product ? product.id : ''
-          return `/${window['siteHash']}/shop-management/promotion?shopId=${shopId}&productId=${productId}`
+          return `/cms/promotion-management/promotion?productId=${productId}`
         }},
         { id: 'edit', desc: 'Edit', postTo: () => {
-          const shopId = shop ? shop.id : ''
           const productId = product ? product.id : ''
-          return `/${window['siteHash']}/shop-management/promotion/edit?shopId=${shopId}&productId=${productId}`
+          return `/cms/promotion-management/promotion/edit?productId=${productId}`
         }},
-        { id: 'delete', desc: 'Delete', postTo: () => `/${window['siteHash']}/shop-management/promotion/delete` } */
+        { id: 'delete', desc: 'Delete', postTo: () => `/cms/promotion-management/promotion/delete` }
       ],
       conf: {
-        networkTimeout: 2000 // timeout for postTo request
+        networkTimeout: Config.NETWORK_TIMEOUT // timeout for postTo request
       }
     }
   })
@@ -91,7 +56,7 @@ $(document).ready(() => {
   ncPromotion.setFirstCustomView(imagePreview)
 
   function setImagePreview (filename) {
-    axios.post(`/${window['siteHash']}/product-management/product/image/get-url`, { filename: filename }).then(resp => {
+    axios.post(`/cms/promotion-management/image/get-url`, { filename: filename }).then(resp => {
       console.dir(resp)
       if (resp.status) {
         imagePreview.attr('src', resp.data.data)
@@ -110,9 +75,9 @@ $(document).ready(() => {
       $('input[name="imageFilename"]').val(imageFilename)
       setImagePreview(imageFilename)
     },
-    getURL: `/${window['siteHash']}/images`,
-    postURL: `/${window['siteHash']}/image`,
-    deleteURL: `/${window['siteHash']}/image/delete`
+    getURL: `/cms/promotion-management/images`,
+    postURL: `/cms/promotion-management/image`,
+    deleteURL: `/cms/promotion-management/image/delete`
   })
 
   const ncProduct = $('#product').NCInputLibrary({
@@ -125,11 +90,11 @@ $(document).ready(() => {
         { id: 'createdAt', desc: 'Date Created', dataTable: true, input: 'hidden', disabled: true },
         { id: 'updatedAt', desc: 'Date Updated', dataTable: true, input: 'hidden', disabled: true },
         { id: 'name', desc: 'Name', dataTable: true, input: 'hidden' },
-        { id: 'price', desc: 'Price', dataTable: true, input: 'hidden' }
+        { id: 'shopPrice', desc: 'Price', dataTable: true, input: 'hidden' }
       ],
       conf: {
         order: [['updatedAt', 'desc']],
-        getURL: `/${window['siteHash']}/product-management/products` ,
+        getURL: `/cms/product-management/products` ,
         numColumn: 3,
         onRowClicked: (data: Product) => {
           product = data
@@ -139,7 +104,7 @@ $(document).ready(() => {
     buttons: {
       ui: [],
       conf: {
-        networkTimeout: 2000 // timeout for postTo request
+        networkTimeout: Config.NETWORK_TIMEOUT // timeout for postTo request
       }
     }
   })
@@ -148,6 +113,6 @@ $(document).ready(() => {
     ncProduct.reloadTable()
   })
 
-  ncShop.reloadTable()
   ncProduct.reloadTable()
+  ncPromotion.reloadTable()
 })

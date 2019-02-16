@@ -5,19 +5,21 @@ doctype html
   Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
 html
   head
-    title Phantom by HTML5 UP
-    meta(charset='utf-8')
-    meta(name='viewport', content='width=device-width, initial-scale=1, user-scalable=no')
-    link(rel="stylesheet" href="/assets/vendor/bootstrap/bootstrap.min.css")
-    link(rel="stylesheet" href="/assets/css/main-cms.css")
-    link(rel="stylesheet" type="text/css" href=`/assets/vendor/toastr/toastr.css`)
-    // NC Input Library
-    link(rel="stylesheet" type="text/css" href=`/assets/vendor/datatables/datatables.min.css`)
-    link(rel="stylesheet" type="text/css" href=`/assets/css/nprogress.css`)
-    link(rel="stylesheet" type="text/css" href=`/assets/css/nc-input-library.css`)
-    link(rel="stylesheet" type="text/css" href=`/assets/vendor/select2/select2.css`)
-    noscript
-      link(rel="stylesheet" href="/assets/css/noscript.css")
+    block head
+      title Phantom by HTML5 UP
+      meta(charset='utf-8')
+      meta(name='viewport', content='width=device-width, initial-scale=1, user-scalable=no')
+      link(rel="stylesheet" href="/assets/vendor/bootstrap/bootstrap.min.css")
+      link(rel="stylesheet" href="/assets/css/ntech-cms.css")
+      link(rel="stylesheet" href="/assets/css/main-cms.css")
+      link(rel="stylesheet" type="text/css" href=`/assets/vendor/toastr/toastr.css`)
+      // NC Input Library
+      link(rel="stylesheet" type="text/css" href=`/assets/vendor/datatables/datatables.min.css`)
+      link(rel="stylesheet" type="text/css" href=`/assets/css/nprogress.css`)
+      link(rel="stylesheet" type="text/css" href=`/assets/css/nc-input-library.css`)
+      link(rel="stylesheet" type="text/css" href=`/assets/vendor/select2/select2.css`)
+      noscript
+        link(rel="stylesheet" href="/assets/css/noscript.css")
   body.is-preload
     // Wrapper
     #wrapper
@@ -45,11 +47,13 @@ html
           li
             a(href='/cms/product-management/') Product Management
           li
-            a(href='generic.html') Stock In
+            a(href='/cms/promotion-management/') Promotion Management
           li
-            a(href='elements.html') Stock Opname
+            a(href='/cms/stock-in') Stock In
           li
-            a(href='elements.html') Price List
+            a(href='/cms/stock-opname') Stock Opname
+          li
+            a(href='/cms/price-list') Price List
       // Main
       #main
         .inner

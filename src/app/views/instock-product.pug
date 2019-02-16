@@ -10,11 +10,11 @@ block content
     section.images
       if (product.images.length > 0)
         article.main-image
-          img(src=`${getImageURL(product.images[0].imageFilename)}`)
+          img#img-current(src=`${getImageURL(product.images[0].imageFilename)}`)
         section.thumbnail-images
           each productImage in product.images
             article
-              img(src=`${getImageURL(productImage.imageFilename)}`)
+              img.img-gallery(src=`${getImageURL(productImage.imageFilename)}`)
     section.description
       article
         h1= product.name
@@ -43,5 +43,6 @@ block content
             | Launch demo modal
 
 append scripts
+  script(src='/assets/js/common-product-app-bundle.js')
   script(src='/assets/js/instock-product-app-bundle.js')
   script.

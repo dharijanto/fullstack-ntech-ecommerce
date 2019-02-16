@@ -1,4 +1,4 @@
-import {AppController} from '../../site-definitions'
+import { AppController } from '../../site-definitions'
 
 const express = require('express')
 const path = require('path')

@@ -2,75 +2,56 @@
 
 html
   head
-    link(rel="stylesheet" href="/assets/css/receipt-cms.css")
+    // link(rel="stylesheet" href="/assets/css/receipt-cms.css")
+    style
+      include ../assets/css/receipt-cms.css
   body
     #invoice-POS
       center#top
-        .logo
+        // .logo
         .info
-          h2 Nusantara Gizmo
+          img#logo(src="/assets/images/ntech-icon.png")
+          h1 Nusantara Gizmo
         // End Info
         // End InvoiceTop
         #mid
-          .info
+          .info.small-text
             p
-              | Setrasari Mall B3-22, Bandung, 40154
+              | Setrasari Mall B3-22
               br
-              | info@nusantara-gizmo.com
+              | Bandung
               br
               | (022) 2011-796
               br
-            h4 Customer Information:
             p
               | Tanggal: #{receipt.date.split(' ')[0]}
               br
               | Jam: #{receipt.date.split(' ')[1]}
               br
-              | Nama: #{receipt.fullName}
+              | Customer: #{receipt.fullName}
               br
               | Telp: #{receipt.phoneNumber}
-              br
+              hr
         // End Invoice Mid
         #bot
-          #table
-            table
-              tbody
-                tr.tabletitle
-                  td.item
-                    h2 Item
-                  td.quantity
-                    h2 Qty
-                  td.rate
-                    h2 Sub Total
-                  td.po
-                    h2 PO
-                - let total = 0
-                for item in receipt.items
-                  tr.service
-                    td.tableitem
-                      p.itemtext= item.name + ' - ' + item.variant
-                    td.tableitem
-                      p.itemtext= item.quantity
-                    td.tableitem
-                      - const subTotal= formatPrice(parseInt(item.quantity) * parseInt(item.price))
-                      - total += subTotal
-                      p.itemtext=subTotal
-                    td.tableitem
-                      p.itemtext=item.status === 'PO' ? 'Y' : 'N'
-                tr.tabletitle
-                  td
-                  td.Rate
-                    h2 Total
-                  td.payment
-                    h2=formatPrice(receipt.totalPrice)
-                  td
-          // End Table
-          #legalcopy
-            p.legal
-              strong Terima kasih telah berbelanja di Nusantara Gizmo
-            p.legal
-              | Bila ada item yang pre-order (PO), simpan dan gunakan struk ini untuk bukti pengambilan.
-              | Durasi PO 2-3 hari setelah order diterima.
+          #orders
+            for item in receipt.items
+              p
+                | #{item.name}
+                br
+                | #{item.quantity} x #{formatPrice(item.price)}
+                br
+                | #{item.status === 'PO' ? '(Pre-order)' : '' }
+            hr
+          p
+            strong Total: #{formatPrice(receipt.totalPrice)}
+
+          #legalcopy.small-text
+            if (receipt.status === 'PO')
+              p.legal
+                | Gunakan struk ini untuk pengambilan PO.
+                | Barang akan siap diambil dalam #[strong #{receipt.poDuration} hari].
+            p.legal Terima kasih
 
         // End InvoiceBot
     // End Invoice

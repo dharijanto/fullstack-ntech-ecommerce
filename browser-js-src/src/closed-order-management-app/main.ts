@@ -37,10 +37,10 @@ const ncOrder = $('#order').NCInputLibrary({
   },
   buttons: {
     ui: [
-      { id: 'edit', desc: 'Edit', postTo: '/cms/order-management/order/edit' },
+      /* { id: 'edit', desc: 'Edit', postTo: '/cms/order-management/order/edit' },
       { id: 'cancel', desc: 'Cancel', postTo: '/cms/order-management/order/cancel' },
       { id: 'finish', desc: 'Close', postTo: '/cms/order-management/order/close' },
-      { id: 'finishPO', desc: 'Finish PO', postTo: '/cms/order-management/order/close-po' }
+      { id: 'finishPO', desc: 'Finish PO', postTo: '/cms/order-management/order/close-po' } */
     ],
     conf: {
       networkTimeout: 2000 // timeout for postTo request
@@ -50,9 +50,10 @@ const ncOrder = $('#order').NCInputLibrary({
 
 const orderPrintBtn = $(`<button class="btn btn-default btn-block" type="button">Print Receipt</button>`)
 orderPrintBtn.on('click', () => {
-  /* axios.post('/cms/order-management/order/print-receipt', { id: order && order.id }).then(rawResp => {
+  axios.post('/cms/order-management/order/print-receipt', { orderId: order && order.id }).then(rawResp => {
     const resp = rawResp.data as NCResponse<any>
-    if (resp.status) {
+    console.dir(resp)
+    /* if (resp.status) {
       const htmlData = resp.data
       $('<div></div>').print({
         title: 'UBKSYSTEM',
@@ -63,12 +64,12 @@ orderPrintBtn.on('click', () => {
       console.dir(htmlData)
     } else {
       throw new Error(resp.errMessage)
-    }
+    } */
   }).catch(err => {
     toastr.error(err.message)
     console.error(err.message)
-  }) */
-  window.open(`/cms/order-management/order/print-preview?orderId=${order && order.id}`)
+  })
+  // window.open(`/cms/order-management/order/print-preview?orderId=${order && order.id}`)
 })
 ncOrder.setFirstCustomView(orderPrintBtn)
 
@@ -98,9 +99,9 @@ const ncOrderDetail = $('#order-detail').NCInputLibrary({
   },
   buttons: {
     ui: [
-      { id: 'add', desc: 'Add', postTo: `/cms/order-management/order-detail/order` },
+      /* { id: 'add', desc: 'Add', postTo: `/cms/order-management/order-detail/order` },
       { id: 'edit', desc: 'Edit', postTo: `/cms/order-management/order-detail/order/edit` },
-      { id: 'delete', desc: 'Delete', postTo: `/cms/order-management/order-detail/order/delete` }
+      { id: 'delete', desc: 'Delete', postTo: `/cms/order-management/order-detail/order/delete` } */
     ],
     conf: {
       networkTimeout: 2000 // timeout for postTo request

@@ -196,6 +196,17 @@ interface ShopifiedVariant extends BaseModel {
   supplierCount: number
 }
 
+interface ShopifiedPromotion extends BaseModel {
+  productId: number
+  imageFilename: string
+  productName: string
+  productPrice: number
+  subCategoryId: number
+  subCategoryName: string
+  categoryId: number
+  categoryName: string
+}
+
 interface InStockProduct extends BaseModel {
   shopId: number,
   subCategoryId: number,
@@ -208,6 +219,7 @@ interface InStockProduct extends BaseModel {
   subCategory?: SubCategory
   images?: ProductImage[]
   primaryImage?: ProductImage[]
+  updatedAt: string
 }
 
 interface InStockVariant extends BaseModel {
@@ -228,6 +240,7 @@ interface POProduct extends BaseModel {
   subCategory?: SubCategory
   images?: ProductImage[]
   primaryImage?: ProductImage
+  updatedAt: string
 }
 
 interface POVariant extends BaseModel {

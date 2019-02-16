@@ -96,7 +96,7 @@ class CartService extends CRUDService {
   private getCartItemDetail (item: CartItemMeta) {
     return Promise.join<NCResponse<any>>(
       ProductService.getVariantImage(item.variantId),
-      LocalShopService.getProductInformation(item.variantId)
+      LocalShopService.getVariantInformation(item.variantId)
     ).spread((resp2: NCResponse<ProductImage>, resp: NCResponse<{variant: ShopifiedVariant, product: ShopifiedProduct}>) => {
       if (resp.status && resp.data) {
         return {
@@ -130,7 +130,11 @@ class CartService extends CRUDService {
 
   placeOrder (fullName: string, phoneNumber: string, notes: string, currentCart: CartMetaData): Promise<NCResponse<any>> {
     // TODO: Use transaction so we can rollback
-    if (fullName) {
+    if (currentCart === undefined || (currentCart.preOrder.length === 0 && currentCart.readyStock.length === 0)) {
+      return Promise.resolve({ status: false, errMessage: 'Cart is empty!' })
+    } else if (!fullName) {
+      return Promise.resolve({ status: false, errMessage: 'fullName is required!' })
+    } else {
       const localShopId = LocalShopService.getLocalShopId()
       return super.create<Order>('Order', {
         fullName,
@@ -155,11 +159,10 @@ class CartService extends CRUDService {
             return finalResult
           })
         } else {
+          console.log('here')
           return Promise.resolve({ status: false, errMessage: resp.errMessage })
         }
       })
-    } else {
-      return Promise.resolve({ status: false, errMessage: 'fullName is required!' })
     }
   }
 
@@ -175,7 +178,14 @@ class CartService extends CRUDService {
 
   getCart (currentCart: CartMetaData): Promise<NCResponse<Cart>> {
     if (!currentCart) {
-      return Promise.resolve({ status: false, errMessage: 'currentCart is not defined!' })
+      return Promise.resolve({
+        status: true,
+        data: {
+          readyStock: [],
+          preOrder: [],
+          totalPrice: 0
+        }
+      })
     } else {
       return Promise.join(
         Promise.map(currentCart.readyStock || [], item => {

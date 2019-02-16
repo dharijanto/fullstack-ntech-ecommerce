@@ -47,11 +47,21 @@ export function getProductCategory (product: Product) {
 }
 
 export function getProductSubCategoryURL (product: Product) {
-  return `/category/${product.subCategory.category.id}/${getSlug(product.subCategory.category.name)}/sub-category/${product.subCategory.id}/${getSlug(product.subCategory.name)}`
+  return `/category/${product.subCategory.category.id}/${getSlug(product.subCategory.category.name)}` +
+         `/sub-category/${product.subCategory.id}/${getSlug(product.subCategory.name)}`
 }
 
 export function getProductSubCategory (product: Product) {
   return product.subCategory.name
+}
+
+export function getSubCategoryURL (category: Category, subCategory: SubCategory) {
+  return `/${category.id}/${getSlug(category.name)}/${subCategory.id}/${getSlug(subCategory.name)}`
+}
+
+export function getPromotionURL (promotion: ShopifiedPromotion) {
+  return `/${promotion.categoryId}/${getSlug(promotion.categoryName)}/${promotion.subCategoryId}/` +
+         `${getSlug(promotion.subCategoryName)}/${promotion.productId}/${getSlug(promotion.productName)}`
 }
 
 // If data is already array, leave it.

@@ -45,13 +45,17 @@ class Controller extends BaseController {
           next()
         })
 
+        // Landing page
+        // The main view where we show promoted items, categories & subs, and latest products
+        // TODO: Show latest products instead of all products
         this.routeGet('/', (req, res, next) => {
           Promise.join<NCResponse<any[]>>(
             LocalShopService.getPromotion(),
             ProductService.getCategories({}, true),
             LocalShopService.getInStockProducts({}),
             LocalShopService.getPOProducts({})
-          ).spread((resp: NCResponse<Promotion[]>, resp2: NCResponse<Category[]>, resp3: NCResponse<InStockProduct[]>, resp4: NCResponse<POProduct[]>) => {
+          ).spread((resp: NCResponse<Promotion[]>, resp2: NCResponse<Category[]>,
+                    resp3: NCResponse<InStockProduct[]>, resp4: NCResponse<POProduct[]>) => {
             if (resp.status && resp.data &&
                 resp2.status && resp2.data &&
                 resp3.status && resp3.data) {
@@ -63,11 +67,18 @@ class Controller extends BaseController {
               res.locals.poProducts = resp4.data
               res.render('home')
             } else {
-              next('Failed to retrieve some information: ' + resp.errMessage || resp2.errMessage || resp3.errMessage)
+              next('Failed to retrieve some information: ' +
+                    resp.errMessage || resp2.errMessage || resp3.errMessage)
             }
           }).catch(next)
         })
 
+        // this.routeGet('/:categoryId/*/:subCategoryId/*', (req, res, next) => {
+        //
+        // })
+
+        // Product page
+        // Information related to a specific product, customer can order here
         this.routeGet('/:categoryId/*/:subCategoryId/*/:productId/*/', (req, res, next) => {
           const categoryId = req.params.categoryId
           const subCategoryId = req.params.subCategoryId
@@ -79,7 +90,7 @@ class Controller extends BaseController {
             if (resp1.status) {
               res.locals.product = resp1.data
               log.verbose(TAG, 'product=' + JSON.stringify(resp1.data))
-              res.render('ready-product')
+              res.render('instock-product')
             } else if (resp2.status) {
               res.locals.product = resp2.data
               log.verbose(TAG, 'product=' + JSON.stringify(resp2.data))
@@ -94,6 +105,8 @@ class Controller extends BaseController {
           })
         })
       }
+
+      // More involved logics are separated into different controllers
       this.routeUse('/cart', (new CartController(siteData).getRouter()))
       this.routeUse('/cms', (new CMSController(siteData).getRouter()))
     })

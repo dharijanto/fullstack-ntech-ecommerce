@@ -158,8 +158,6 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
     phoneNumber: { type: Sequelize.STRING },
     status: { type: Sequelize.ENUM(['Open', 'Close', 'PO', 'Canceled']) },
     notes: Sequelize.STRING
-  }, {
-    paranoid: true
   })
   models.Order.belongsTo(models.Shop)
 
@@ -175,8 +173,6 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
     quantity: { type: Sequelize.INTEGER, allowNull: false },
     price: { type: Sequelize.INTEGER, allowNull: false },
     status: { type: Sequelize.ENUM(['PO', 'Ready']) }
-  }, {
-    paranoid: true
   })
 
   models.OrderDetail.belongsTo(models.Variant)

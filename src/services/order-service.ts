@@ -30,7 +30,7 @@ class OrderService extends CRUDService {
     })
   }
 
-  getOrderDetails (orderId) {
+  getOrderDetails (orderId): Promise<NCResponse<OrderDetail[]>> {
     return this.getSequelize().query(`SELECT * FROM orderDetailsView WHERE orderId = ${orderId}`,
       { type: this.getSequelize().QueryTypes.SELECT }).then(result => {
         if (result) {

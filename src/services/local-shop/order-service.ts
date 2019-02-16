@@ -8,6 +8,7 @@ import AppConfig from '../../app-config'
 import CRUDService from '../crud-service'
 import LocalShopService from '../local-shop-service'
 import OrderService from '../order-service'
+import PrintService from '../print-service'
 
 export interface ProductAvailability {
   status: 'readyStock' | 'preOrder' | 'unavailable'
@@ -20,6 +21,7 @@ export interface OrderReceipt {
   phoneNumber: string
   status: 'Close' | 'PO' | 'Open' | 'Cancelled'
   totalPrice: number
+  poDuration?: number
   date: string
   items: {
     status: 'PO' | 'Ready'
@@ -38,6 +40,11 @@ export interface OrderReceipt {
      a problem happens
  */
 class LocalOrderService extends CRUDService {
+  private receiptPrinter: PrintService
+  constructor () {
+    super()
+    this.receiptPrinter = new PrintService(AppConfig.RECEIPT_PRINTER.DEVICE_NAME, AppConfig.RECEIPT_PRINTER.PAPER_WIDTH)
+  }
 
   getOrders () {
     return OrderService.getOrders(LocalShopService.getLocalShopId())
@@ -69,6 +76,10 @@ class LocalOrderService extends CRUDService {
 
   getOrderDetails (orderId) {
     return OrderService.getOrderDetails(orderId)
+  }
+
+  addOrder (data: Partial<Order>): Promise<NCResponse<Order>> {
+    return super.create<Order>('Order', Object.assign(data, { status: 'Open', shopId: LocalShopService.getLocalShopId() }))
   }
 
   editOrder (data: Partial<Order>): Promise<NCResponse<number>> {
@@ -165,79 +176,142 @@ class LocalOrderService extends CRUDService {
     })
   }
 
-  /*
-  export interface OrderReceipt {
-    orderId: number
-    fullName: string
-    phoneNumber: string
-    status: 'Close' | 'PO'
-    totalPrice: number
-    date: string
-    items: {
-      name: string
-      variant: string
-      price: number
-      quantity: number
-    }[]
-  }
-  */
-  printReceipt (orderId: number): Promise<NCResponse<OrderReceipt>> {
-    return OrderService.getOrder(orderId).then(resp => {
+  private isOpenOrder (orderId: number): Promise<NCResponse<null>> {
+    return super.readOne<Order>('Order', { id: orderId }).then(resp => {
       if (resp.status && resp.data) {
-        const order = resp.data
-        console.dir(resp.data)
-        if (order.status === 'Close' || order.status === 'PO') {
-          let receipt: OrderReceipt = {
-            orderId: order.id,
-            fullName: order.fullName,
-            phoneNumber: order.phoneNumber,
-            status: order.status,
-            totalPrice: order.price,
-            date: moment().format('DD-MM-YY HH:mm:ss'),
-            items: []
-          }
-          return super.getModels('OrderDetail').findAll({
-            where: { orderId },
-            include: [{
-              model: super.getModels('Variant'),
-              include: [{
-                model: super.getModels('Product')
-              }]
-            }]
-          }).then(data => {
-            const orderDetails = data as OrderDetail[]
-            if (orderDetails.length > 0) {
-              orderDetails.forEach(orderDetail => {
-                if (orderDetail.variant) {
-                  const variant: Variant = orderDetail.variant
-                  if (variant.product) {
-                    const product: Product = variant.product
-                    receipt.items.push({
-                      name: product.name,
-                      status: orderDetail.status,
-                      variant: variant.name,
-                      price: product.price,
-                      quantity: orderDetail.quantity
-                    })
-                  } else {
-                    throw new Error('Order detail does not have product!')
-                  }
-                } else {
-                  throw new Error('Order detail does not have variant!')
-                }
-              })
-              return { status: true, data: receipt }
+        if (resp.data.status === 'Open') {
+          return { status: true }
+        } else {
+          return { status: false, errMessage: 'Order is not of \'Open\' status!' }
+        }
+      } else {
+        return { status: false, errMessage: 'Order not found!' }
+      }
+    })
+  }
+
+  addOrderDetail (orderId: number, variantId: number, quantity: number): Promise<NCResponse<OrderDetail>> {
+    /*
+      1. Validate orderId -> valid order whose status is not closed / PO
+      2. Validate variantId -> product with this id exists
+      3. Validate quantity -> non-negative, and if status is ready, quantity doesn't exceed what's available
+     */
+    if (quantity <= 0) {
+      return Promise.resolve({ status: false, errMessage: 'Quantity needs to be a positive number!' })
+    } else {
+      return this.isOpenOrder(orderId).then(resp => {
+        if (resp.status) {
+          return Promise.join<any>(
+            LocalShopService.getVariantAvailability(variantId),
+            LocalShopService.getVariantInformation(variantId)
+          ).spread((resp2: NCResponse<ProductAvailability>,
+                    resp3: NCResponse<{product: ShopifiedProduct, variant: ShopifiedVariant}>) => {
+            if (resp2.status && resp2.data && resp3.status && resp3.data) {
+              const availability = resp2.data
+              if (availability.status === 'readyStock' && quantity > (availability.quantity || 0)) {
+                return { status: false, errMessage: `Only ${availability.quantity} ready stock(s) left!` }
+              }
+              const price = resp3.data.product.shopPrice
+              const orderDetailStatus = availability.status === 'preOrder' ? 'PO' : 'Ready'
+              return super.create<OrderDetail>('OrderDetail', { variantId, orderId, status: orderDetailStatus, quantity, price })
             } else {
-              return { status: false, errMessage: 'Order is empty!' }
+              return { status: false, errMessage: 'Failed to get variant information: ' + resp2.errMessage || resp3.errMessage }
             }
           })
         } else {
-          return { status: false, errMessage: 'Only closed or PO order can be printed!' }
+          return { status: false, errMessage: resp.errMessage }
         }
+      })
+    }
+  }
+
+  editOrderDetail (orderDetailId: number, variantId: number, quantity: number) {
+    // TODO: To make things easy, we don't currently implement edit
+    //       The logic is more complex than addOrderDetail because we need to
+    //       take into account the delta stock
+  }
+
+  deleteOrderDetail (orderDetailId: number): Promise<NCResponse<number>> {
+    if (orderDetailId) {
+      return super.readOne<OrderDetail>('OrderDetail', { id: orderDetailId }).then(resp => {
+        if (resp.status && resp.data) {
+          const orderId = resp.data.orderId
+          return this.isOpenOrder(orderId).then(resp2 => {
+            if (resp2.status) {
+              return super.delete<OrderDetail>('OrderDetail', { id: orderDetailId })
+            } else {
+              return { status: false, errMessage: resp2.errMessage }
+            }
+          })
+        } else {
+          return { status: false, errMessage: resp.errMessage }
+        }
+      })
+    } else {
+      return Promise.resolve({ status: false, errMessage: 'orderDetailId is reuqired!' })
+    }
+  }
+
+  // fullURL: non-relative URL to get HTML version of the receipt
+  printReceipt (fullURL: string, numCopies: number = 1): Promise<NCResponse<null>> {
+    return Promise.resolve(this.receiptPrinter.printURL(fullURL, numCopies).then(resp => {
+      if (resp.status) {
+        return { status: true }
       } else {
-        return { status: false, errMessage: 'Order is not found!' }
+        return { status: false, errMessage: resp.errMessage }
       }
-    })
+    }))
+  }
+
+  getReceipt (orderId: number): Promise<NCResponse<OrderReceipt>> {
+    if (orderId) {
+      return OrderService.getOrder(orderId).then(resp => {
+        if (resp.status && resp.data) {
+          const order = resp.data
+          if (order.status === 'Close' || order.status === 'PO') {
+            let receipt: OrderReceipt = {
+              orderId: order.id,
+              fullName: order.fullName,
+              phoneNumber: order.phoneNumber,
+              status: order.status,
+              totalPrice: order.price,
+              poDuration: undefined,
+              date: moment().format('DD-MM-YY HH:mm'),
+              items: []
+            }
+            return this.getOrderDetails(orderId).then(resp => {
+              if (resp.status && resp.data) {
+                resp.data.forEach(orderDetail => {
+                  receipt.items.push({
+                    name: orderDetail.productName,
+                    status: orderDetail.status,
+                    variant: orderDetail.variantName,
+                    price: orderDetail.price,
+                    quantity: orderDetail.quantity
+                  })
+                  if (orderDetail.status === 'PO') {
+                    if (!receipt.poDuration) {
+                      receipt.poDuration = orderDetail.preOrderDuration
+                    } else {
+                      receipt.poDuration = Math.max(receipt.poDuration, orderDetail.preOrderDuration)
+                    }
+                  }
+                })
+                return { status: true, data: receipt }
+              } else {
+                return { status: false, errMessage: 'Order is empty!' }
+              }
+            })
+          } else {
+            return { status: false, errMessage: 'Only closed or PO order can be printed!' }
+          }
+        } else {
+          return { status: false, errMessage: 'Order is not found!' }
+        }
+      })
+    } else {
+      return Promise.resolve({ status: false, errMessage: 'orderId is required!' })
+    }
   }
 }
 

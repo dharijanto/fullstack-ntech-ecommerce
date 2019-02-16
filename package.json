@@ -21,10 +21,12 @@
     "@types/sequelize": "^4.27.23",
     "@types/speakingurl": "^13.0.2",
     "gulp-sass": "^4.0.1",
-    "typescript": "^3.0.0-dev.20180619"
+    "typescript": "^3.3.3"
   },
   "dependencies": {
     "flatToTrees": "^0.1.2",
+    "printer": "^0.2.2",
+    "puppeteer": "^1.12.2",
     "speakingurl": "^14.0.1",
     "treeize": "^2.1.2"
   }

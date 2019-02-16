@@ -21,13 +21,20 @@ const DB = {
   DB_NAME: 'app_ntech'
 }
 
+const RECEIPT_PRINTER = {
+  DEVICE_NAME: 'POS58', // CUPS device name, see http://localhost:631/admin
+  PAPER_WIDTH: '58mm'
+}
+
 export default {
   PRODUCTION: false,
   BASE_URL: 'http://ntech.nusantara-local.com',
   IMAGE_PATH: path.join(__dirname, '../images/'),
   IMAGE_MOUNT_PATH: '/images/',
+  GENERATED_PRINT_PDF_PATH: path.join(__dirname, '../gen-pdf/'),
   CLOUD_SERVER: false,
   LOCAL_SHOP_INFORMATION,
   DEFAULT_SHOP_PRODUCT_BEHAVIOR,
-  DB
+  DB,
+  RECEIPT_PRINTER,
 }

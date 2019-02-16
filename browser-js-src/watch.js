@@ -6,65 +6,25 @@ var log = require('fancy-log')
 var tsify = require('tsify')
 var watchify = require('watchify')
 
-// TODO: we should read each of folder on the directories instead of specifying each module...
-const modules = [
-  {
-    input: 'product-management-cms',
-    output: 'cms'
-  },
-  {
-    input: 'product-description-cms',
-    output: 'cms'
-  },
-  {
-    input: 'shop-management-cms',
-    output: 'cms'
-  },
-  {
-    input: 'promotion-management-cms',
-    output: 'cms'
-  },
-  {
-    input: 'supplier-management-cms',
-    output: 'cms'
-  },
-  {
-    input: 'order-management-cms',
-    output: 'cms'
-  },
-  {
-    input: 'account-management-cms',
-    output: 'cms'
-  },
-  {
-    input: 'instock-product-app',
-    output: 'app'
-  },
-  {
-    input: 'po-product-app',
-    output: 'app'
-  },
-  {
-    input: 'cart-app',
-    output: 'app'
-  },
-  {
-    input: 'open-order-management-app',
-    output: 'app'
-  },
-  {
-    input: 'closed-order-management-app',
-    output: 'app'
-  }
-]
-/*
-fs.readdir(path.join(__dirname, 'src'), (err, files) => {
-  if (!err) {
 
-  } else {
-    throw err
+// Enumerate ./src directory to find *-cms and *-app folder
+// The main.ts file inside the directory is going to be bundled to respective cms or app output folder
+const sourceDir = path.join(__dirname, 'src')
+const modules = fs.readdirSync(sourceDir).filter(filename => {
+  const split = filename.split('-')
+  // Valid source folder ends with '-cms' or '-app'
+  const validSourceDirName = split[split.length - 1] === 'cms' || split[split.length - 1] === 'app'
+  return fs.statSync(path.join(sourceDir,filename)).isDirectory() && validSourceDirName
+}).map(dir => {
+  const split = dir.split('-')
+  if (split.length < 2) {
+    throw new Error('Unexpected browser-js-src source directory: ' + dir)
   }
-}) */
+  return {
+    input: dir,
+    output: split[split.length - 1]
+  }
+})
 
 function getAssetFolder(outputFolder, moduleName) {
   if (outputFolder === 'app') {

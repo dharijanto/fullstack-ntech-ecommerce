@@ -1,3 +1,3 @@
 export default {
-  NETWORK_TIMEOUT: 5000
+  NETWORK_TIMEOUT: 10000
 }

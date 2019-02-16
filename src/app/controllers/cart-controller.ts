@@ -28,25 +28,19 @@ export default class CartController extends BaseController {
         }
         LocalShopService.getVariantAvailability(req.body.variantId).then(resp => {
           if (resp.status && resp.data) {
-            if (resp.data.status === 'unavailable') {
-              res.json({ status: false, errMessage: 'Product is not available!' })
-            } else {
-              if (req.session) {
-                CartService.addItemToCart(resp.data.status, req.session.cart, data).then(resp => {
-                  if (resp.status) {
-                    if (req.session) {
-                      req.session.cart = resp.data
-                      res.json({ status: true, data: resp.data })
-                    } else {
-                      res.json({ status: false, errMessage: 'Session is not defined!' })
-                    }
+            if (req.session) {
+              CartService.addItemToCart(resp.data.status, req.session.cart, data).then(resp => {
+                if (resp.status) {
+                  if (req.session) {
+                    req.session.cart = resp.data
+                    res.json({ status: true, data: resp.data })
                   } else {
-                    res.json(resp)
+                    res.json({ status: false, errMessage: 'Session is not defined!' })
                   }
-                })
-              } else {
-                res.json({ status: false, errMessage: 'Session is not defined!' })
-              }
+                } else {
+                  res.json(resp)
+                }
+              })
             }
           } else {
             res.json({ status: false, errMessage: 'Failed to get variant availability: ' + resp.errMessage })
@@ -65,15 +59,19 @@ export default class CartController extends BaseController {
     this.routePost('/place-order', (req, res, next) => {
       if (req.session) {
         CartService.placeOrder(req.body.fullName, req.body.phoneNumber, req.body.notes, req.session.cart).then(resp => {
-          if (req.session) {
-            CartService.emptyCart(req.session.cart).then(resp2 => {
-              if (!resp2.status) {
-                log.error(TAG, 'place-order.POST: emptyCart failed!')
-              }
+          if (resp.status) {
+            if (req.session) {
+              CartService.emptyCart(req.session.cart).then(resp2 => {
+                if (!resp2.status) {
+                  log.error(TAG, 'place-order.POST: emptyCart failed!')
+                }
+                res.json(resp)
+              })
+            } else {
               res.json(resp)
-            })
+            }
           } else {
-            res.json(resp)
+            res.json({ status: false, errMessage: resp.errMessage })
           }
         }).catch(next)
       } else {

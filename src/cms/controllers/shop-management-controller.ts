@@ -114,7 +114,7 @@ export default class ShopManagementController extends BaseController {
       if (!shopId) {
         res.json({ status: false, errMessage: 'shopId is required' })
       } else {
-        ShopService.getShopStock({ shopId }).then(res.json.bind(res)).catch(next)
+        ShopService.getShopStock(shopId).then(res.json.bind(res)).catch(next)
       }
     })
 

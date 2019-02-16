@@ -54,6 +54,7 @@ class ShopService extends CRUDService {
     inStockProductsView.warranty as warranty,
     inStockProductsView.price as price,
     inStockProductsView.stockQuantity as stockQuantity,
+    inStockProductsView.updatedAt as updatedAt,
     primaryImages.imageFilename as \`primaryImage.imageFilename\`,
     primaryImages.productId as \`primaryImage.productId\`,
     productImages.imageFilename as \`images.imageFilename\`,
@@ -94,7 +95,7 @@ ORDER BY inStockProductsView.id;
     })
   }
 
-  getPOProducts ({ pageSize = 10, pageIndex = 0, productId = null }, shopId): Promise<NCResponse<POProduct[]>> {
+  getPOProducts ({ pageSize = 10, pageIndex = 0, productId = null, subCategoryId = null }, shopId): Promise<NCResponse<POProduct[]>> {
     return this.getSequelize().query(`
 SELECT
   poProductsView.id as id,
@@ -104,10 +105,12 @@ SELECT
   poProductsView.warranty as warranty,
   poProductsView.price as price,
   poProductsView.preOrderDuration as preOrderDuration,
+  poProductsView.updatedAt as updatedAt,
   primaryImages.imageFilename as \`primaryImage.imageFilename\`,
   primaryImages.productId as \`primaryImage.productId\`,
   productImages.imageFilename as \`images.imageFilename\`,
-  productImages.productId as \`images.productId\`,
+  # productImages.productId as \`images.productId\`,
+  productImages.primary as \`images.primary\`,
   subCategories.id as \`subCategory.id\`,
   subCategories.name as \`subCategory.name\`,
   subCategories.description as \`subCategory.description\`,
@@ -123,7 +126,9 @@ SELECT
   poVariantsView.supplierCount as \`variants.supplierCount\`
 FROM (SELECT *
   FROM poProductsView
-  WHERE poProductsView.shopId = ${shopId} ${productId ? 'AND poProductsView.id =' + productId : ''}
+  WHERE poProductsView.shopId = ${shopId}
+        ${productId ? 'AND poProductsView.id =' + productId : ''}
+        ${subCategoryId ? 'AND subCategories.id =' + subCategoryId : ''}
   LIMIT ${pageSize * pageIndex}, ${pageSize}
  ) as poProductsView
 LEFT OUTER JOIN
@@ -155,9 +160,9 @@ ORDER BY poProductsView.id;
       })
   }
 
-  getShopStock (searchClause) {
+  getShopStock (shopId, searchClause = {}) {
     return (this.getModels('ShopStock') as Model<Instance<ShopStock>, Partial<ShopStock>>).findAll({
-      where: searchClause,
+      where: Object.assign({}, searchClause, { shopId }),
       include: [
         {
           model: this.getModels('Variant'),
@@ -199,29 +204,9 @@ ORDER BY poProductsView.id;
     })
   }
 
-  getPromotion (shopId): Promise<NCResponse<Promotion[]>> {
-    return this.getModels('Promotion').findAll({
-      where: { shopId },
-      include: [
-        {
-          model: this.getModels('Product'),
-          include: [
-            {
-              model: this.getModels('SubCategory'),
-              include: [
-                {
-                  model: this.getModels('Category')
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    }).then(data => {
-      const result = data.map(promotion => promotion.get({ plain: true }))
-      /* console.log(util.inspect(result)) */
-      return { status: true, data: result }
-    }).catch(this.errHandler)
+  // TODO: This should be of shopifiedProductsView instead of product table
+  getPromotion (shopId): Promise<NCResponse<ShopifiedPromotion[]>> {
+    return super.rawReadQuery(`SELECT * FROM shopifiedPromotionsView WHERE shopId = ${shopId}`)
   }
 }
 
