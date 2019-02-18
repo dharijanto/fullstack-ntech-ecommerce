@@ -6,6 +6,7 @@ import { CRUDService } from './crud-service'
 import LocalShopService from './local-shop-service'
 import ProductService from './product-service';
 import OrderManagementController from '../cms/controllers/order-management-controller';
+import Formatter from '../libs/formatter';
 
 interface CartItemMeta {
   variantId: number
@@ -136,6 +137,11 @@ class CartService extends CRUDService {
       return Promise.resolve({ status: false, errMessage: 'fullName is required!' })
     } else {
       const localShopId = LocalShopService.getLocalShopId()
+      if (currentCart.preOrder.length > 0) {
+        if (!Formatter.validatePhoneNumber(phoneNumber)) {
+          return Promise.resolve({ status: false, errMessage: 'Correct phone number is required for PO order!' })
+        }
+      }
       return super.create<Order>('Order', {
         fullName,
         phoneNumber,

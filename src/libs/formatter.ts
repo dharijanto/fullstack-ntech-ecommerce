@@ -8,4 +8,8 @@ export default class Formatter {
     let re = /^[a-zA-Z]+[0-9a-zA-Z]{4,15}$/
     return re.test(username)
   }
+
+  static validatePhoneNumber (phone: string) {
+    return phone && phone.length > 5
+  }
 }

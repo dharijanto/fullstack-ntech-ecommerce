@@ -47,7 +47,8 @@ class Controller extends BaseController {
 
         // Landing page
         // The main view where we show promoted items, categories & subs, and latest products
-        // TODO: Show latest products instead of all products
+        // TODO:
+        // 1. Show latest products instead of all products
         this.routeGet('/', (req, res, next) => {
           Promise.join<NCResponse<any[]>>(
             LocalShopService.getPromotion(),
@@ -73,9 +74,9 @@ class Controller extends BaseController {
           }).catch(next)
         })
 
-        // this.routeGet('/:categoryId/*/:subCategoryId/*', (req, res, next) => {
-        //
-        // })
+        this.routeGet('/:categoryId/*/:subCategoryId/*/', (req, res, next) => {
+          next()
+        })
 
         // Product page
         // Information related to a specific product, customer can order here

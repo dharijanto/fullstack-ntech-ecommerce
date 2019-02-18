@@ -19,17 +19,30 @@ html
     #wrapper
       // Header
       header#header
-        .inner
+        .inner.text-center
           // Logo
-          a.logo(href="/")
-            span.symbol
-              img(src="/assets/images/dark-logo.png" alt="")
-            span.title Nusantara Gizmo
+          div
+            a.logo(href="/")
+              span.symbol
+                img(src="/assets/images/dark-logo.png" alt="")
+              span.title Nusantara Gizmo
           // Nav
           nav
             ul
               li
                 a(href="#menu") Menu
+      nav#category-nav
+            ul#categories-top
+              for category in categories
+                li
+                  a(href="")= category.name
+                  div#subcategories-layout
+                    for subCategory in category.subCategories
+                      article.style2
+                        a(href=getSubCategoryURL(subCategory, category))
+                          span.image
+                            img.img-fluid(src=`${getImageURL(subCategory.imageFilename)}` alt="")
+                            h2= subCategory.name
       // Menu
       nav#menu
         include include/menu

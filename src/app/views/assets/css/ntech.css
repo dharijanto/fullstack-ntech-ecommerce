@@ -134,7 +134,6 @@ article.product {
   vertical-align: middle;
 }
 
-
 /* Cart Page */
 .cart {
   display: flex;
@@ -192,8 +191,4 @@ article.product {
 
 .cart-total-price {
   margin-left: auto;
-}
-
-.cart-customer-info {
-
 }
