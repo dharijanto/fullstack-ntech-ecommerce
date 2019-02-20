@@ -45,7 +45,11 @@ GROUP BY orders.shopId, variants.productId, variants.id)
     return super.getSequelize().query(`
 CREATE VIEW shopifiedProductsView AS
 (SELECT products.id, products.name as name, products.description as description,
-        products.warranty as warranty, products.price as defaultPrice, products.subCategoryId as subCategoryId,
+        products.warranty as warranty, products.price as defaultPrice,
+        subCategories.id as subCategoryId,
+        subCategories.name AS subCategoryName,
+        categories.id AS categoryId,
+        categories.name AS categoryName,
         shops.id as shopId,
         IFNULL(stockTable.stockQuantity, 0) - IFNULL(orderTable.quantity, 0) as stockQuantity,
         IFNULL(supplierTable.supplierCount, 0) as supplierCount,
@@ -58,6 +62,9 @@ CREATE VIEW shopifiedProductsView AS
 FROM products
 
 CROSS JOIN shops
+
+INNER JOIN subCategories ON subCategories.id = products.subCategoryId
+INNER JOIN categories ON categories.id = subCategories.categoryId
 
 LEFT OUTER JOIN
   (SELECT variants.productId AS productId, SUM(shopStocks.quantity) stockQuantity, shopStocks.shopId as shopId
@@ -121,7 +128,10 @@ ON variants.id = supplierStocksTable.variantId
     log.info(TAG, 'createInStockProductsView()')
     return super.getSequelize().query(`
 CREATE VIEW inStockProductsView AS
-(SELECT spView.id as id, spView.subCategoryId as subCategoryId, spView.shopId as shopId,
+(SELECT spView.id as id,
+        spView.subCategoryId as subCategoryId, spView.subCategoryName as subCategoryName,
+        spView.categoryId as categoryId, spView.categoryName as categoryName,
+        spView.shopId as shopId,
         spView.name as name, spView.description as description, spView.createdAt as createdAt,
         spView.updatedAt as updatedAt, spView.warranty as warranty,
         IFNULL(spView.shopPrice, spView.defaultPrice) as price, spView.stockQuantity as stockQuantity
@@ -146,8 +156,11 @@ FROM shopifiedVariantsView as svView WHERE stockQuantity > 0
     return super.getSequelize().query(`
 CREATE VIEW poProductsView AS
 (
-SELECT spView.id as id, spView.shopId as shopId, spView.subCategoryId as subCategoryId, spView.name as name, spView.description as description, spView.createdAt as createdAt, spView.updatedAt as updatedAt,
-        spView.warranty as warranty, IFNULL(spView.shopPrice, spView.defaultPrice) as price, spView.preOrderDuration as preOrderDurati\
+SELECT spView.id as id, spView.shopId as shopId, spView.name as name,
+       spView.subCategoryId as subCategoryId, spView.subCategoryName as subCategoryName,
+       spView.categoryId as categoryId, spView.categoryName as categoryName,
+       spView.description as description, spView.createdAt as createdAt, spView.updatedAt as updatedAt,
+       spView.warranty as warranty, IFNULL(spView.shopPrice, spView.defaultPrice) as price, spView.preOrderDuration as preOrderDurati\
 on
 FROM shopifiedProductsView as spView WHERE disabled = FALSE AND preOrderAllowed = TRUE AND supplierCount > 0 AND stockQuantity = 0
 );

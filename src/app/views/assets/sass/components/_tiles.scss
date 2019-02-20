@@ -192,10 +192,6 @@
 			}
 		}
 
-		* + & {
-			margin-top: _size(element-margin);
-		}
-
 		body.is-preload & {
 			article {
 				@include vendor('transform', 'scale(0.9)');

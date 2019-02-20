@@ -25,7 +25,9 @@ html
             a.logo(href="/")
               span.symbol
                 img(src="/assets/images/dark-logo.png" alt="")
-              span.title Nusantara Gizmo
+              div
+                div.title Nusantara Gizmo
+                h2.slogan Solusi Kebutuhan Elektronik
           // Nav
           nav
             ul
@@ -35,7 +37,7 @@ html
             ul#categories-top
               for category in categories
                 li
-                  a(href="")= category.name
+                  a(href=getCategoryURL(category))= category.name
                   div#subcategories-layout
                     for subCategory in category.subCategories
                       article.style2

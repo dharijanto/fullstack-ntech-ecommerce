@@ -69,8 +69,8 @@ class LocalShopService extends CRUDService {
 
     This is used by landing page, where we display
   */
-  getInStockProducts ({ pageSize = 10, pageIndex = 0, productId = null }): Promise<NCResponse<InStockProduct[]>> {
-    return ShopService.getInStockProducts({ pageSize, pageIndex, productId }, this.localShopId)
+  getInStockProducts ({ pageSize = 10, pageIndex = 0, productId = null, categoryId = null, subCategoryId = null }): Promise<NCResponse<InStockProduct[]>> {
+    return ShopService.getInStockProducts({ pageSize, pageIndex, productId, categoryId, subCategoryId }, this.localShopId)
   }
 
   getInStockProduct (productId): Promise<NCResponse<InStockProduct>> {
@@ -87,8 +87,8 @@ class LocalShopService extends CRUDService {
     })
   }
 
-  getPOProducts ({ pageSize = 10, pageIndex = 0, productId = null }): Promise<NCResponse<POProduct[]>> {
-    return ShopService.getPOProducts({ pageSize, pageIndex, productId }, this.localShopId)
+  getPOProducts ({ pageSize = 10, pageIndex = 0, productId = null, categoryId = null, subCategoryId = null }): Promise<NCResponse<POProduct[]>> {
+    return ShopService.getPOProducts({ pageSize, pageIndex, productId, categoryId, subCategoryId }, this.localShopId)
   }
 
   getPOProduct (productId): Promise<NCResponse<POProduct>> {

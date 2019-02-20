@@ -2,14 +2,6 @@
   Generic
 */
 
-.large-text {
-  font-size: 150%;
-}
-
-.title {
-  font-size: 300%;
-}
-
 /*
   Home Page
 */

@@ -55,6 +55,10 @@ export function getProductSubCategory (product: Product) {
   return product.subCategory.name
 }
 
+export function getCategoryURL (category: Category) {
+  return `/${category.id}/${getSlug(category.name)}`
+}
+
 export function getSubCategoryURL (category: Category, subCategory: SubCategory) {
   return `/${category.id}/${getSlug(category.name)}/${subCategory.id}/${getSlug(subCategory.name)}`
 }

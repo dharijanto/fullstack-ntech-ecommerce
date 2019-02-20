@@ -226,6 +226,9 @@ hr {
 .align-right {
   text-align: right; }
 
+.large-text {
+  font-size: 150%; }
+
 /* Row */
 .row {
   display: flex;
@@ -1676,8 +1679,6 @@ button,
     body:not(.is-touch) .tiles article:hover .content {
       max-height: 15em;
       opacity: 1; }
-  * + .tiles {
-    margin-top: 2em; }
   body.is-preload .tiles article {
     -moz-transform: scale(0.9);
     -webkit-transform: scale(0.9);
@@ -1738,6 +1739,11 @@ button,
         display: block;
         width: 6em;
         height: 6em; }
+  #header .title {
+    font-size: 300%;
+    position: relative; }
+  #header .slogan {
+    margin-top: -5%; }
   #header nav {
     position: fixed;
     right: 2em;
@@ -1997,6 +2003,105 @@ body.is-menu-visible #menu {
   @media screen and (max-width: 736px) {
     #main {
       padding: 0em 0 4em 0 ; } }
+
+/* Promotion */
+section.promotion {
+  margin: 2%; }
+  section.promotion h2 {
+    margin: 1% 0 1% 0; }
+  section.promotion .tiles article {
+    width: calc(50% - 2.5em); }
+  section.promotion .content {
+    font-size: 1.5em;
+    font-weight: bold; }
+
+section.small-promotion .tiles article {
+  width: calc(25% - 2.5em); }
+
+section.small-promotion .content {
+  font-size: 0.75em;
+  font-weight: bold; }
+
+/* Product */
+section.product-catalog h2 {
+  margin: 1% 0 1% 0; }
+
+section.product-catalog article {
+  height: 450px;
+  border: 1px solid #d6d6d6;
+  padding-bottom: 100px;
+  display: block;
+  position: relative; }
+
+section.product-catalog .product-information {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 100px;
+  background-color: #d6d6d6;
+  text-align: center; }
+
+section.product-catalog .content {
+  font-size: 1.5em;
+  font-weight: bold; }
+
+.product > .images {
+  display: block;
+  width: 40%; }
+
+.product > .images > article.main-image {
+  position: relative;
+  width: 100%; }
+
+.product > .images > article.main-image > img {
+  position: relative;
+  max-width: 100%;
+  /* border: 1px solid black; */ }
+
+.product > .images > section.thumbnail-images {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: normal; }
+
+.product > .images > section.thumbnail-images > article {
+  width: 24%; }
+
+.product > .images > section.thumbnail-images > article > img {
+  /* border: 1px solid black; */
+  max-width: 100px;
+  /* height: 70px; */ }
+
+.product > .description {
+  width: 60%;
+  text-align: center;
+  /* border: 1px solid black; */
+  padding: 2%; }
+
+.product > .description > article > section.information {
+  min-height: 100px;
+  width: 100%; }
+
+.product > .description > article > .detail {
+  margin-bottom: 1em;
+  width: 30%;
+  margin: auto; }
+
+.product > .description > article > .detail > label {
+  margin: 0; }
+
+.product > .description > article > .detail > select {
+  margin: auto;
+  width: 150px; }
+
+.product > .description > article > .purchase {
+  margin: 30px auto auto auto;
+  text-align: center; }
+
+.product > .description > article > .purchase > button {
+  width: 50%;
+  height: 3%;
+  font-size: 0.8em;
+  vertical-align: middle; }
 
 /* Footer */
 #footer {

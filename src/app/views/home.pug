@@ -1,8 +1,8 @@
 extend layout/base
 
 block content
-  header
-    section.promotion.with-header
+  #home
+    section.promotion
       h2 Promoted Products
       section.tiles
         each promotion in promotions
@@ -16,7 +16,7 @@ block content
                   br
                   =promotion.productName
 
-    section.small-promotion.with-header
+    section.promotion.small-promotion.with-header
       section.tiles
         each smallPromotion in smallPromotions
             article
@@ -28,35 +28,35 @@ block content
                     =smallPromotion.name
                     br
                     =smallPromotion.productName
-  section.with-header
-    h2 Produk - Ready Stock
-    section.tiles
-      each product in inStockProducts
-        article.product
-          span.image
-            img(src=`${getImageURL(product.primaryImage.imageFilename)}` alt="")
-          a(href=`${getProductURL(product)}`)
-            .content
-              p Click for more information
-              .availability
-          section.product-information
-            h2
-              = product.name
-              br
-              = formatPrice(product.price)
-  section.with-header
-    h2 Produk - Pre-Order
-    section.tiles
-      each product in poProducts
-        article.product
-          span.image
-            img(src=`${getImageURL(product.primaryImage.imageFilename)}` alt="")
-          a(href=`${getProductURL(product)}`)
-            .content
-              p Click for more information
-              .availability
-          section.product-information
-            h2
-              = product.name
-              br
-              = formatPrice(product.price)
+    section.product-catalog
+      h2 Produk - Ready Stock
+      section.tiles
+        each product in inStockProducts
+          article
+            span.image
+              img(src=`${getImageURL(product.primaryImage.imageFilename)}` alt="")
+            a(href=`${getProductURL(product)}`)
+              .content
+                p Click for more information
+                .availability
+            section.product-information
+              h2
+                = product.name
+                br
+                = formatPrice(product.price)
+    section.product-catalog
+      h2 Produk - Pre-Order
+      section.tiles
+        each product in poProducts
+          article
+            span.image
+              img(src=`${getImageURL(product.primaryImage.imageFilename)}` alt="")
+            a(href=`${getProductURL(product)}`)
+              .content
+                p Click for more information
+                .availability
+            section.product-information
+              h2
+                = product.name
+                br
+                = formatPrice(product.price)

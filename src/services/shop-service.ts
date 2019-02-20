@@ -44,7 +44,8 @@ class ShopService extends CRUDService {
       })
   }
 
-  getInStockProducts ({ pageSize = 10, pageIndex = 0, productId = null }, shopId): Promise<NCResponse<InStockProduct[]>> {
+  // TODO: Limit should be done on the final queries. Solution is to add categoryId on SQL view
+  getInStockProducts ({ pageSize = 10, pageIndex = 0, productId = null, categoryId = null, subCategoryId = null }, shopId): Promise<NCResponse<InStockProduct[]>> {
     return this.getSequelize().query(`
     SELECT
     inStockProductsView.id as id,
@@ -72,16 +73,19 @@ class ShopService extends CRUDService {
     inStockVariantsView.productId as \`variants.productId\`,
     inStockVariantsView.name as \`variants.name\`,
     inStockVariantsView.stockQuantity as \`variants.stockQuantity\`
- FROM (SELECT *
-       FROM inStockProductsView
-       WHERE inStockProductsView.shopId = ${shopId} ${productId ? 'AND inStockProductsView.id =' + productId : ''}
-       LIMIT ${pageSize * pageIndex}, ${pageSize}
-      ) as inStockProductsView
-LEFT OUTER JOIN productImages on inStockProductsView.id = productImages.productId
+FROM (SELECT *
+      FROM inStockProductsView
+      WHERE inStockProductsView.shopId = ${shopId}
+            ${productId ? 'AND inStockProductsView.id =' + productId : ''}
+            ${subCategoryId ? ' AND inStockProductsView.subCategoryId =' + subCategoryId : ''}
+            ${categoryId ? ' AND inStockProductsView.categoryId = ' + categoryId : '' }
+      LIMIT ${pageSize * pageIndex}, ${pageSize}
+     ) as inStockProductsView
+LEFT OUTER JOIN productImages ON inStockProductsView.id = productImages.productId
 LEFT OUTER JOIN
   (SELECT * FROM productImages WHERE \`primary\` = TRUE) as primaryImages ON inStockProductsView.id = primaryImages.productId
-LEFT OUTER JOIN subCategories on subCategories.id = inStockProductsView.subCategoryId
-LEFT OUTER JOIN categories on subCategories.categoryId = categories.id
+INNER JOIN subCategories ON subCategories.id = inStockProductsView.subCategoryId
+INNER JOIN categories ON subCategories.categoryId = categories.id
 LEFT OUTER JOIN inStockVariantsView ON inStockVariantsView.productId = inStockProductsView.id AND inStockVariantsView.shopId = ${shopId}
 ORDER BY inStockProductsView.id;
     `, { type: this.getSequelize().QueryTypes.SELECT, nest: false }).then(flattenedProducts => {
@@ -95,7 +99,8 @@ ORDER BY inStockProductsView.id;
     })
   }
 
-  getPOProducts ({ pageSize = 10, pageIndex = 0, productId = null, subCategoryId = null }, shopId): Promise<NCResponse<POProduct[]>> {
+  // TODO: Limit should be done on the final queries. Solution is to add categoryId on SQL view
+  getPOProducts ({ pageSize = 10, pageIndex = 0, productId = null, categoryId = null, subCategoryId = null }, shopId): Promise<NCResponse<POProduct[]>> {
     return this.getSequelize().query(`
 SELECT
   poProductsView.id as id,
@@ -128,14 +133,15 @@ FROM (SELECT *
   FROM poProductsView
   WHERE poProductsView.shopId = ${shopId}
         ${productId ? 'AND poProductsView.id =' + productId : ''}
-        ${subCategoryId ? 'AND subCategories.id =' + subCategoryId : ''}
+        ${subCategoryId ? 'AND poProductsView.subCategoryId =' + subCategoryId : ''}
+        ${categoryId ? ' AND poProductsView.categoryId = ' + categoryId : '' }
   LIMIT ${pageSize * pageIndex}, ${pageSize}
  ) as poProductsView
 LEFT OUTER JOIN
   (SELECT * FROM productImages WHERE \`primary\` = TRUE) as primaryImages ON poProductsView.id = primaryImages.productId
 LEFT OUTER JOIN productImages on poProductsView.id = productImages.productId
-LEFT OUTER JOIN subCategories on subCategories.id = poProductsView.subCategoryId
-LEFT OUTER JOIN categories on subCategories.categoryId = categories.id
+INNER JOIN subCategories on subCategories.id = poProductsView.subCategoryId
+INNER JOIN categories on subCategories.categoryId = categories.id
 LEFT OUTER JOIN poVariantsView ON poVariantsView.productId = poProductsView.id AND poVariantsView.shopId = ${shopId}
 ORDER BY poProductsView.id;
     `, { type: this.getSequelize().QueryTypes.SELECT, nest: false }).then(flattenedProducts => {

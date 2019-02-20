@@ -172,6 +172,10 @@ For anything else, please define a new interface!
 */
 
 interface ShopifiedProduct extends BaseModel {
+  subCategoryId: number
+  subCategoryName: string
+  categoryId: number
+  categoryName: string
   name: string,
   description: string,
   warranty: string,
@@ -208,8 +212,11 @@ interface ShopifiedPromotion extends BaseModel {
 }
 
 interface InStockProduct extends BaseModel {
+  subCategoryId: number
+  subCategoryName: string
+  categoryId: number
+  categoryName: string
   shopId: number,
-  subCategoryId: number,
   name: string,
   description: string,
   warranty: string,
@@ -230,6 +237,10 @@ interface InStockVariant extends BaseModel {
 }
 
 interface POProduct extends BaseModel {
+  subCategoryId: number
+  subCategoryName: string
+  categoryId: number
+  categoryName: string
   shopId: number,
   name: string,
   description: string,

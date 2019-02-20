@@ -25,8 +25,8 @@ class ProductService extends CRUDService {
     return super.create('Category', data)
   }
 
-  getCategory (searchClause: Partial<Category>) {
-    return super.readOne<Category>('Category', searchClause)
+  getCategory (categoryId: number) {
+    return super.readOne<Category>('Category', { id: categoryId })
   }
 
   getCategories (searchClause: Partial<Category> = {}, includeSubCategories: boolean = false): Promise<NCResponse<Category[]>> {
@@ -62,8 +62,21 @@ class ProductService extends CRUDService {
     return super.read<SubCategory>('SubCategory', { categoryId })
   }
 
-  getSubCategory (searchClause: Partial<Category>) {
+  /* getSubCategory (searchClause: Partial<Category>) {
     return super.readOne<SubCategory>('SubCategory', searchClause)
+  } */
+
+  getSubCategory (subCategoryId: number) {
+    return super.getModels('SubCategory').findOne({
+      where: { id: subCategoryId },
+      include: [{ model: super.getModels('Category') }]
+    }).then(data => {
+      if (data) {
+        return { status: true, data }
+      } else {
+        return { status: false, errMessage: 'Not found!' }
+      }
+    })
   }
 
   updateSubCategory (id: number, data: Partial<SubCategory>) {
