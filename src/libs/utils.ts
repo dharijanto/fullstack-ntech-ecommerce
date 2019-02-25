@@ -28,6 +28,10 @@ export function formatPrice (price) {
   return `Rp. ${result}`
 }
 
+export function getHomeURL (inStockProductPage = 1, poProductPage = 1, anchor = null) {
+  return `/?in-stock-products-page=${inStockProductPage}&po-products-page=${poProductPage}${anchor ? '#' + anchor : ''}`
+}
+
 export function getProductURL (product: Product) {
   if (product.subCategory && product.subCategory.category) {
     return `/${product.subCategory.category.id}/${getSlug(product.subCategory.category.name)}` +
@@ -38,29 +42,31 @@ export function getProductURL (product: Product) {
   }
 }
 
-export function getProductCategoryURL (product: Product) {
+/* export function getProductCategoryURL (product: Product) {
   return `/category/${product.subCategory.category.id}/${getSlug(product.subCategory.category.name)}`
 }
-
-export function getProductCategory (product: Product) {
+ */
+export function getCategoryName (product: Product) {
   return product.subCategory.category.name
 }
 
-export function getProductSubCategoryURL (product: Product) {
+/* export function getProductSubCategoryURL (product: Product, inStockProductPage = 1, poProductPage = 1, anchor = null) {
   return `/category/${product.subCategory.category.id}/${getSlug(product.subCategory.category.name)}` +
          `/sub-category/${product.subCategory.id}/${getSlug(product.subCategory.name)}`
 }
-
-export function getProductSubCategory (product: Product) {
+ */
+export function getSubCategoryName (product: Product) {
   return product.subCategory.name
 }
 
-export function getCategoryURL (category: Category) {
-  return `/${category.id}/${getSlug(category.name)}`
+export function getCategoryURL (category: Category, inStockProductPage = 1, poProductPage = 1, anchor = null) {
+  return `/${category.id}/${getSlug(category.name)}` +
+      `?in-stock-products-page=${inStockProductPage}&po-products-page=${poProductPage}${anchor ? '#' + anchor : ''}`
 }
 
-export function getSubCategoryURL (category: Category, subCategory: SubCategory) {
-  return `/${category.id}/${getSlug(category.name)}/${subCategory.id}/${getSlug(subCategory.name)}`
+export function getSubCategoryURL (category: Category, subCategory: SubCategory, inStockProductPage = 1, poProductPage = 1, anchor = null) {
+  return `/${category.id}/${getSlug(category.name)}/${subCategory.id}/${getSlug(subCategory.name)}` +
+      `?in-stock-products-page=${inStockProductPage}&po-products-page=${poProductPage}${anchor ? '#' + anchor : ''}`
 }
 
 export function getPromotionURL (promotion: ShopifiedPromotion) {
@@ -99,4 +105,26 @@ export function range (start: number, end: number, step: number = 1) {
   }
 
   return result
+}
+
+export function isNumber (s) {
+  if (s === null || s === undefined) {
+    return false
+  }
+
+  let str = s
+  if (typeof str !== 'string') {
+    str = '' + s
+  }
+
+  return str.match(/^\d+$/) !== null
+}
+
+// Pagination helper
+export function getNumberOfPage (totalProducts: number, productsPerPage: number) {
+  if (totalProducts <= productsPerPage) {
+    return 1
+  } else {
+    return (totalProducts / productsPerPage).toFixed()
+  }
 }

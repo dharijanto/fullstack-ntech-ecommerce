@@ -1,4 +1,5 @@
 extend layout/base
+include include/product-catalog.pug
 
 block content
   #home
@@ -30,33 +31,11 @@ block content
                     =smallPromotion.productName
     section.product-catalog
       h2 Produk - Ready Stock
-      section.tiles
-        each product in inStockProducts
-          article
-            span.image
-              img(src=`${getImageURL(product.primaryImage.imageFilename)}` alt="")
-            a(href=`${getProductURL(product)}`)
-              .content
-                p Click for more information
-                .availability
-            section.product-information
-              h2
-                = product.name
-                br
-                = formatPrice(product.price)
+      section.tiles#in-stock-products
+        +renderProducts(inStockProducts)
+      +renderPagination(currentInStockProductPage, inStockProductTotalPage, getHomeURL('__pageNumber', currentPOProductPage, 'in-stock-products'))
     section.product-catalog
       h2 Produk - Pre-Order
-      section.tiles
-        each product in poProducts
-          article
-            span.image
-              img(src=`${getImageURL(product.primaryImage.imageFilename)}` alt="")
-            a(href=`${getProductURL(product)}`)
-              .content
-                p Click for more information
-                .availability
-            section.product-information
-              h2
-                = product.name
-                br
-                = formatPrice(product.price)
+      section.tiles#po-products
+        +renderProducts(poProducts)
+      +renderPagination(currentPOProductPage, poProductTotalPage, getHomeURL(currentInStockProductPage, '__pageNumber', 'po-products'))

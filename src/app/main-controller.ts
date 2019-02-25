@@ -14,6 +14,7 @@ import * as Utils from '../libs/utils'
 const path = require('path')
 
 let log = require('npmlog')
+log.level = 'debug'
 
 let CredentialController = require(path.join(__dirname, 'controllers/credential-controller'))
 
@@ -60,73 +61,36 @@ class Controller extends BaseController {
         // TODO:
         // 1. Show latest products instead of all products
         this.routeGet('/', (req, res, next) => {
-          Promise.join<NCResponse<any[]>>(
+          res.locals.currentPOProductPage = req.query['po-products-page'] || 1
+          res.locals.currentInStockProductPage = req.query['in-stock-products-page'] || 1
+          const inStockProductPageSize = 9
+          const poProductPageSize = 9
+
+          Promise.join<NCResponse<any>>(
             LocalShopService.getPromotion(),
-            LocalShopService.getInStockProducts({}),
-            LocalShopService.getPOProducts({})
+            LocalShopService.getInStockProducts({ pageIndex: res.locals.currentInStockProductPage - 1, pageSize: inStockProductPageSize }),
+            LocalShopService.getPOProducts({ pageIndex: res.locals.currentPOProductPage - 1, pageSize: poProductPageSize })
           ).spread((resp: NCResponse<Promotion[]>,
-                    resp3: NCResponse<InStockProduct[]>, resp4: NCResponse<POProduct[]>) => {
+                    resp3: NCResponse<{products: InStockProduct[], totalProducts: number}>,
+                    resp4: NCResponse<{products: POProduct[], totalProducts: number}>) => {
             if (resp.status && resp.data &&
-                resp3.status && resp3.data) {
+                resp3.status && resp3.data &&
+                resp4.status && resp4.data) {
               // 2 spots for larger promotion banner, the rest is regular promotions
+              log.verbose(TAG, 'resp4.totalProducts=' + JSON.stringify(resp4.data.totalProducts))
+              res.locals.inStockProductTotalPage = Utils.getNumberOfPage(resp3.data.totalProducts, inStockProductPageSize)
+              res.locals.poProductTotalPage = Utils.getNumberOfPage(resp4.data.totalProducts, poProductPageSize)
               res.locals.promotions = resp.data.slice(0, 2)
               res.locals.smallPromotions = resp.data.slice(2, resp.data.length)
-              res.locals.inStockProducts = resp3.data
-              res.locals.poProducts = resp4.data
+              res.locals.inStockProducts = resp3.data.products
+              res.locals.poProducts = resp4.data.products
               res.render('home')
+              // res.send('haha')
             } else {
-              next('Failed to retrieve some information: ' +
-                    resp.errMessage || resp3.errMessage)
+              throw new Error('Failed to retrieve some information: ' +
+                    resp.errMessage || resp3.errMessage || resp4.errMessage)
             }
           }).catch(next)
-        })
-
-        this.routeGet('/:categoryId/*/:subCategoryId/*/', (req, res, next) => {
-          const subCategoryId = req.params.subCategoryId
-          Promise.join<NCResponse<any[]>>(
-            LocalShopService.getInStockProducts({ subCategoryId }),
-            LocalShopService.getPOProducts({ subCategoryId }),
-            ProductService.getSubCategory(subCategoryId)
-          ).spread((resp1: NCResponse<InStockProduct[]>,
-                    resp2: NCResponse<POProduct[]>, resp3: NCResponse<SubCategory>) => {
-            if (resp1.status && resp1.data &&
-                resp2.status && resp2.data &&
-                resp3.status && resp3.data) {
-              res.locals.inStockProducts = resp1.data
-              res.locals.poProducts = resp2.data
-              res.locals.subCategory = resp3.data
-              res.render('sub-category')
-            } else {
-              throw new Error('Failed to retrieve inStockProducts, poProducts, or subCategory: ' + resp1.errMessage || resp2.errMessage || resp3.errMessage)
-            }
-          }).catch(err => {
-            next(err)
-          })
-        })
-
-        // NOTE: Because this route path is a 'super-path' of sub-category page, this has to be defined later
-        this.routeGet('/:categoryId/*/', (req, res, next) => {
-          const categoryId = req.params.categoryId
-          log.verbose(TAG, '/:categoryId/*.GET: req.params=' + JSON.stringify(req.params))
-          Promise.join<NCResponse<any>>(
-            LocalShopService.getInStockProducts({ categoryId }),
-            LocalShopService.getPOProducts({ categoryId }),
-            ProductService.getCategory(categoryId)
-          ).spread((resp1: NCResponse<InStockProduct[]>,
-                    resp2: NCResponse<POProduct[]>, resp3: NCResponse<Category>) => {
-            if (resp1.status && resp1.data &&
-                resp2.status && resp2.data &&
-                resp3.status && resp3.data) {
-              res.locals.inStockProducts = resp1.data
-              res.locals.poProducts = resp2.data
-              res.locals.category = resp3.data
-              res.render('category')
-            } else {
-              throw new Error('Failed to retrieve inStockProducts, poProducts, or subCategory: ' + resp1.errMessage || resp2.errMessage || resp3.errMessage)
-            }
-          }).catch(err => {
-            next(err)
-          })
         })
 
         // Product page
@@ -135,6 +99,7 @@ class Controller extends BaseController {
           const categoryId = req.params.categoryId
           const subCategoryId = req.params.subCategoryId
           const productId = req.params.productId
+
           Promise.join<NCResponse<any>>(
             LocalShopService.getInStockProduct(productId),
             LocalShopService.getPOProduct(productId)
@@ -151,6 +116,69 @@ class Controller extends BaseController {
               /* next(new Error('Product with id=' + productId + ' is not found!')) */
               // TODO: render "maaf produk ini sedang tidak tersedia"
               res.render('product-unavailable')
+            }
+          }).catch(err => {
+            next(err)
+          })
+        })
+
+        // Sub-category page
+        this.routeGet('/:categoryId/*/:subCategoryId/*/', (req, res, next) => {
+          const subCategoryId = req.params.subCategoryId
+
+          Promise.join<NCResponse<any>>(
+            LocalShopService.getInStockProducts({ subCategoryId }),
+            LocalShopService.getPOProducts({ subCategoryId }),
+            ProductService.getSubCategory(subCategoryId)
+          ).spread((resp1: NCResponse<InStockProduct[]>,
+                    resp2: NCResponse<{ products: POProduct[], totalProducts: number }>,
+                    resp3: NCResponse<SubCategory>) => {
+            if (resp1.status && resp1.data &&
+                resp2.status && resp2.data &&
+                resp3.status && resp3.data) {
+              res.locals.inStockProducts = resp1.data
+              res.locals.poProducts = resp2.data
+              res.locals.subCategory = resp3.data
+              res.locals.category = resp3.data.category
+              res.render('sub-category')
+            } else {
+              throw new Error('Failed to retrieve inStockProducts, poProducts, or subCategory: ' + resp1.errMessage || resp2.errMessage || resp3.errMessage)
+            }
+          }).catch(err => {
+            next(err)
+          })
+        })
+
+        // Category page
+        // NOTE: Because this route path is a 'super-path' of sub-category page, this has to be defined later
+        this.routeGet('/:categoryId/*/', (req, res, next) => {
+          const categoryId = req.params.categoryId
+          res.locals.currentInStockProductPage = req.query['in-stock-products-page'] || 1
+          res.locals.currentPOProductPage = req.query['po-products-page'] || 1
+          const inStockProductPageSize = 15
+          const poProductPageSize = 15
+
+          log.verbose(TAG, '/:categoryId/*.GET: req.params=' + JSON.stringify(req.params))
+          Promise.join<NCResponse<any>>(
+            LocalShopService.getInStockProducts({ categoryId, pageSize: inStockProductPageSize,
+              pageIndex: res.locals.currentInStockProductPage - 1 }),
+            LocalShopService.getPOProducts({ categoryId, pageSize: poProductPageSize,
+              pageIndex: res.locals.currentPOProductPage - 1 }),
+            ProductService.getCategory(categoryId)
+          ).spread((resp1: NCResponse<{ products: InStockProduct[], totalProducts: number}>,
+                    resp2: NCResponse<{ products: POProduct[], totalProducts: number }>,
+                    resp3: NCResponse<Category>) => {
+            if (resp1.status && resp1.data &&
+                resp2.status && resp2.data &&
+                resp3.status && resp3.data) {
+              res.locals.inStockProductTotalPage = Utils.getNumberOfPage(resp1.data.totalProducts, inStockProductPageSize)
+              res.locals.poProductTotalPage = Utils.getNumberOfPage(resp2.data.totalProducts, poProductPageSize)
+              res.locals.inStockProducts = resp1.data.products
+              res.locals.poProducts = resp2.data.products
+              res.locals.category = resp3.data
+              res.render('category')
+            } else {
+              throw new Error('Failed to retrieve inStockProducts, poProducts, or subCategory: ' + resp1.errMessage || resp2.errMessage || resp3.errMessage)
             }
           }).catch(err => {
             next(err)

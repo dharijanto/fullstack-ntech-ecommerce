@@ -1,48 +1,31 @@
-extend layout/base
+extend layout/product
 
-block content
-  include include/cart-modal
-  header
-    h1
-      | Nusantara Gizmo - Solusi Gadget & Elektronik Anda
-    section.information #[a(href=getProductCategoryURL(product)) #{getProductCategory(product)}] > #[a(href=getProductSubCategoryURL(product)) #{getProductSubCategory(product)}]
-  section.product
-    section.images
-      if (product.images.length > 0)
-        article.main-image
-          img#img-current(src=`${getImageURL(product.images[0].imageFilename)}`)
-        section.thumbnail-images
-          each productImage in product.images
-            article
-              img.img-gallery(src=`${getImageURL(productImage.imageFilename)}`)
-    section.description
-      article
-        h1= product.name
-        section.information
-          | !{product.description}
-        .detail
-          label Harga:
-          span= formatPrice(product.price)
-        .detail
-          label Garansi:
-          span= product.warranty
-        .detail
-          label Availability:
-          span Ready Stock
-        .detail
-          label Varian:
-          select#select-variant
-            each variant in product.variants
-              option(data-id=variant.id data-quantity=variant.stockQuantity)= variant.name
-        .detail
-          label Quantity:
-          select#select-quantity
-        .purchase
-          button(type="button")#add-to-cart Add to Cart
-          // button.btn.btn-primary(type='button', data-toggle='modal', data-target='#exampleModal')
+block description
+  article
+    h1= product.name
+    section.information
+      | !{product.description}
+    .detail
+      label Harga:
+      span= formatPrice(product.price)
+    .detail
+      label Garansi:
+      span= product.warranty
+    .detail
+      label Availability:
+      span Ready Stock
+    .detail
+      label Varian:
+      select#select-variant
+        each variant in product.variants
+          option(data-id=variant.id data-quantity=variant.stockQuantity)= variant.name
+    .detail
+      label Quantity:
+      select#select-quantity
+    .purchase
+      button(type="button")#add-to-cart Add to Cart
+      // button.btn.btn-primary(type='button', data-toggle='modal', data-target='#exampleModal')
             | Launch demo modal
 
 append scripts
-  script(src='/assets/js/common-product-app-bundle.js')
   script(src='/assets/js/instock-product-app-bundle.js')
-  script.

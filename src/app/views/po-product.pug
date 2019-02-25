@@ -1,46 +1,31 @@
-extend layout/base
+extend layout/product
 
-block content
-  include include/cart-modal
-  header
-    h1
-      | Nusantara Gizmo - Solusi Gadget & Elektronik Anda
-    section.information #[a(href=getProductCategoryURL(product)) #{getProductCategory(product)}] > #[a(href=getProductSubCategoryURL(product)) #{getProductSubCategory(product)}]
-  section.product
-    section.images
-      if (product.images.length > 0)
-        article.main-image
-          img(src=`${getImageURL(product.primaryImage.imageFilename)}`)
-        section.thumbnail-images
-          each productImage in product.images
-            article
-              img(src=`${getImageURL(productImage.imageFilename)}`)
-    section.description
-      article
-        h1= product.name
-        section.information
-          | !{product.description}
-        .detail
-          label Harga:
-          span= formatPrice(product.price)
-        .detail
-          label Garansi:
-          span= product.warranty || '-'
-        .detail
-          label Availability:
-          span Pre-order
-        .detail
-          label Varian:
-          select#select-variant
-            each variant in product.variants
-              option(data-id=variant.id data-quantity=variant.stockQuantity)= variant.name
-        .detail
-          label Quantity:
-          select#select-quantity
-            each i in range(1, 10)
-              option(data-quantity=i)= i
-        .purchase
-          button(type="button")#add-to-cart Add to Cart
+block description
+  article
+    h1= product.name
+    section.information
+      | !{product.description}
+    .detail
+      label Harga:
+      span= formatPrice(product.price)
+    .detail
+      label Garansi:
+      span= product.warranty || '-'
+    .detail
+      label Availability:
+      span Pre-order
+    .detail
+      label Varian:
+      select#select-variant
+        each variant in product.variants
+          option(data-id=variant.id data-quantity=variant.stockQuantity)= variant.name
+    .detail
+      label Quantity:
+      select#select-quantity
+        each i in range(1, 10)
+          option(data-quantity=i)= i
+    .purchase
+      button(type="button")#add-to-cart Add to Cart
 append scripts
   script(src='/assets/js/po-product-app-bundle.js')
-  script.
+

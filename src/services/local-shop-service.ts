@@ -69,15 +69,17 @@ class LocalShopService extends CRUDService {
 
     This is used by landing page, where we display
   */
-  getInStockProducts ({ pageSize = 10, pageIndex = 0, productId = null, categoryId = null, subCategoryId = null }): Promise<NCResponse<InStockProduct[]>> {
+  getInStockProducts ({ pageSize = 10, pageIndex = 0,
+                        productId = null, categoryId = null,
+                        subCategoryId = null }): Promise<NCResponse<{ products: InStockProduct[], totalProducts: number }>> {
     return ShopService.getInStockProducts({ pageSize, pageIndex, productId, categoryId, subCategoryId }, this.localShopId)
   }
 
   getInStockProduct (productId): Promise<NCResponse<InStockProduct>> {
     return this.getInStockProducts({ productId, pageSize: 1, pageIndex: 0 }).then(resp => {
       if (resp.status && resp.data) {
-        if (resp.data && resp.data.length > 0) {
-          return { status: true, data: resp.data[0] }
+        if (resp.data && resp.data.products.length > 0) {
+          return { status: true, data: resp.data.products[0] }
         } else {
           return { status: false, errMessage: 'Product not found!' }
         }
@@ -87,15 +89,17 @@ class LocalShopService extends CRUDService {
     })
   }
 
-  getPOProducts ({ pageSize = 10, pageIndex = 0, productId = null, categoryId = null, subCategoryId = null }): Promise<NCResponse<POProduct[]>> {
+  getPOProducts ({ pageSize = 10, pageIndex = 0,
+                   productId = null, categoryId = null,
+                   subCategoryId = null }): Promise<NCResponse<{ products: POProduct[], totalProducts: number }>> {
     return ShopService.getPOProducts({ pageSize, pageIndex, productId, categoryId, subCategoryId }, this.localShopId)
   }
 
   getPOProduct (productId): Promise<NCResponse<POProduct>> {
     return this.getPOProducts({ pageSize: 1, pageIndex: 0, productId }).then(resp => {
       if (resp.status && resp.data) {
-        if (resp.data.length) {
-          return { status: true, data: resp.data[0] }
+        if (resp.data.products.length) {
+          return { status: true, data: resp.data.products[0] }
         } else {
           return { status: false, errMessage: 'Product not found!' }
         }

@@ -45,113 +45,163 @@ class ShopService extends CRUDService {
   }
 
   // TODO: Limit should be done on the final queries. Solution is to add categoryId on SQL view
-  getInStockProducts ({ pageSize = 10, pageIndex = 0, productId = null, categoryId = null, subCategoryId = null }, shopId): Promise<NCResponse<InStockProduct[]>> {
-    return this.getSequelize().query(`
-    SELECT
-    inStockProductsView.id as id,
-    inStockProductsView.shopId as shopId,
-    inStockProductsView.name as name,
-    inStockProductsView.description as description,
-    inStockProductsView.warranty as warranty,
-    inStockProductsView.price as price,
-    inStockProductsView.stockQuantity as stockQuantity,
-    inStockProductsView.updatedAt as updatedAt,
-    primaryImages.imageFilename as \`primaryImage.imageFilename\`,
-    primaryImages.productId as \`primaryImage.productId\`,
-    productImages.imageFilename as \`images.imageFilename\`,
-    productImages.productId as \`images.productId\`,
-    subCategories.id as \`subCategory.id\`,
-    subCategories.name as \`subCategory.name\`,
-    subCategories.description as \`subCategory.description\`,
-    subCategories.categoryId as \`subCategory.categoryId\`,
-    subCategories.imageFilename as \`subCategory.imageFilename\`,
-    categories.id as \`subCategory.category.id\`,
-    categories.name as \`subCategory.category.name\`,
-    categories.description as \`subCategory.category.description\`,
-    inStockVariantsView.id as \`variants.id\`,
-    inStockVariantsView.shopId as \`variants.shopId\`,
-    inStockVariantsView.productId as \`variants.productId\`,
-    inStockVariantsView.name as \`variants.name\`,
-    inStockVariantsView.stockQuantity as \`variants.stockQuantity\`
-FROM (SELECT *
-      FROM inStockProductsView
-      WHERE inStockProductsView.shopId = ${shopId}
-            ${productId ? 'AND inStockProductsView.id =' + productId : ''}
-            ${subCategoryId ? ' AND inStockProductsView.subCategoryId =' + subCategoryId : ''}
-            ${categoryId ? ' AND inStockProductsView.categoryId = ' + categoryId : '' }
-      LIMIT ${pageSize * pageIndex}, ${pageSize}
-     ) as inStockProductsView
-LEFT OUTER JOIN productImages ON inStockProductsView.id = productImages.productId
-LEFT OUTER JOIN
-  (SELECT * FROM productImages WHERE \`primary\` = TRUE) as primaryImages ON inStockProductsView.id = primaryImages.productId
-INNER JOIN subCategories ON subCategories.id = inStockProductsView.subCategoryId
-INNER JOIN categories ON subCategories.categoryId = categories.id
-LEFT OUTER JOIN inStockVariantsView ON inStockVariantsView.productId = inStockProductsView.id AND inStockVariantsView.shopId = ${shopId}
-ORDER BY inStockProductsView.id;
-    `, { type: this.getSequelize().QueryTypes.SELECT, nest: false }).then(flattenedProducts => {
-      const treeifiedProducts = Utils.objectify(flattenedProducts).map(product => {
+  getInStockProducts ({ pageSize = 10, pageIndex = 0,
+                        productId = null, categoryId = null,
+                        subCategoryId = null }, shopId): Promise<NCResponse<{ products: InStockProduct[], totalProducts: number }>> {
+    if (productId !== null && !Utils.isNumber(productId)) {
+      return Promise.reject('productId has to be number!')
+    } else if (categoryId !== null && !Utils.isNumber(categoryId)) {
+      return Promise.reject('categoryId has to be number!')
+    } else if (subCategoryId !== null && !Utils.isNumber(subCategoryId)) {
+      return Promise.reject('subCategoryId has to be number!')
+    }
+
+    const getQuery = `
+      SELECT
+        inStockProductsView.id as id,
+        inStockProductsView.shopId as shopId,
+        inStockProductsView.name as name,
+        inStockProductsView.description as description,
+        inStockProductsView.warranty as warranty,
+        inStockProductsView.price as price,
+        inStockProductsView.stockQuantity as stockQuantity,
+        inStockProductsView.updatedAt as updatedAt,
+        primaryImages.imageFilename as \`primaryImage.imageFilename\`,
+        primaryImages.productId as \`primaryImage.productId\`,
+        productImages.imageFilename as \`images.imageFilename\`,
+        productImages.productId as \`images.productId\`,
+        subCategories.id as \`subCategory.id\`,
+        subCategories.name as \`subCategory.name\`,
+        subCategories.description as \`subCategory.description\`,
+        subCategories.categoryId as \`subCategory.categoryId\`,
+        subCategories.imageFilename as \`subCategory.imageFilename\`,
+        categories.id as \`subCategory.category.id\`,
+        categories.name as \`subCategory.category.name\`,
+        categories.description as \`subCategory.category.description\`,
+        inStockVariantsView.id as \`variants.id\`,
+        inStockVariantsView.shopId as \`variants.shopId\`,
+        inStockVariantsView.productId as \`variants.productId\`,
+        inStockVariantsView.name as \`variants.name\`,
+        inStockVariantsView.stockQuantity as \`variants.stockQuantity\`
+    FROM (SELECT *
+          FROM inStockProductsView
+          WHERE inStockProductsView.shopId = ${shopId}
+                ${productId ? 'AND inStockProductsView.id =' + productId : ''}
+                ${subCategoryId ? ' AND inStockProductsView.subCategoryId =' + subCategoryId : ''}
+                ${categoryId ? ' AND inStockProductsView.categoryId = ' + categoryId : '' }
+          LIMIT ${pageSize * pageIndex}, ${pageSize}
+         ) as inStockProductsView
+    LEFT OUTER JOIN productImages ON inStockProductsView.id = productImages.productId
+    LEFT OUTER JOIN
+      (SELECT * FROM productImages WHERE \`primary\` = TRUE) as primaryImages ON inStockProductsView.id = primaryImages.productId
+    INNER JOIN subCategories ON subCategories.id = inStockProductsView.subCategoryId
+    INNER JOIN categories ON subCategories.categoryId = categories.id
+    LEFT OUTER JOIN inStockVariantsView ON inStockVariantsView.productId = inStockProductsView.id AND inStockVariantsView.shopId = ${shopId}
+    ORDER BY inStockProductsView.id;`
+
+    const countQuery = `
+      SELECT COUNT(*) AS count
+        FROM (SELECT *
+              FROM inStockProductsView
+              WHERE inStockProductsView.shopId = ${shopId}
+                    ${productId ? 'AND inStockProductsView.id =' + productId : ''}
+                    ${subCategoryId ? ' AND inStockProductsView.subCategoryId =' + subCategoryId : ''}
+                    ${categoryId ? ' AND inStockProductsView.categoryId = ' + categoryId : '' }
+              ) as inStockProductsView;`
+
+    return Promise.join(
+      this.getSequelize().query(getQuery, { type: this.getSequelize().QueryTypes.SELECT, nest: false }),
+      this.getSequelize().query(countQuery, { type: this.getSequelize().QueryTypes.SELECT, nest: false })
+    ).spread((flattenedProducts, countData) => {
+      const products = Utils.objectify(flattenedProducts).map(product => {
         product.subCategory = product.subCategory[0]
         product.subCategory.category = product.subCategory.category[0]
         product.primaryImage = product.primaryImage[0]
         return product
       })
-      return { status: true, data: treeifiedProducts }
+      const totalProducts = countData[0].count
+      return { status: true, data: { products, totalProducts } }
     })
   }
 
   // TODO: Limit should be done on the final queries. Solution is to add categoryId on SQL view
-  getPOProducts ({ pageSize = 10, pageIndex = 0, productId = null, categoryId = null, subCategoryId = null }, shopId): Promise<NCResponse<POProduct[]>> {
-    return this.getSequelize().query(`
-SELECT
-  poProductsView.id as id,
-  poProductsView.shopId as shopId,
-  poProductsView.name as name,
-  poProductsView.description as description,
-  poProductsView.warranty as warranty,
-  poProductsView.price as price,
-  poProductsView.preOrderDuration as preOrderDuration,
-  poProductsView.updatedAt as updatedAt,
-  primaryImages.imageFilename as \`primaryImage.imageFilename\`,
-  primaryImages.productId as \`primaryImage.productId\`,
-  productImages.imageFilename as \`images.imageFilename\`,
-  # productImages.productId as \`images.productId\`,
-  productImages.primary as \`images.primary\`,
-  subCategories.id as \`subCategory.id\`,
-  subCategories.name as \`subCategory.name\`,
-  subCategories.description as \`subCategory.description\`,
-  subCategories.categoryId as \`subCategory.categoryId\`,
-  subCategories.imageFilename as \`subCategory.imageFilename\`,
-  categories.id as \`subCategory.category.id\`,
-  categories.name as \`subCategory.category.name\`,
-  categories.description as \`subCategory.category.description\`,
-  poVariantsView.id as \`variants.id\`,
-  poVariantsView.shopId as \`variants.shopId\`,
-  poVariantsView.productId as \`variants.productId\`,
-  poVariantsView.name as \`variants.name\`,
-  poVariantsView.supplierCount as \`variants.supplierCount\`
-FROM (SELECT *
-  FROM poProductsView
-  WHERE poProductsView.shopId = ${shopId}
-        ${productId ? 'AND poProductsView.id =' + productId : ''}
-        ${subCategoryId ? 'AND poProductsView.subCategoryId =' + subCategoryId : ''}
-        ${categoryId ? ' AND poProductsView.categoryId = ' + categoryId : '' }
-  LIMIT ${pageSize * pageIndex}, ${pageSize}
- ) as poProductsView
-LEFT OUTER JOIN
-  (SELECT * FROM productImages WHERE \`primary\` = TRUE) as primaryImages ON poProductsView.id = primaryImages.productId
-LEFT OUTER JOIN productImages on poProductsView.id = productImages.productId
-INNER JOIN subCategories on subCategories.id = poProductsView.subCategoryId
-INNER JOIN categories on subCategories.categoryId = categories.id
-LEFT OUTER JOIN poVariantsView ON poVariantsView.productId = poProductsView.id AND poVariantsView.shopId = ${shopId}
-ORDER BY poProductsView.id;
-    `, { type: this.getSequelize().QueryTypes.SELECT, nest: false }).then(flattenedProducts => {
-      const treeifiedProducts = Utils.objectify(flattenedProducts).map(product => {
+  getPOProducts ({ pageSize = 10, pageIndex = 0,
+                  productId = null, categoryId = null,
+                  subCategoryId = null }, shopId): Promise<NCResponse<{ products: POProduct[], totalProducts: number }>> {
+    if (productId !== null && !Utils.isNumber(productId)) {
+      return Promise.reject('productId has to be number!')
+    } else if (categoryId !== null && !Utils.isNumber(categoryId)) {
+      return Promise.reject('categoryId has to be number!')
+    } else if (subCategoryId !== null && !Utils.isNumber(subCategoryId)) {
+      return Promise.reject('subCategoryId has to be number!')
+    }
+
+    const getQuery = `
+      SELECT
+        poProductsView.id as id,
+        poProductsView.shopId as shopId,
+        poProductsView.name as name,
+        poProductsView.description as description,
+        poProductsView.warranty as warranty,
+        poProductsView.price as price,
+        poProductsView.preOrderDuration as preOrderDuration,
+        poProductsView.updatedAt as updatedAt,
+        primaryImages.imageFilename as \`primaryImage.imageFilename\`,
+        primaryImages.productId as \`primaryImage.productId\`,
+        productImages.imageFilename as \`images.imageFilename\`,
+        # productImages.productId as \`images.productId\`,
+        productImages.primary as \`images.primary\`,
+        subCategories.id as \`subCategory.id\`,
+        subCategories.name as \`subCategory.name\`,
+        subCategories.description as \`subCategory.description\`,
+        subCategories.categoryId as \`subCategory.categoryId\`,
+        subCategories.imageFilename as \`subCategory.imageFilename\`,
+        categories.id as \`subCategory.category.id\`,
+        categories.name as \`subCategory.category.name\`,
+        categories.description as \`subCategory.category.description\`,
+        poVariantsView.id as \`variants.id\`,
+        poVariantsView.shopId as \`variants.shopId\`,
+        poVariantsView.productId as \`variants.productId\`,
+        poVariantsView.name as \`variants.name\`,
+        poVariantsView.supplierCount as \`variants.supplierCount\`
+      FROM (SELECT *
+        FROM poProductsView
+        WHERE poProductsView.shopId = ${shopId}
+              ${productId ? 'AND poProductsView.id =' + productId : ''}
+              ${subCategoryId ? 'AND poProductsView.subCategoryId =' + subCategoryId : ''}
+              ${categoryId ? ' AND poProductsView.categoryId = ' + categoryId : '' }
+        LIMIT ${pageSize * pageIndex}, ${pageSize}
+        ) as poProductsView
+      LEFT OUTER JOIN
+        (SELECT * FROM productImages WHERE \`primary\` = TRUE) as primaryImages ON poProductsView.id = primaryImages.productId
+      LEFT OUTER JOIN productImages on poProductsView.id = productImages.productId
+      INNER JOIN subCategories on subCategories.id = poProductsView.subCategoryId
+      INNER JOIN categories on subCategories.categoryId = categories.id
+      LEFT OUTER JOIN poVariantsView ON poVariantsView.productId = poProductsView.id AND poVariantsView.shopId = ${shopId}
+      ORDER BY poProductsView.id;`
+
+    const countQuery = `
+      SELECT COUNT(*) AS count FROM
+        (SELECT *
+          FROM poProductsView
+          WHERE poProductsView.shopId = ${shopId}
+                ${productId ? 'AND poProductsView.id =' + productId : ''}
+                ${subCategoryId ? 'AND poProductsView.subCategoryId =' + subCategoryId : ''}
+                ${categoryId ? ' AND poProductsView.categoryId = ' + categoryId : '' }
+          ) as poProductsView`
+
+    return Promise.join(
+      this.getSequelize().query(getQuery, { type: this.getSequelize().QueryTypes.SELECT, nest: false }),
+        this.getSequelize().query(countQuery, { type: this.getSequelize().QueryTypes.SELECT })
+    ).spread((flattenedProducts, countData) => {
+      const products = Utils.objectify(flattenedProducts).map(product => {
         product.subCategory = product.subCategory[0]
         product.subCategory.category = product.subCategory.category[0]
         product.primaryImage = product.primaryImage[0]
         return product
       })
-      return { status: true, data: treeifiedProducts }
+      const totalProducts = countData[0].count
+      return { status: true, data: { products, totalProducts } }
     })
   }
 

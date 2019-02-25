@@ -1,36 +1,15 @@
 extend layout/base
+include include/product-catalog.pug
 
 block content
   h1 #[a(href=getCategoryURL(category)) #{category.name}]
   section.product-catalog
     h2 Produk - Ready Stock
-    section.tiles
-      each product in inStockProducts
-        article
-          span.image
-            img(src=`${getImageURL(product.primaryImage.imageFilename)}` alt="")
-          a(href=`${getProductURL(product)}`)
-            .content
-              p Click for more information
-              .availability
-          section.product-information
-            h2
-              = product.name
-              br
-              = formatPrice(product.price)
+    section.tiles#in-stock-products
+      +renderProducts(inStockProducts)
+    +renderPagination(currentInStockProductPage, inStockProductTotalPage, getCategoryURL(category, '__pageNumber', currentPOProductPage, 'in-stock-products'))
   section.product-catalog
     h2 Produk - Pre-Order
-    section.tiles
-      each product in poProducts
-        article
-          span.image
-            img(src=`${getImageURL(product.primaryImage.imageFilename)}` alt="")
-          a(href=`${getProductURL(product)}`)
-            .content
-              p Click for more information
-              .availability
-          section.product-information
-            h2
-              = product.name
-              br
-              = formatPrice(product.price)
+    section.tiles#po-products
+      +renderProducts(poProducts)
+    +renderPagination(currentPOProductPage, poProductTotalPage, getCategoryURL(category, currentInStockProductPage, '__pageNumber', 'po-products'))

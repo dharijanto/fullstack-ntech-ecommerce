@@ -8,7 +8,7 @@ section.product-catalog {
   }
 
   article {
-    height: 450px;
+    height: 500px;
     border: 1px solid #d6d6d6;
     padding-bottom: $product-info-height;
     display: block;
@@ -26,75 +26,4 @@ section.product-catalog {
     font-size: 1.5em;
     font-weight: bold;
   }
-}
-
-.product > .images {
-  display: block;
-  width: 40%;
-}
-
-.product > .images > article.main-image {
-  position: relative;
-  width: 100%;
-}
-
-.product > .images > article.main-image > img {
-  position: relative;
-  max-width: 100%;
-  /* border: 1px solid black; */
-}
-
-.product > .images > section.thumbnail-images {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: normal;
-}
-
-.product > .images > section.thumbnail-images > article {
-  width: 24%;
-}
-
-.product > .images > section.thumbnail-images > article > img {
-  /* border: 1px solid black; */
-  max-width: 100px;
-  /* height: 70px; */
-}
-
-.product > .description {
-  width: 60%;
-  text-align: center;
-  /* border: 1px solid black; */
-  padding: 2%;
-}
-
-.product > .description > article > section.information {
-  min-height: 100px;
-  width: 100%;
-}
-
-.product > .description > article > .detail {
-  margin-bottom: 1em;
-  width: 30%;
-  margin: auto;
-}
-
-.product > .description > article > .detail > label {
-  margin: 0;
-}
-
-.product > .description > article > .detail > select {
-  margin: auto;
-  width: 150px;
-}
-
-.product > .description > article > .purchase {
-  margin: 30px auto auto auto;
-  text-align: center
-}
-
-.product > .description > article > .purchase > button {
-  width: 50%;
-  height: 3%;
-  font-size: 0.8em;
-  vertical-align: middle;
 }
