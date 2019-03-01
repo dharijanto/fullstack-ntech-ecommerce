@@ -40,7 +40,7 @@ html
                   div#subcategories-layout
                     for subCategory in category.subCategories
                       article.style2
-                        a(href=getSubCategoryURL(subCategory, category))
+                        a(href=getSubCategoryURL(category, subCategory))
                           span.image
                             img.img-fluid(src=`${getImageURL(subCategory.imageFilename)}` alt="")
                             h2= subCategory.name

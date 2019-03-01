@@ -9,7 +9,11 @@ print it using linux 'lp'.
 ```
 page.pdf({ width: '58mm', path: '/tmp/output.pdf' })
 ```
-* So config 
+* Troubleshooting:
+```
+# Run this if headless chrome fails to run
+sudo sysctl -w kernel.unprivileged_userns_clone=1
+```
 
 ## Printer Setup
 * Install CUPS

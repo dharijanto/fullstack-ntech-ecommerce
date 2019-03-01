@@ -74,7 +74,7 @@ class ProductService extends CRUDService {
       if (data) {
         return { status: true, data }
       } else {
-        return { status: false, errMessage: 'Not found!' }
+        return { status: false, errMessage: `subCategoryId=${subCategoryId} could not be found!` }
       }
     })
   }

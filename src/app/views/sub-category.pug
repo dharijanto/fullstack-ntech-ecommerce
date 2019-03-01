@@ -3,11 +3,16 @@ include include/product-catalog.pug
 
 block content
   h1 #[a(href=getCategoryURL(subCategory.category)) #{subCategory.category.name}] - #{subCategory.name}
-  section.product-catalog
-    h2 Produk - Ready Stock
-    section.tiles
-      +renderProducts(inStockProducts)
-  section.product-catalog
-    h2 Produk - Pre-Order
-    section.tiles
-      +renderProducts(poProducts)
+  if inStockProducts.length > 0
+    section.product-catalog
+      h2 Produk - Ready Stock
+      section.tiles
+        +renderProducts(inStockProducts)
+      +renderPagination(currentInStockProductPage, inStockProductTotalPage, getCategoryURL(category, '__pageNumber', currentPOProductPage, 'in-stock-products'))
+
+  if poProducts.length > 0
+    section.product-catalog
+      h2 Produk - Pre-Order
+      section.tiles
+        +renderProducts(poProducts)
+      +renderPagination(currentInStockProductPage, inStockProductTotalPage, getCategoryURL(category, '__pageNumber', currentPOProductPage, 'in-stock-products'))

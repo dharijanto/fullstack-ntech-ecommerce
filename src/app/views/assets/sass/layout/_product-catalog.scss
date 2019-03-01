@@ -8,7 +8,7 @@ section.product-catalog {
   }
 
   article {
-    height: 500px;
+    min-height: 500px;
     border: 1px solid #d6d6d6;
     padding-bottom: $product-info-height;
     display: block;
@@ -18,7 +18,7 @@ section.product-catalog {
     position: absolute;
     bottom: 0;
     width: 100%;
-    height: $product-info-height;
+    min-height: $product-info-height;
     background-color: #d6d6d6;
     text-align: center;
   }

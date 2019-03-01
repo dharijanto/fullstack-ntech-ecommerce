@@ -27,22 +27,6 @@ class Controller extends BaseController {
 
     this.routeUse(AppConfig.IMAGE_MOUNT_PATH, express.static(AppConfig.IMAGE_PATH))
 
-    this.addInterceptor((req, res, next) => {
-      log.verbose(TAG, 'req.path=' + req.path)
-      log.verbose(TAG, 'loggedIn=' + req.isAuthenticated())
-      log.verbose(TAG, 'req.on=' + JSON.stringify(req.session))
-      ProductService.getCategories({}, true).then(resp => {
-        if (resp.status && resp.data) {
-          res.locals.categories = resp.data
-          next()
-        } else {
-          throw new Error('Failed to retrieve categories: ' + resp.errMessage)
-        }
-      }).catch(err => {
-        next(err)
-      })
-    })
-
     LocalShopService.initialize().then(resp => {
       if (!resp.status) {
         this.routeGet('*', (req, res, next) => {
@@ -50,11 +34,28 @@ class Controller extends BaseController {
         })
       } else {
         this.addInterceptor((req, res, next) => {
-          Object.keys(Utils).forEach(key => {
-            res.locals[key] = Utils[key]
+          log.verbose(TAG, 'req.path=' + req.path)
+          log.verbose(TAG, 'loggedIn=' + req.isAuthenticated())
+          log.verbose(TAG, 'req.on=' + JSON.stringify(req.session))
+          ProductService.getCategories({}, true).then(resp => {
+            if (resp.status && resp.data) {
+              Object.keys(Utils).forEach(key => {
+                res.locals[key] = Utils[key]
+              })
+              res.locals.categories = resp.data
+              next()
+            } else {
+              throw new Error('Failed to retrieve categories: ' + resp.errMessage)
+            }
+          }).catch(err => {
+            next(err)
           })
-          next()
         })
+
+        this.routeUse('/cms', (new CMSController(siteData).getRouter()))
+
+        // More involved logics are separated into different controllers
+        this.routeUse('/cart', (new CartController(siteData).getRouter()))
 
         // Landing page
         // The main view where we show promoted items, categories & subs, and latest products
@@ -77,7 +78,6 @@ class Controller extends BaseController {
                 resp3.status && resp3.data &&
                 resp4.status && resp4.data) {
               // 2 spots for larger promotion banner, the rest is regular promotions
-              log.verbose(TAG, 'resp4.totalProducts=' + JSON.stringify(resp4.data.totalProducts))
               res.locals.inStockProductTotalPage = Utils.getNumberOfPage(resp3.data.totalProducts, inStockProductPageSize)
               res.locals.poProductTotalPage = Utils.getNumberOfPage(resp4.data.totalProducts, poProductPageSize)
               res.locals.promotions = resp.data.slice(0, 2)
@@ -125,24 +125,33 @@ class Controller extends BaseController {
         // Sub-category page
         this.routeGet('/:categoryId/*/:subCategoryId/*/', (req, res, next) => {
           const subCategoryId = req.params.subCategoryId
+          res.locals.currentInStockProductPage = req.query['in-stock-products-page'] || 1
+          res.locals.currentPOProductPage = req.query['po-products-page'] || 1
+          const inStockProductPageSize = 15
+          const poProductPageSize = 15
 
           Promise.join<NCResponse<any>>(
             LocalShopService.getInStockProducts({ subCategoryId }),
             LocalShopService.getPOProducts({ subCategoryId }),
             ProductService.getSubCategory(subCategoryId)
-          ).spread((resp1: NCResponse<InStockProduct[]>,
+          ).spread((resp1: NCResponse<{ products: InStockProduct[], totalProducts: number }>,
                     resp2: NCResponse<{ products: POProduct[], totalProducts: number }>,
                     resp3: NCResponse<SubCategory>) => {
             if (resp1.status && resp1.data &&
                 resp2.status && resp2.data &&
                 resp3.status && resp3.data) {
-              res.locals.inStockProducts = resp1.data
-              res.locals.poProducts = resp2.data
+              res.locals.inStockProductTotalPage = Utils.getNumberOfPage(resp1.data.totalProducts, inStockProductPageSize)
+              res.locals.poProductTotalPage = Utils.getNumberOfPage(resp2.data.totalProducts, poProductPageSize)
+              res.locals.inStockProducts = resp1.data.products
+              res.locals.poProducts = resp2.data.products
               res.locals.subCategory = resp3.data
               res.locals.category = resp3.data.category
               res.render('sub-category')
             } else {
-              throw new Error('Failed to retrieve inStockProducts, poProducts, or subCategory: ' + resp1.errMessage || resp2.errMessage || resp3.errMessage)
+              console.dir('resp1=' + JSON.stringify(resp1))
+              console.dir('resp2=' + JSON.stringify(resp2))
+              console.dir('resp3=' + JSON.stringify(resp3))
+              throw new Error('Failed to retrieve inStockProducts, poProducts, or subCategory: ' + (resp1.errMessage || resp2.errMessage || resp3.errMessage))
             }
           }).catch(err => {
             next(err)
@@ -185,10 +194,6 @@ class Controller extends BaseController {
           })
         })
       }
-
-      // More involved logics are separated into different controllers
-      this.routeUse('/cart', (new CartController(siteData).getRouter()))
-      this.routeUse('/cms', (new CMSController(siteData).getRouter()))
     })
     /* this.routeUse((new CredentialController(initData)).getRouter()) */
 
