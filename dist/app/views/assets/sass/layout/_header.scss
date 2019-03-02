@@ -7,15 +7,15 @@
 /* Header */
 
 	#header {
-		@include padding(5em, 0, (3em, 0, -5em, 0));
+		@include padding(2em, 0, (3em, 0, -5em, 0));
 
 		.logo {
 			display: block;
 			border-bottom: 0;
 			color: inherit;
 			font-weight: _font(weight-bold);
-			letter-spacing: _font(letter-spacing);
-			margin: 0 0 (_size(element-margin) * 1.25) 0;
+			letter-spacing: _fheaderont(letter-spacing);
+			// margin: 0 0 (_size(element-margin) * 1.25) 0;
 			text-decoration: none;
 			text-transform: uppercase;
 			display: inline-block;
@@ -30,11 +30,21 @@
 
 				img {
 					display: block;
-					width: 2em;
-					height: 2em;
+					width: 6em;
+					height: 6em;
 				}
 			}
 		}
+
+		.title {
+			font-size: 300%;
+			position: relative;
+		}
+
+		.slogan {
+			margin-top: -5%;
+		}
+
 
 		nav {
 			position: fixed;

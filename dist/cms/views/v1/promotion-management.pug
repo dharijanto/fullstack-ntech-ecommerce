@@ -1,0 +1,17 @@
+extends layout.pug
+
+include includes/sidebar
+
+block content
+  .container
+    .row
+      .col-md-12
+        #shop
+    .row
+      .col-md-6
+        #product
+      .col-md-6
+        #promotion
+
+append scripts
+  script(src=`/${siteHash}/assets/js/promotion-management-cms-bundle.js`)

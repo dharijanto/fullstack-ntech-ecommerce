@@ -1,0 +1,186 @@
+/*
+  Generic
+*/
+
+/*
+  Home Page
+*/
+section.promotion .tiles article {
+  width: calc(50% - 2.5em);
+}
+
+section.promotion .content {
+  font-size: 1.5em;
+  font-weight: bold;
+}
+
+section.small-promotion {
+  margin-top: 0.5em !important;
+  font-weight: bold;
+}
+
+section.small-promotion .tiles article {
+  width: calc(25% - 2.5em);
+}
+
+section.with-header {
+  margin-top: 2.5em;
+}
+
+section.with-header > h2 {
+  margin: 0;
+}
+
+section.with-header > section {
+  margin: -0.5em 0 0 -2.5em;
+}
+
+section.product-information {
+  background-color: #d6d6d6;
+  text-align: center;
+}
+
+article.product {
+  border: 1px solid #d6d6d6;
+  display: block;
+}
+
+/*
+  Product Page
+*/
+
+.product {
+  position: relative;
+  display: flex;
+  justify-content: space-between
+}
+
+.product > .images {
+  display: block;
+  width: 40%;
+}
+
+.product > .images > article.main-image {
+  position: relative;
+  width: 100%;
+}
+
+.product > .images > article.main-image > img {
+  position: relative;
+  max-width: 100%;
+  /* border: 1px solid black; */
+}
+
+.product > .images > section.thumbnail-images {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: normal;
+}
+
+.product > .images > section.thumbnail-images > article {
+  width: 24%;
+}
+
+.product > .images > section.thumbnail-images > article > img {
+  /* border: 1px solid black; */
+  max-width: 100px;
+  /* height: 70px; */
+}
+
+.product > .description {
+  width: 60%;
+  text-align: center;
+  /* border: 1px solid black; */
+  padding: 2%;
+}
+
+.product > .description > article > section.information {
+  min-height: 100px;
+  width: 100%;
+}
+
+.product > .description > article > .detail {
+  margin-bottom: 1em;
+  width: 30%;
+  margin: auto;
+}
+
+.product > .description > article > .detail > label {
+  margin: 0;
+}
+
+.product > .description > article > .detail > select {
+  margin: auto;
+  width: 150px;
+}
+
+.product > .description > article > .purchase {
+  margin: 30px auto auto auto;
+  text-align: center
+}
+
+.product > .description > article > .purchase > button {
+  width: 50%;
+  height: 3%;
+  font-size: 0.8em;
+  vertical-align: middle;
+}
+
+/* Cart Page */
+.cart {
+  display: flex;
+  flex-direction: column;
+}
+
+.cart-item-container {
+  display: flex;
+  flex-direction: row;
+  height: 200px;
+  text-align: center;
+}
+
+.cart-item-picture {
+  display: block;
+  width: 20%;
+}
+
+.cart-item-info {
+  display: flex;
+  flex-direction: column;
+  width: 45%;
+}
+
+.cart-item-info-child {
+  display: block;
+  text-align: center;
+}
+
+.cart-item-qtty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 7.5%;
+}
+
+/* .cart-item-remove {
+  display: flex;
+  align-items: center;
+  width: 7.5%;
+} */
+
+.cart-item-subtotal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 20%;
+}
+
+.cart-total-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.cart-total-price {
+  margin-left: auto;
+}

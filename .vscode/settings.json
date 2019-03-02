@@ -7,5 +7,6 @@
 														 // named "node_modules" from 
 														 // the explore tree
 		"dist": true
-	}
+	},
+	"typescript.tsdk": "node_modules/typescript/lib"
 }

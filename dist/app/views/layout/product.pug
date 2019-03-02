@@ -1,0 +1,24 @@
+extend base
+
+block content
+  include ../include/cart-modal
+  header
+    section#product-category
+      span #[a(href=getCategoryURL(product.subCategory.category)) #{getCategoryName(product)}] > #[a(href=getSubCategoryURL(product.subCategory.category, product.subCategory)) #{getSubCategoryName(product)}]
+  section#product
+    section#images
+      if (product.images.length > 0)
+        #main-image
+          img#img-current(src=`${getImageURL(product.images[0].imageFilename)}`)
+        #thumbnails
+          each productImage in product.images
+            .thumbnail
+              img.img-gallery(src=`${getImageURL(productImage.imageFilename)}`)
+        #hints
+          span Click to enlarge
+    section#description
+      block description
+
+
+append scripts
+  script(src='/assets/js/common-product-app-bundle.js')
