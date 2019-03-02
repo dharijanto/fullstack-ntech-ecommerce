@@ -51,7 +51,7 @@ $(document).ready(() => {
       ui: [
         { id: 'id', desc: 'ID', dataTable: true, input: 'text', disabled: true },
         { id: 'name', desc: 'Promotion Name', dataTable: true, input: 'text', disabled: false },
-        { id: 'product.name', desc: 'Product Name', dataTable: true, input: 'text', disabled: true },
+        { id: 'productName', desc: 'Product Name', dataTable: true, input: 'text', disabled: true },
         { id: 'imageFilename', desc: 'Image (645x275)', dataTable: true, input: 'text', disabled: false },
         { id: 'createdAt', desc: 'Date Created', dataTable: true, input: 'hidden', disabled: true },
         { id: 'updatedAt', desc: 'Date Updated', dataTable: true, input: 'hidden', disabled: true }
@@ -69,7 +69,7 @@ $(document).ready(() => {
     },
     buttons: {
       ui: [
-        /* { id: 'add', desc: 'Add', postTo: () => {
+        { id: 'add', desc: 'Add', postTo: () => {
           const shopId = shop ? shop.id : ''
           const productId = product ? product.id : ''
           return `/${window['siteHash']}/shop-management/promotion?shopId=${shopId}&productId=${productId}`
@@ -79,7 +79,7 @@ $(document).ready(() => {
           const productId = product ? product.id : ''
           return `/${window['siteHash']}/shop-management/promotion/edit?shopId=${shopId}&productId=${productId}`
         }},
-        { id: 'delete', desc: 'Delete', postTo: () => `/${window['siteHash']}/shop-management/promotion/delete` } */
+        { id: 'delete', desc: 'Delete', postTo: () => `/${window['siteHash']}/shop-management/promotion/delete`, confirm: 'Are you sure?' }
       ],
       conf: {
         networkTimeout: 2000 // timeout for postTo request

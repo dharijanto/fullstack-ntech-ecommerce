@@ -55,6 +55,11 @@ export default class ShopManagementController extends BaseController {
       }
     })
 
+    super.routePost('/promotion/delete', (req, res, next) => {
+      console.dir(req.query)
+      ShopService.delete<Promotion>('Promotion', { id: req.body.id }).then(res.json.bind(res)).catch(next)
+    })
+
     super.routeGet('/shops', (req, res, next) => {
       ShopService.getShops().then(resp => {
         res.json(resp)

@@ -23,9 +23,9 @@ CREATE VIEW inStockOrdersView AS
         SUM(IF(orderDetails.status = 'Ready', orderDetails.quantity, 0)) AS quantity,
         variants.productId, variants.id as variantId
 FROM orders
-LEFT OUTER JOIN orderDetails ON orderDetails.orderId = orders.id
-LEFT OUTER JOIN variants ON variants.id = orderDetails.variantId
-WHERE orders.status != 'Cancelled'
+LEFT OUTER JOIN orderDetails ON orderDetails.orderId = orders.id AND orderDetails.deletedAt IS NULL
+LEFT OUTER JOIN variants ON variants.id = orderDetails.variantId AND variants.deletedAt IS NULL
+WHERE orders.status != 'Cancelled' AND orders.deletedAt IS NULL
 GROUP BY orders.shopId, variants.productId, variants.id)
 `)
   }
@@ -59,16 +59,17 @@ CREATE VIEW shopifiedProductsView AS
         IFNULL(shopProducts.preOrderAllowed,${AppConfig.DEFAULT_SHOP_PRODUCT_BEHAVIOR.preOrderAllowed ? 'TRUE' : 'FALSE'}) as preOrderAllowed,
         IFNULL(shopProducts.preOrderDuration, ${AppConfig.DEFAULT_SHOP_PRODUCT_BEHAVIOR.preOrderDuration}) as preOrderDuration,
         IFNULL(shopProducts.disabled, ${AppConfig.DEFAULT_SHOP_PRODUCT_BEHAVIOR.disabled}) as disabled
-FROM products
+FROM (SELECT * FROM products WHERE deletedAt IS NULL) AS products
 
 CROSS JOIN shops
 
-INNER JOIN subCategories ON subCategories.id = products.subCategoryId
-INNER JOIN categories ON categories.id = subCategories.categoryId
+INNER JOIN subCategories ON subCategories.id = products.subCategoryId AND subCategories.deletedAt IS NULL
+INNER JOIN categories ON categories.id = subCategories.categoryId AND categories.deletedAt IS NULL
 
 LEFT OUTER JOIN
   (SELECT variants.productId AS productId, SUM(shopStocks.quantity) stockQuantity, shopStocks.shopId as shopId
    FROM variants INNER JOIN shopStocks ON variants.id = shopStocks.variantId
+   WHERE variants.deletedAt IS NULL AND shopStocks.deletedAt IS NULL
    GROUP BY shopStocks.shopId, variants.productId) AS stockTable
 ON products.id = stockTable.productId AND shops.id = stockTable.shopId
 
@@ -83,13 +84,15 @@ LEFT OUTER JOIN
 LEFT OUTER JOIN
   (SELECT variants.productId AS productId, COUNT(*) AS supplierCount FROM variants
    INNER JOIN supplierStocks ON variants.id = supplierStocks.variantId
+   WHERE supplierStocks.deletedAt IS NULL AND variants.deletedAt IS NULL
    GROUP BY variants.productId) as supplierTable
 ON products.id = supplierTable.productId
 
-LEFT OUTER JOIN shopProducts ON products.id = shopProducts.productId AND stockTable.shopId = shops.id)
+LEFT OUTER JOIN shopProducts ON products.id = shopProducts.productId AND shopProducts.deletedAt IS NULL)
     `)
   }
 
+  // TODO: Sounds like supplierStocksTable is mistaken? Should double check it
   createShopifiedVariantsView () {
     log.info(TAG, 'createShopifiedVariantsView()')
     return super.getSequelize().query(`
@@ -99,13 +102,14 @@ CREATE VIEW shopifiedVariantsView AS
         shops.id as shopId,
         IFNULL(shopStocksTable.stockQuantity, 0) - IFNULL(orderTable.quantity, 0) as stockQuantity,
         IFNULL(supplierStocksTable.supplierCount, 0) as supplierCount
-FROM variants
+FROM (SELECT * FROM variants WHERE variants.deletedAt IS NULL) AS variants
 
 CROSS JOIN shops
 
 LEFT OUTER JOIN
   (SELECT shopStocks.variantId as variantId, shopStocks.shopId as shopId, SUM(shopStocks.quantity) as stockQuantity
     FROM shopStocks
+    WHERE shopStocks.deletedAt IS NULL
     GROUP BY shopStocks.variantId, shopStocks.shopId) as shopStocksTable
 ON variants.id = shopStocksTable.variantId AND shops.id = shopStocksTable.shopId
 
@@ -118,6 +122,7 @@ LEFT OUTER JOIN
 LEFT OUTER JOIN
   (SELECT supplierStocks.variantId as variantId, COUNT(*) as supplierCount
    FROM supplierStocks
+   WHERE supplierStocks.deletedAt IS NULL
    GROUP BY supplierStocks.variantId) as supplierStocksTable
 ON variants.id = supplierStocksTable.variantId
 );
@@ -186,9 +191,9 @@ SELECT orders.id as id, orders.fullName as fullName, orders.phoneNumber as phone
        orders.notes as notes, orders.status as status, orders.createdAt as createdAt,
        orders.updatedAt as updatedAt, SUM(orderDetails.quantity) as quantity,
        SUM(orderDetails.price * orderDetails.quantity) as price, orders.shopId as shopId
-FROM orders
-LEFT OUTER JOIN orderDetails on orderDetails.orderId = orders.id
-LEFT OUTER JOIN variants ON variants.id = orderDetails.variantId
+FROM (SELECT * FROM orders WHERE orders.deletedAt IS NULL) AS orders
+LEFT OUTER JOIN orderDetails on orderDetails.orderId = orders.id AND orderDetails.deletedAt IS NULL
+LEFT OUTER JOIN variants ON variants.id = orderDetails.variantId AND variants.deletedAt IS NULL
 GROUP BY orders.id
 );`)
   }
@@ -203,10 +208,11 @@ SELECT orderDetails.id AS id, orderDetails.orderId AS orderId, orderDetails.quan
        variants.name AS variantName, variants.id AS variantId,
        products.name AS productName, products.id AS productId,
        shopifiedProductsView.preOrderDuration AS preOrderDuration
-FROM orderDetails
-INNER JOIN variants ON orderDetails.variantId = variants.id
-INNER JOIN products ON variants.productId = products.id
-INNER JOIN orders ON orders.id = orderDetails.orderId
+FROM (SELECT * FROM orderDetails WHERE orderDetails.deletedAt IS NULL) AS orderDetails
+INNER JOIN variants ON orderDetails.variantId = variants.id AND variants.deletedAt IS NULL
+INNER JOIN products ON variants.productId = products.id AND products.deletedAt IS NULL
+# Although orders is not used, it's needed so we don't count orders that are already deleted
+INNER JOIN orders ON orders.id = orderDetails.orderId AND orders.deletedAt IS NULL
 INNER JOIN shopifiedProductsView on variants.productId = shopifiedProductsView.id AND shopifiedProductsView.shopId = orders.shopId
 );`)
   }
@@ -220,13 +226,9 @@ SELECT promotions.id AS id, promotions.createdAt AS createdAt,
        promotions.name AS name,
        promotions.productId AS productId, promotions.imageFilename AS imageFilename,
        shopifiedProductsView.name AS productName,
-       shopifiedProductsView.shopPrice AS productPrice,
-       subCategories.id AS subCategoryId, subCategories.name AS subCategoryName,
-       categories.id AS categoryId, categories.name AS categoryName
-FROM promotions
-INNER JOIN shopifiedProductsView ON promotions.productId = shopifiedProductsView.id
-INNER JOIN subCategories ON subCategories.id = shopifiedProductsView.subCategoryId
-INNER JOIN categories ON categories.id = subCategories.categoryId
+       shopifiedProductsView.shopPrice AS productPrice
+FROM (SELECT * FROM promotions WHERE deletedAT IS NULL) AS promotions
+INNER JOIN shopifiedProductsView ON promotions.productId = shopifiedProductsView.id AND promotions.shopId = shopifiedProductsView.shopId
 );`)
   }
 

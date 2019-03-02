@@ -33,7 +33,7 @@ const ncCategory = $('#category').NCInputLibrary({
     ui: [
       { id: 'add', desc: 'Add', postTo: `/${window['siteHash']}/product-management/category` },
       { id: 'edit', desc: 'Edit', postTo: `/${window['siteHash']}/product-management/category/edit` },
-      { id: 'delete', desc: 'Delete', postTo: `/${window['siteHash']}/product-management/category/delete` }
+      { id: 'delete', desc: 'Delete', postTo: `/${window['siteHash']}/product-management/category/delete`, confirm: 'Are you sure?' }
     ],
     conf: {
       networkTimeout: 2000 // timeout for postTo request
@@ -65,7 +65,7 @@ const ncSubCategory = $('#sub-category').NCInputLibrary({
     ui: [
       { id: 'add', desc: 'Add', postTo: () => `/${window['siteHash']}/product-management/subCategory?categoryId=${selectedCategory && selectedCategory.id}` },
       { id: 'edit', desc: 'Edit', postTo: () => `/${window['siteHash']}/product-management/subCategory/edit?categoryId=${selectedCategory && selectedCategory.id}` },
-      { id: 'delete', desc: 'Delete', postTo: () => `/${window['siteHash']}/product-management/subCategory/delete?categoryId=${selectedCategory && selectedCategory.id}` }
+      { id: 'delete', desc: 'Delete', postTo: () => `/${window['siteHash']}/product-management/subCategory/delete?categoryId=${selectedCategory && selectedCategory.id}`, confirm: 'Are you sure?' }
     ],
     conf: {
       networkTimeout: 2000 // timeout for postTo request
@@ -97,7 +97,7 @@ const ncProduct = $('#product').NCInputLibrary({
     ui: [
       { id: 'add', desc: 'Add', postTo: () => `/${window['siteHash']}/product-management/product?subCategoryId=${selectedSubCategory && selectedSubCategory.id}` },
       { id: 'edit', desc: 'Edit', postTo: () => `/${window['siteHash']}/product-management/product/edit?subCategoryId=${selectedSubCategory && selectedSubCategory.id}` },
-      { id: 'delete', desc: 'Delete', postTo: () => `/${window['siteHash']}/product-management/product/delete?subCategoryId=${selectedSubCategory && selectedSubCategory.id}` }
+      { id: 'delete', desc: 'Delete', postTo: () => `/${window['siteHash']}/product-management/product/delete?subCategoryId=${selectedSubCategory && selectedSubCategory.id}`, confirm: 'Are you sure?' }
     ],
     conf: {
       networkTimeout: 2000 // timeout for postTo request
@@ -129,7 +129,7 @@ const ncVariant = $('#variant').NCInputLibrary({
     ui: [
       { id: 'add', desc: 'Add', postTo: () => `/${window['siteHash']}/product-management/variant?productId=${selectedProduct && selectedProduct.id}` },
       { id: 'edit', desc: 'Edit', postTo: () => `/${window['siteHash']}/product-management/variant/edit?productId=${selectedProduct && selectedProduct.id}` },
-      { id: 'delete', desc: 'Delete', postTo: () => `/${window['siteHash']}/product-management/variant/delete?productId=${selectedProduct && selectedProduct.id}` }
+      { id: 'delete', desc: 'Delete', postTo: () => `/${window['siteHash']}/product-management/variant/delete?productId=${selectedProduct && selectedProduct.id}`, confirm: 'Are you sure?' }
     ],
     conf: {
       networkTimeout: 2000 // timeout for postTo request

@@ -42,7 +42,7 @@ $(document).ready(() => {
       ui: [
         { id: 'add', desc: 'Add', postTo: `/${window['siteHash']}/shop-management/shop` },
         { id: 'edit', desc: 'Edit', postTo: `/${window['siteHash']}/shop-management/shop/edit` },
-        { id: 'delete', desc: 'Delete', postTo: `/${window['siteHash']}/shop-management/shop/delete` }
+        { id: 'delete', desc: 'Delete', postTo: `/${window['siteHash']}/shop-management/shop/delete`, confirm: 'Are you sure?' }
       ],
       conf: {
         networkTimeout: 2000 // timeout for postTo request

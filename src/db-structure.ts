@@ -16,6 +16,8 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
     name: { type: Sequelize.STRING, unique: true, allowNull: false, validate: { len: [1, 255] } },
     description: { type: Sequelize.STRING }
+  }, {
+    paranoid: true
   })
 
   models.SubCategory = sequelize.define<SubCategory, SubCategory>('subCategory', {
@@ -23,9 +25,7 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
     name: { type: Sequelize.STRING, allowNull: false },
     description: { type: Sequelize.STRING }
   }, {
-    indexes: [
-      { fields: ['categoryId', 'name'], unique: true }
-    ]
+    paranoid: true
   })
   models.SubCategory.belongsTo(models.Category)
   models.SubCategory.belongsTo(models.Image, { targetKey: 'filename', foreignKey: 'imageFilename' })
@@ -38,9 +38,7 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
     warranty: { type: Sequelize.STRING },
     description: { type: Sequelize.TEXT }
   }, {
-    indexes: [
-      { fields: ['subCategoryId', 'name'], unique: true }
-    ]
+    paranoid: true
   })
   models.Product.belongsTo(models.SubCategory)
 
@@ -48,9 +46,10 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
     name: { type: Sequelize.STRING, allowNull: false }
   }, {
-    indexes: [
+    /* indexes: [
       { fields: ['productId', 'name'], unique: true }
-    ]
+    ], */
+    paranoid: true
   })
   models.Variant.belongsTo(models.Product)
   models.Product.hasMany(models.Variant)
@@ -61,7 +60,8 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
   }, {
     indexes: [
       { fields: ['productId', 'imageFilename'], unique: true }
-    ]
+    ],
+    paranoid: true
   })
   models.ProductImage.belongsTo(models.Product)
   models.Product.hasMany(models.ProductImage)
@@ -76,6 +76,8 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
     zipCode: { type: Sequelize.INTEGER },
     pickup: { type: Sequelize.BOOLEAN },
     online: { type: Sequelize.BOOLEAN }
+  }, {
+    paranoid: true
   })
 
   models.SupplierStock = sequelize.define('supplierStock', {
@@ -85,7 +87,8 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
   }, {
     indexes: [
       { fields: ['supplierId', 'variantId'], unique: true }
-    ]
+    ],
+    paranoid: true
   })
 
   models.SupplierStock.belongsTo(models.Supplier)
@@ -99,7 +102,20 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
     city: { type: Sequelize.STRING },
     address: { type: Sequelize.STRING },
     zipCode: { type: Sequelize.INTEGER }
+  }, {
+    paranoid: true
   })
+
+  models.Promotion = sequelize.define('promotion', {
+    id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
+    name: { type: Sequelize.STRING }
+  }, {
+    paranoid: true
+  })
+  models.Promotion.belongsTo(models.Shop)
+  models.Promotion.belongsTo(models.Product)
+  models.Promotion.belongsTo(models.Image, { targetKey: 'filename', foreignKey: 'imageFilename' })
+
   /*
   ----------------------------
   End of Cloud-only database
@@ -120,6 +136,8 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
     salt: { type: Sequelize.STRING },
     fullName: { type: Sequelize.STRING },
     privilege: { type: Sequelize.ENUM, values: ['Admin', 'Cashier', 'Opnamer'], allowNull: false }
+  }, {
+    paranoid: true
   })
   models.User.belongsTo(models.Shop)
 
@@ -128,6 +146,8 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
     price: { type: Sequelize.INTEGER }, // purchase price, not sell price
     date: { type: Sequelize.DATE },
     quantity: { type: Sequelize.INTEGER }
+  }, {
+    paranoid: true
   })
   models.ShopStock.belongsTo(models.Shop)
   models.ShopStock.belongsTo(models.Variant)
@@ -139,18 +159,12 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
     preOrderAllowed: { type: Sequelize.BOOLEAN },
     preOrderDuration: { type: Sequelize.INTEGER },
     disabled: { type: Sequelize.BOOLEAN, defaultValue: false } // when enabled, the item is not sold on the store
+  }, {
+    paranoid: true
   })
   models.ShopProduct.belongsTo(models.Product)
   models.ShopProduct.belongsTo(models.Shop)
   models.Product.hasMany(models.ShopProduct)
-
-  models.Promotion = sequelize.define('promotion', {
-    id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
-    name: { type: Sequelize.STRING }
-  })
-  models.Promotion.belongsTo(models.Shop)
-  models.Promotion.belongsTo(models.Product)
-  models.Promotion.belongsTo(models.Image, { targetKey: 'filename', foreignKey: 'imageFilename' })
 
   models.Order = sequelize.define('order', {
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
@@ -158,12 +172,16 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
     phoneNumber: { type: Sequelize.STRING },
     status: { type: Sequelize.ENUM(['Open', 'Close', 'PO', 'Canceled']) },
     notes: Sequelize.STRING
+  }, {
+    paranoid: true
   })
   models.Order.belongsTo(models.Shop)
 
   models.OrderHistory = sequelize.define('orderHistory', {
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
     action: Sequelize.STRING
+  }, {
+    paranoid: true
   })
   models.OrderHistory.belongsTo(models.Order)
   models.OrderHistory.belongsTo(models.User)
@@ -173,6 +191,8 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
     quantity: { type: Sequelize.INTEGER, allowNull: false },
     price: { type: Sequelize.INTEGER, allowNull: false },
     status: { type: Sequelize.ENUM(['PO', 'Ready']) }
+  }, {
+    paranoid: true
   })
 
   models.OrderDetail.belongsTo(models.Variant)

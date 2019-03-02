@@ -1,6 +1,6 @@
 import * as util from 'util'
 
-import { Model, Instance, Sequelize } from 'sequelize'
+import { Model, Instance, Op } from 'sequelize'
 import * as Promise from 'bluebird'
 
 import { CRUDService } from './crud-service'
@@ -240,9 +240,11 @@ class ShopService extends CRUDService {
       include: [
         {
           model: this.getModels('Variant'),
+          required: true,
           include: [
             {
-              model: this.getModels('Product')
+              model: this.getModels('Product'),
+              required: true
             }
           ]
         }

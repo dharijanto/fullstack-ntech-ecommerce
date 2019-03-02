@@ -40,7 +40,7 @@ $(document).ready(() => {
       ui: [
         { id: 'add', desc: 'Add', postTo: `/${window['siteHash']}/supplier-management/supplier` },
         { id: 'edit', desc: 'Edit', postTo: `/${window['siteHash']}/supplier-management/supplier/edit` },
-        { id: 'delete', desc: 'Delete', postTo: `/${window['siteHash']}/supplier-management/supplier/delete` }
+        { id: 'delete', desc: 'Delete', postTo: `/${window['siteHash']}/supplier-management/supplier/delete`, confirm: 'Are you sure?' }
       ],
       conf: {
         networkTimeout: 2000 // timeout for postTo request
@@ -122,10 +122,9 @@ $(document).ready(() => {
         { id: 'id', desc: 'ID', dataTable: true, input: 'hidden', disabled: true },
         { id: 'createdAt', desc: 'Date Created', dataTable: true, input: 'hidden', disabled: true },
         { id: 'updatedAt', desc: 'Date Updated', dataTable: true, input: 'hidden', disabled: true },
-        { id: 'variant.product.name', desc: 'Product Name', dataTable: true, input: 'text', disabled: true },
-        { id: 'variant.name', desc: 'Variant', dataTable: true, input: 'text', disabled: true },
+        { id: 'productName', desc: 'Product Name', dataTable: true, input: 'text', disabled: true },
         { id: 'price', desc: 'Supplier Price', dataTable: true, input: 'text' },
-        { id: 'date', desc: 'Date', dataTable: true, input: 'date', data: { dateFormat: 'YYYY-MM-DD' } }
+        { id: 'updatedAt', desc: 'Updated At', dataTable: true, input: 'date', data: { dateFormat: 'YYYY-MM-DD' } }
       ],
       conf: {
         order: [['updatedAt', 'desc']],
@@ -144,7 +143,7 @@ $(document).ready(() => {
           return `/${window['siteHash']}/supplier-management/supplier-stock?supplierId=${supplierId}&variantId=${variantId}`
         }},
         { id: 'edit', desc: 'Edit', postTo: () => `/${window['siteHash']}/supplier-management/supplier-stock/edit` },
-        { id: 'delete', desc: 'Delete', postTo: () => `/${window['siteHash']}/supplier-management/supplier-stock/delete` }
+        { id: 'delete', desc: 'Delete', postTo: () => `/${window['siteHash']}/supplier-management/supplier-stock/delete`, confirm: 'Are you sure?' }
       ],
       conf: {
         networkTimeout: 2000 // timeout for postTo request
