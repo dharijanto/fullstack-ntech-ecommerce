@@ -92,6 +92,7 @@ $(document).ready(() => {
         { id: 'date', desc: 'Date', dataTable: true, input: 'date', data: { dateFormat: 'YYYY-MM-DD' } },
         { id: 'price', desc: 'Purchase Price', dataTable: true, input: 'text' },
         { id: 'quantity', desc: 'Quantity', dataTable: true, input: 'text' },
+        { id: 'description', desc: 'Description', dataTable: true, input: 'text' },
         { id: 'createdAt', desc: 'Date Created', dataTable: true, input: 'hidden', disabled: true },
         { id: 'updatedAt', desc: 'Date Updated', dataTable: true, input: 'hidden', disabled: true }
       ],

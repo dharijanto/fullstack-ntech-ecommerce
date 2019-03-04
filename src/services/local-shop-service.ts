@@ -206,14 +206,19 @@ class LocalShopService extends CRUDService {
   }
 
   addShopStock (data: Partial<ShopStock>) {
-    const { variantId, price, quantity, date } = data
-    return this.create<ShopStock>('ShopStock', {
-      shopId: this.localShopId,
-      variantId,
-      price,
-      quantity,
-      date
-    })
+    const { variantId, price, quantity, date, description } = data
+    if (!description) {
+      return Promise.resolve({ status: false, errMessage: 'Description is required!' })
+    } else {
+      return this.create<ShopStock>('ShopStock', {
+        shopId: this.localShopId,
+        variantId,
+        price,
+        quantity,
+        date,
+        description
+      })
+    }
   }
 
   getVariantInformation (variantId): Promise<NCResponse<{product: ShopifiedProduct, variant: ShopifiedVariant}>> {

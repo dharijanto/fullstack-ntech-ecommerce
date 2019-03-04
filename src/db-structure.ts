@@ -145,6 +145,7 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
     price: { type: Sequelize.INTEGER }, // purchase price, not sell price
     date: { type: Sequelize.DATE },
+    description: { type: Sequelize.STRING },
     quantity: { type: Sequelize.INTEGER }
   }, {
     paranoid: true

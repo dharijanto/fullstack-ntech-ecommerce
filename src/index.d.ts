@@ -112,6 +112,7 @@ interface ShopStock extends BaseModel {
   quantity: number
   date: string
   variant?: Variant
+  description: string
 }
 
 interface ShopProduct extends BaseModel {
