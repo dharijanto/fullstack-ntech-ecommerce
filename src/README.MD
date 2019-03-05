@@ -22,3 +22,17 @@ sudo sysctl -w kernel.unprivileged_userns_clone=1
 ```
 lp -d POS58 -o fit-to-page output.pdf
 ```
+
+# Test
+## Unit Test
+
+## Functional Test
+* Check that shopifiedProductsView is correct
+  -Create product entry on db
+  -Create shopProduct entry on db
+  -Create order and order details entry
+  -Create stock entry
+  -Check the view is consistent for:
+    -shopProduct data correctly overrides product
+    -stockQuantity is consistent with stock - order
+* 

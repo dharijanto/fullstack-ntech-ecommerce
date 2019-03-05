@@ -12,6 +12,20 @@ const TAG = 'SQLViewService'
   We have LocalShopService, this is specifically for shop-specific code.
 */
 class SQLViewService extends CRUDService {
+
+  createPOOrdersView () {
+    return super.getSequelize().query(`
+CREATE VIEW poOrdersView AS
+(SELECT orders.shopId AS shopId,
+        SUM(IF(orderDetails.status = 'PO', orderDetails.quantity, 0)) AS quantity,
+        variants.productId, variants.id as variantId
+FROM orders
+LEFT OUTER JOIN orderDetails ON orderDetails.orderId = orders.id AND orderDetails.deletedAt IS NULL
+LEFT OUTER JOIN variants ON variants.id = orderDetails.variantId AND variants.deletedAt IS NULL
+WHERE orders.status != 'Cancelled' AND orders.deletedAt IS NULL
+GROUP BY orders.shopId, variants.productId, variants.id)
+`)
+  }
   // Get quantity of orders that are inStock (i.e. not PO)
   // This is used to compute the number of remaining stocks
   // (i.e. stocks left for variant X = all shop stocks - all in-stock orders)
@@ -40,6 +54,7 @@ GROUP BY orders.shopId, variants.productId, variants.id)
     TODO:
     1. This should depend on shopifiedVariantsView, so that we don't compute stocks from two different places
   */
+
   createShopifiedProductsView () {
     log.info(TAG, 'createShopifiedProductsView()')
     return super.getSequelize().query(`
@@ -51,7 +66,10 @@ CREATE VIEW shopifiedProductsView AS
         categories.id AS categoryId,
         categories.name AS categoryName,
         shops.id as shopId,
-        IFNULL(stockTable.stockQuantity, 0) - IFNULL(orderTable.quantity, 0) as stockQuantity,
+        IFNULL(stockTable.stockQuantity, 0) as stockQuantity,
+        IFNULL(stockTable.allTimeStocks, 0) as allTimeStocks,
+        IFNULL(stockTable.allTimeOrders, 0) as allTimeOrders,
+        IFNULL(stockTable.allTimePOOrders, 0) as allTimePOOrders,
         IFNULL(supplierTable.supplierCount, 0) as supplierCount,
         IFNULL(shopProducts.createdAt, products.createdAt) as createdAt,
         IFNULL(shopProducts.updatedAt, products.updatedAt) as updatedAt,
@@ -67,19 +85,13 @@ INNER JOIN subCategories ON subCategories.id = products.subCategoryId AND subCat
 INNER JOIN categories ON categories.id = subCategories.categoryId AND categories.deletedAt IS NULL
 
 LEFT OUTER JOIN
-  (SELECT variants.productId AS productId, SUM(shopStocks.quantity) stockQuantity, shopStocks.shopId as shopId
-   FROM variants INNER JOIN shopStocks ON variants.id = shopStocks.variantId
-   WHERE variants.deletedAt IS NULL AND shopStocks.deletedAt IS NULL
-   GROUP BY shopStocks.shopId, variants.productId) AS stockTable
-ON products.id = stockTable.productId AND shops.id = stockTable.shopId
-
-LEFT OUTER JOIN
-  (SELECT inStockOrdersView.shopId AS shopId,
-          inStockOrdersView.productId,
-          inStockOrdersView.quantity AS quantity
-    FROM inStockOrdersView
-    GROUP BY inStockOrdersView.shopId, inStockOrdersView.productId
-  ) AS orderTable ON orderTable.shopId = shops.id AND orderTable.productId = products.id
+  (SELECT SUM(stockQuantity) AS stockQuantity, SUM(allTimeStocks) AS allTimeStocks,
+          SUM(allTimeOrders) AS allTimeOrders, SUM(allTimePOOrders) AS allTimePOOrders,
+          productId, shopId
+   FROM shopifiedVariantsView
+   GROUP BY productId, shopId
+  ) AS stockTable
+ON stockTable.productId = products.id AND stockTable.shopId = shops.id
 
 LEFT OUTER JOIN
   (SELECT variants.productId AS productId, COUNT(*) AS supplierCount FROM variants
@@ -100,7 +112,10 @@ CREATE VIEW shopifiedVariantsView AS
 (SELECT variants.id as id, variants.productId as productId, variants.name as name,
         variants.createdAt as createdAt, variants.updatedAt as updatedAt,
         shops.id as shopId,
-        IFNULL(shopStocksTable.stockQuantity, 0) - IFNULL(orderTable.quantity, 0) as stockQuantity,
+        IFNULL(shopStocksTable.stockQuantity, 0) - IFNULL(inStockOrdersView.quantity, 0) as stockQuantity,
+        IFNULL(shopStocksTable.stockQuantity, 0) AS allTimeStocks,
+        IFNULL(inStockOrdersView.quantity, 0) as allTimeOrders,
+        IFNULL(poOrdersView.quantity, 0) as allTimePOOrders,
         IFNULL(supplierStocksTable.supplierCount, 0) as supplierCount
 FROM (SELECT * FROM variants WHERE variants.deletedAt IS NULL) AS variants
 
@@ -114,10 +129,16 @@ LEFT OUTER JOIN
 ON variants.id = shopStocksTable.variantId AND shops.id = shopStocksTable.shopId
 
 LEFT OUTER JOIN
-  (SELECT inStockOrdersView.shopId AS shopId, inStockOrdersView.quantity, inStockOrdersView.variantId
+  (SELECT inStockOrdersView.shopId AS shopId, SUM(inStockOrdersView.quantity) AS quantity, inStockOrdersView.variantId AS variantId
     FROM inStockOrdersView
     GROUP BY inStockOrdersView.shopId, inStockOrdersView.variantId
-  ) AS orderTable ON orderTable.shopId = shops.id AND orderTable.variantId = variants.id
+  ) AS inStockOrdersView ON inStockOrdersView.shopId = shops.id AND inStockOrdersView.variantId = variants.id
+
+LEFT OUTER JOIN
+  (SELECT poOrdersView.shopId AS shopId, SUM(poOrdersView.quantity) AS quantity, poOrdersView.variantId AS variantId
+    FROM poOrdersView
+    GROUP BY poOrdersView.shopId, poOrdersView.variantId
+  ) AS poOrdersView ON poOrdersView.shopId = shops.id AND poOrdersView.variantId = variants.id
 
 LEFT OUTER JOIN
   (SELECT supplierStocks.variantId as variantId, COUNT(*) as supplierCount
@@ -232,10 +253,12 @@ INNER JOIN shopifiedProductsView ON promotions.productId = shopifiedProductsView
 );`)
   }
 
+  // TODO: Order of deletion shouldn't need to be hard-coded like this.
+  //       they should be inferred from populateViews
   destroyViews () {
     log.info(TAG, 'destroyViews()')
 
-    const views = ['inStockOrdersView', 'shopifiedProductsView', 'shopifiedVariantsView',
+    const views = ['poOrdersView', 'inStockOrdersView', 'shopifiedProductsView', 'shopifiedVariantsView',
       'inStockProductsView', 'inStockVariantsView', 'poProductsView', 'poVariantsView',
       'ordersView', 'orderDetailsView', 'shopifiedPromotionsView']
 
@@ -256,9 +279,10 @@ INNER JOIN shopifiedProductsView ON promotions.productId = shopifiedProductsView
 
   populateViews () {
     const promises: Array<() => Promise<any>> = [
+      this.createPOOrdersView,
       this.createInStockOrdersView,
-      this.createShopifiedProductsView,
       this.createShopifiedVariantsView,
+      this.createShopifiedProductsView,
       this.createInStockProductsView,
       this.createInStockVariantsView,
       this.createPOProductsView,

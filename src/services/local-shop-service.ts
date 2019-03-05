@@ -205,7 +205,7 @@ class LocalShopService extends CRUDService {
     })
   }
 
-  addShopStock (data: Partial<ShopStock>) {
+  addShopStock (data: Partial<ShopStock>): Promise<NCResponse<ShopStock>> {
     const { variantId, price, quantity, date, description } = data
     if (!description) {
       return Promise.resolve({ status: false, errMessage: 'Description is required!' })

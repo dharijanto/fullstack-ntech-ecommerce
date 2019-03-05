@@ -84,7 +84,8 @@ const ncProduct = $('#product').NCInputLibrary({
       { id: 'updatedAt', desc: 'Date Updated', dataTable: true, input: 'text', disabled: true },
       { id: 'name', desc: 'Name', dataTable: true, input: 'text' },
       { id: 'price', desc: 'Price', dataTable: true, input: 'text' },
-      { id: 'warranty', desc: 'Garansi', dataTable: true, input: 'text' }
+      { id: 'warranty', desc: 'Garansi', dataTable: true, input: 'text' },
+      { id: 'notes', desc: 'Notes', dataTable: true, input: 'textArea' }
     ],
     conf: {
       order: [['updatedAt', 'desc']],

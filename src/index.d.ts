@@ -49,6 +49,7 @@ interface SubCategory extends BaseModel {
 interface Product extends BaseModel {
   name: string
   price: number
+  notes: string
   warranty: string
   description: string
   subCategoryId: number
@@ -186,6 +187,9 @@ interface ShopifiedProduct extends BaseModel {
   // them in CMS
   shopId?: number,
   stockQuantity: number,
+  allTimeStocks: number,
+  allTimeOrders: number,
+  allTimePOOrders: number,
   supplierCount: number,
   shopPrice: number,
   preOrderAllowed: boolean,
@@ -198,6 +202,9 @@ interface ShopifiedVariant extends BaseModel {
   shopId: number,
   name: string,
   stockQuantity: number,
+  allTimeStocks: number,
+  allTimeOrders: number,
+  allTimePOOrders: number,
   supplierCount: number
 }
 

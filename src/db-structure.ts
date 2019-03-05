@@ -35,6 +35,7 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
     name: { type: Sequelize.STRING, allowNull: false },
     price: { type: Sequelize.INTEGER },
+    notes: { type: Sequelize.TEXT },
     warranty: { type: Sequelize.STRING },
     description: { type: Sequelize.TEXT }
   }, {

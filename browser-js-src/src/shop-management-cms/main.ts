@@ -84,6 +84,9 @@ interface ShopifiedProduct {
         { id: 'preOrderDuration', desc: 'PO Duration (days) ', dataTable: true, input: 'text' },
         { id: 'supplierCount', desc: '# Suppliers', dataTable: true, input: 'hidden' },
         { id: 'stockQuantity', desc: '# Stocks', dataTable: true, input: 'hidden' },
+        { id: 'allTimeOrders', desc: '# All-time Orders', dataTable: true, input: 'text' },
+        { id: 'allTimeStocks', desc: '# All-time Stocks', dataTable: true, input: 'text' },
+        { id: 'allTimePOOrders', desc: '# All-time PO', dataTable: true, input: 'text' },
         { id: 'createdAt', desc: 'Date Created', dataTable: true, input: 'hidden', disabled: true },
         { id: 'updatedAt', desc: 'Date Updated', dataTable: true, input: 'hidden', disabled: true }
       ],
@@ -120,7 +123,10 @@ interface ShopifiedProduct {
         { id: 'id', desc: 'ID', dataTable: true, input: 'hidden', disabled: true },
         { id: 'name', desc: 'Name', dataTable: true, input: 'hidden' },
         { id: 'supplierCount', desc: '# Suppliers', dataTable: true, input: 'hidden' },
-        { id: 'stockQuantity', desc: '# Stocks', dataTable: true, input: 'hidden' }
+        { id: 'stockQuantity', desc: '# Stocks', dataTable: true, input: 'hidden' },
+        { id: 'allTimeOrders', desc: '# All-time Orders', dataTable: true, input: 'text' },
+        { id: 'allTimeStocks', desc: '# All-time Stocks', dataTable: true, input: 'text' },
+        { id: 'allTimePOOrders', desc: '# All-time PO', dataTable: true, input: 'text' }
       ],
       conf: {
         order: [['name', 'asc']],
@@ -150,6 +156,7 @@ interface ShopifiedProduct {
         { id: 'variant.name', desc: 'Variant', dataTable: true, input: 'hidden', disabled: true },
         { id: 'date', desc: 'Date', dataTable: true, input: 'date', data: { dateFormat: 'YYYY-MM-DD' } },
         { id: 'price', desc: 'Purchase Price', dataTable: true, input: 'text' },
+        { id: 'description', desc: 'Description', dataTable: true, input: 'text' },
         { id: 'quantity', desc: 'Quantity', dataTable: true, input: 'text' },
         { id: 'createdAt', desc: 'Date Created', dataTable: true, input: 'hidden', disabled: true },
         { id: 'updatedAt', desc: 'Date Updated', dataTable: true, input: 'hidden', disabled: true }
