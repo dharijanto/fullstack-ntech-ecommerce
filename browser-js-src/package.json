@@ -32,8 +32,9 @@
     "browserify": "^14.4.0",
     "browserify-shim": "^3.8.14",
     "codemirror": "^5.31.0",
+    "inotify": "^1.4.6",
     "jQuery.print": "^1.5.1",
-    "lodash": "^4.17.4",
+    "lodash": "^4.17.11",
     "marked": "^0.3.6",
     "nc-image-picker": "^1.2.1",
     "nc-input-library": "^1.5.2",
@@ -41,6 +42,6 @@
     "tsify": "^4.0.0",
     "typescript": "^3.0.0-dev.20180630",
     "uglifyify": "^4.0.4",
-    "watchify": "^3.9.0"
+    "watchify": "^3.11.1"
   }
 }
