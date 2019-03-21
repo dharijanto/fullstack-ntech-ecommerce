@@ -7,6 +7,7 @@ import CartService from '../../services/cart-service'
 import OrderManagementController from './cms/order-management-controller'
 import ProductManagementController from './cms/product-management-controller'
 import PromotionManagementController from './cms/promotion-management-controller'
+import StockManagementController from './cms/stock-management-controller'
 import { SiteData } from '../../site-definitions'
 import * as Utils from '../../libs/utils'
 import LocalShopService from '../../services/local-shop-service'
@@ -41,5 +42,6 @@ export default class CMSController extends BaseController {
     super.routeUse('/order-management', new OrderManagementController(siteData).getRouter())
     super.routeUse('/product-management', new ProductManagementController(siteData).getRouter())
     super.routeUse('/promotion-management', new PromotionManagementController(siteData).getRouter())
+    super.routeUse('/stock-management', new StockManagementController(siteData).getRouter())
   }
 }

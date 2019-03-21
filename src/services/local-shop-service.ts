@@ -306,7 +306,7 @@ class LocalShopService extends CRUDService {
     })
   }
 
-  getPromotion (): Promise<NCResponse<ShopifiedPromotion[]>> {
+  getPromotions (): Promise<NCResponse<ShopifiedPromotion[]>> {
     return ShopService.getPromotion(this.getLocalShopId())
   }
 
@@ -327,11 +327,36 @@ class LocalShopService extends CRUDService {
     }
   }
 
+  // TODO: Add shopId: this.getLocalShopId() for security
   deletePromotion (promotionId: number): Promise<NCResponse<number>> {
     if (promotionId) {
       return super.delete<Promotion>('Promotion', { id: promotionId })
     } else {
       return Promise.resolve({ status: false, errMessage: 'promoitonId is required!' })
+    }
+  }
+
+  getAisles (): Promise<NCResponse<Aisle[]>> {
+    return super.read<Aisle>('ShopAisle', { shopId: this.getLocalShopId() })
+  }
+
+  createAisle (data: Partial<Aisle>): Promise<NCResponse<Aisle>> {
+    return super.create<Aisle>('ShopAisle', { shopId: this.getLocalShopId(), ...data })
+  }
+
+  updateAisle (aisleId: number, data: Partial<Aisle>): Promise<NCResponse<number>> {
+    if (aisleId) {
+      return super.update<Aisle>('ShopAisle', data, { id: aisleId })
+    } else {
+      return Promise.resolve({ status: false, errMessage: 'aisleId is required!' })
+    }
+  }
+
+  deleteAisle (aisleId: number): Promise<NCResponse<number>> {
+    if (aisleId) {
+      return super.delete<Aisle>('ShopAisle', { id: aisleId, shopId: this.getLocalShopId() })
+    } else {
+      return Promise.resolve({ status: false, errMessage: 'aisleId is required!' })
     }
   }
 }

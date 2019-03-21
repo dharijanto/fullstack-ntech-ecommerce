@@ -13,6 +13,19 @@ const TAG = 'SQLViewService'
 */
 class SQLViewService extends CRUDService {
 
+  createShopStocksView () {
+    return super.getSequelize().query(`
+CREATE VIEW shopStocksView AS
+(SELECT
+    id, price AS price, MAX(date) AS date, SUM(quantity) AS quantity,
+    MAX(createdAt) AS createdAt, MAX(updatedAt) AS updatedAt,
+    shopId, variantId, aisle
+ FROM shopStocks
+ WHERE deletedAt is NULL
+ GROUP BY variantId, aisle, price, shopId)
+    `)
+  }
+
   createPOOrdersView () {
     return super.getSequelize().query(`
 CREATE VIEW poOrdersView AS
@@ -258,7 +271,7 @@ INNER JOIN shopifiedProductsView ON promotions.productId = shopifiedProductsView
   destroyViews () {
     log.info(TAG, 'destroyViews()')
 
-    const views = ['poOrdersView', 'inStockOrdersView', 'shopifiedProductsView', 'shopifiedVariantsView',
+    const views = ['shopStocksView', 'poOrdersView', 'inStockOrdersView', 'shopifiedProductsView', 'shopifiedVariantsView',
       'inStockProductsView', 'inStockVariantsView', 'poProductsView', 'poVariantsView',
       'ordersView', 'orderDetailsView', 'shopifiedPromotionsView']
 
@@ -279,6 +292,7 @@ INNER JOIN shopifiedProductsView ON promotions.productId = shopifiedProductsView
 
   populateViews () {
     const promises: Array<() => Promise<any>> = [
+      this.createShopStocksView,
       this.createPOOrdersView,
       this.createInStockOrdersView,
       this.createShopifiedVariantsView,

@@ -49,7 +49,6 @@ export default class ProductManagementController extends BaseController {
 
     super.routeGet('/shop-stocks', (req, res, next) => {
       LocalShopService.getShopStock().then(res.json.bind(res)).catch(next)
-
     })
 
     super.routePost('/shop-stock', (req, res, next) => {

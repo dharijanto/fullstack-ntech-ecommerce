@@ -146,6 +146,7 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
     price: { type: Sequelize.INTEGER }, // purchase price, not sell price
     date: { type: Sequelize.DATE },
+    aisle: { type: Sequelize.STRING, allowNull: false },
     description: { type: Sequelize.STRING },
     quantity: { type: Sequelize.INTEGER }
   }, {
@@ -154,6 +155,12 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
   models.ShopStock.belongsTo(models.Shop)
   models.ShopStock.belongsTo(models.Variant)
   models.Variant.hasMany(models.ShopStock)
+
+  models.ShopAisle = sequelize.define('shopAisle', {
+    id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
+    aisle: { type: Sequelize.STRING, allowNull: false, unique: true }
+  })
+  models.ShopAisle.belongsTo(models.Shop)
 
   models.ShopProduct = sequelize.define('shopProduct', {
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
@@ -191,6 +198,7 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
   models.OrderDetail = sequelize.define('orderDetail', {
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
     quantity: { type: Sequelize.INTEGER, allowNull: false },
+    aisle: { type: Sequelize.STRING },
     price: { type: Sequelize.INTEGER, allowNull: false },
     status: { type: Sequelize.ENUM(['PO', 'Ready']) }
   }, {

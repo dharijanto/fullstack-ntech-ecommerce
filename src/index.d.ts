@@ -94,10 +94,6 @@ interface Stock extends BaseModel {
   purchasePrice: number
 }
 
-interface Transaction extends BaseModel {
-  quantity: number
-}
-
 interface Shop extends BaseModel {
   name: string,
   location: string,
@@ -114,6 +110,11 @@ interface ShopStock extends BaseModel {
   date: string
   variant?: Variant
   description: string
+}
+
+interface Aisle extends BaseModel {
+  shopId: number
+  aisle: string
 }
 
 interface ShopProduct extends BaseModel {

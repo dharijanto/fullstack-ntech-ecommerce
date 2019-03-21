@@ -16,7 +16,7 @@
     "react": "preact-compat"
   },
   "scripts": {
-    "start": "node watch",
+    "start": "node --max-old-space-size=4096 watch",
     "build": "node build"
   },
   "author": "",
@@ -29,7 +29,7 @@
     "axios": "^0.18.0",
     "babel-preset-es2015": "^6.24.1",
     "babelify": "^7.3.0",
-    "browserify": "^14.4.0",
+    "browserify": "^14.5.0",
     "browserify-shim": "^3.8.14",
     "codemirror": "^5.31.0",
     "inotify": "^1.4.6",
@@ -39,9 +39,9 @@
     "nc-image-picker": "^1.2.1",
     "nc-input-library": "^1.5.2",
     "toastr": "^2.1.4",
-    "tsify": "^4.0.0",
-    "typescript": "^3.0.0-dev.20180630",
-    "uglifyify": "^4.0.4",
+    "tsify": "^4.0.1",
+    "typescript": "^3.3.4000",
+    "uglifyify": "^4.0.5",
     "watchify": "^3.11.1"
   }
 }

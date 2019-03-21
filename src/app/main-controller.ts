@@ -68,7 +68,7 @@ class Controller extends BaseController {
           const poProductPageSize = 9
 
           Promise.join<NCResponse<any>>(
-            LocalShopService.getPromotion(),
+            LocalShopService.getPromotions(),
             LocalShopService.getInStockProducts({ pageIndex: res.locals.currentInStockProductPage - 1, pageSize: inStockProductPageSize }),
             LocalShopService.getPOProducts({ pageIndex: res.locals.currentPOProductPage - 1, pageSize: poProductPageSize })
           ).spread((resp: NCResponse<Promotion[]>,

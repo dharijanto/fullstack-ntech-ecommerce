@@ -35,7 +35,7 @@ export default class PromotionManagementController extends BaseController {
     })
 
     super.routeGet('/promotions', (req, res, next) => {
-      LocalShopService.getPromotion().then(res.json.bind(res)).catch(next)
+      LocalShopService.getPromotions().then(res.json.bind(res)).catch(next)
     })
 
     super.routePost('/promotion', (req, res, next) => {

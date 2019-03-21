@@ -87,11 +87,12 @@ $(document).ready(() => {
     table: {
       ui: [
         { id: 'id', desc: 'ID', dataTable: true, input: 'hidden', disabled: true },
-        { id: 'variant.product.name', desc: 'Product Name', dataTable: true, input: 'hidden', disabled: true },
+        { id: 'variant.product.name', desc: 'Product', dataTable: true, input: 'hidden', disabled: true },
         { id: 'variant.name', desc: 'Variant', dataTable: true, input: 'hidden', disabled: true },
         { id: 'date', desc: 'Date', dataTable: true, input: 'date', data: { dateFormat: 'YYYY-MM-DD' } },
         { id: 'price', desc: 'Purchase Price', dataTable: true, input: 'text' },
         { id: 'quantity', desc: 'Quantity', dataTable: true, input: 'text' },
+        { id: 'aisle', desc: 'Aisle', dataTable: true, input: 'text' },
         { id: 'description', desc: 'Description', dataTable: true, input: 'text' },
         { id: 'createdAt', desc: 'Date Created', dataTable: true, input: 'hidden', disabled: true },
         { id: 'updatedAt', desc: 'Date Updated', dataTable: true, input: 'hidden', disabled: true }

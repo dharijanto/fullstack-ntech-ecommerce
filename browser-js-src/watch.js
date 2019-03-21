@@ -9,12 +9,14 @@ const log = require('fancy-log')
 const tsify = require('tsify')
 const watchify = require('watchify')
 
+const ENABLE_SOURCEMAP = false
+
 // Create browserify instance that is watching the given module
 function watchModule (module) {
   log(`Watching module: ${module.input}...`)
   const b = browserify(
     [path.join(__dirname, 'src', module.input, 'main.ts'), path.join(__dirname, 'src/index.d.ts')],
-      {cache: {}, packageCache: {}, debug: true})
+      {cache: {}, packageCache: {}, debug: ENABLE_SOURCEMAP})
   // When option 'files: []' passed, only browserify entry point is watched.
   // Otherwise, any changes in any of the .ts file, even unrelated ones, will trigger 'update' events
   .plugin(tsify, {target: 'es6', files: []})
