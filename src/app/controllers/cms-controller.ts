@@ -3,14 +3,14 @@ import AppConfig from '../../app-config'
 import * as Promise from 'bluebird'
 
 import BaseController from './base-controller'
-import CartService from '../../services/cart-service'
+import CartService from '../local-shop-services/cart-service'
 import OrderManagementController from './cms/order-management-controller'
 import ProductManagementController from './cms/product-management-controller'
 import PromotionManagementController from './cms/promotion-management-controller'
 import StockManagementController from './cms/stock-management-controller'
 import { SiteData } from '../../site-definitions'
 import * as Utils from '../../libs/utils'
-import LocalShopService from '../../services/local-shop-service'
+import LocalShopService from '../local-shop-services/local-shop-service'
 
 const path = require('path')
 

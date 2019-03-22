@@ -1,12 +1,11 @@
 import { Model } from 'sequelize'
 import * as Promise from 'bluebird'
 
-import * as Utils from '../libs/utils'
-import { CRUDService } from './crud-service'
-import LocalShopService from './local-shop-service'
-import ProductService from './product-service';
-import OrderManagementController from '../cms/controllers/order-management-controller';
-import Formatter from '../libs/formatter';
+import * as Utils from '../../libs/utils'
+import { CRUDService } from '../../services/crud-service'
+import LocalShopService from '../local-shop-services/local-shop-service'
+import ProductService from '../../services/product-service'
+import Formatter from '../../libs/formatter'
 
 interface CartItemMeta {
   variantId: number

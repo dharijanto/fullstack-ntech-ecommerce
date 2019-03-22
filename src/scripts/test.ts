@@ -4,7 +4,7 @@ import * as Sequelize from 'sequelize'
 import AppConfig from '../app-config'
 const sequelizeSync = require('../db-structure')
 import SequelizeService from '../services/sequelize-service'
-import LocalShopService from '../services/local-shop-service'
+import LocalShopService from '../app/local-shop-services/local-shop-service'
 
 const optionalPassword = AppConfig.DB.PASSWORD ? `:${AppConfig.DB.PASSWORD}` : ''
 const sequelize = new Sequelize(AppConfig.DB.DB_NAME, AppConfig.DB.USERNAME, AppConfig.DB.PASSWORD,

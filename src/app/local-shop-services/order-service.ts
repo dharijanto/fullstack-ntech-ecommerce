@@ -5,10 +5,10 @@ import { Model } from 'sequelize'
 import * as moment from 'moment'
 
 import AppConfig from '../../app-config'
-import CRUDService from '../crud-service'
-import LocalShopService from '../local-shop-service'
-import OrderService from '../order-service'
-import PrintService from '../print-service'
+import CRUDService from '../../services/crud-service'
+import LocalShopService from './local-shop-service'
+import OrderService from '../../services/order-service'
+import PrintService from '../../services/print-service'
 
 export interface ProductAvailability {
   status: 'readyStock' | 'preOrder' | 'unavailable'

@@ -5,7 +5,6 @@ import { ImageService } from '../../site-definitions'
 
 import AppConfig from '../../app-config'
 import ShopService from '../../services/shop-service'
-import LocalShopService from '../../services/local-shop-service'
 
 let log = require('npmlog')
 

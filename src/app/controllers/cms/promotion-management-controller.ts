@@ -5,10 +5,10 @@ import * as pug from 'pug'
 import AppConfig from '../../../app-config'
 import BaseController from '../base-controller'
 import ShopService from '../../../services/shop-service'
-import LocalShopService from '../../../services/local-shop-service'
+import LocalShopService from '../../local-shop-services/local-shop-service'
 import { SiteData, ImageService } from '../../../site-definitions'
 import * as Utils from '../../../libs/utils'
-import OrderService from '../../../services/local-shop/order-service'
+import OrderService from '../../local-shop-services/order-service'
 
 const path = require('path')
 

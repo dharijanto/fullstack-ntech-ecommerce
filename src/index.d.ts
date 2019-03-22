@@ -107,6 +107,7 @@ interface ShopStock extends BaseModel {
   variantId: number
   price: number
   quantity: number
+  aisle: string
   date: string
   variant?: Variant
   description: string

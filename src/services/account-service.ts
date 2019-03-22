@@ -3,7 +3,6 @@ import * as Promise from 'bluebird'
 
 import * as Utils from '../libs/utils'
 import { CRUDService } from './crud-service'
-import LocalShopService from './local-shop-service'
 import ProductService from './product-service'
 import Formatter from '../libs/formatter'
 import Crypto from '../libs/crypto'
@@ -125,7 +124,7 @@ class AccountService extends CRUDService {
 
   deleteAccount (userId: number): Promise<NCResponse<number>> {
     if (userId) {
-      return super.delete('User', {id : userId })
+      return super.delete('User', { id : userId })
     } else {
       return Promise.resolve({ status: false, errMessage: 'userId is required!' })
     }

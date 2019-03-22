@@ -5,10 +5,10 @@ import * as pug from 'pug'
 import AppConfig from '../../../app-config'
 import BaseController from '../base-controller'
 import ShopService from '../../../services/shop-service'
-import LocalShopService from '../../../services/local-shop-service'
+import LocalShopService from '../../local-shop-services/local-shop-service'
+import LocalStockService from '../../local-shop-services/stock-service'
 import { SiteData, ImageService } from '../../../site-definitions'
 import * as Utils from '../../../libs/utils'
-import OrderService from '../../../services/local-shop/order-service'
 
 const path = require('path')
 
@@ -27,24 +27,48 @@ export default class PromotionManagementController extends BaseController {
 
     this.imageService = new siteData.services.ImageService(siteData.db.sequelize, siteData.db.models)
 
+    super.routeGet('/stocks', (req, res, next) => {
+      LocalShopService.getShopStock().then(res.json.bind(res)).catch(next)
+    })
+
+    super.routePost('/stock', (req, res, next) => {
+      const variantId = req.query.variantId
+
+      if (!variantId) {
+        res.json({ status: false, errMessage: 'variantId is required' })
+      } else {
+        LocalShopService.addShopStock(Object.assign({}, req.body, { variantId })).then(res.json.bind(res)).catch(next)
+      }
+    })
+
+    // We should only be able to update & delete stock from today
+    super.routePost('/stock/edit', (req, res, next) => {
+      ShopService.update<ShopStock>('ShopStock', req.body, { id: req.body.id }).then(res.json.bind(res)).catch(next)
+    })
+
+    // We should only be able to update & delete stock from today
+    super.routePost('/stock/delete', (req, res, next) => {
+      ShopService.delete<ShopStock>('ShopStock', { id: req.body.id }).then(res.json.bind(res)).catch(next)
+    })
+
     super.routeGet('/aisle-management', (req, res, next) => {
       res.render('cms/stock-management/aisle')
     })
 
     super.routeGet('/aisles', (req, res, next) => {
-      LocalShopService.getAisles().then(res.json.bind(res)).catch(next)
+      LocalStockService.getAisles().then(res.json.bind(res)).catch(next)
     })
 
     super.routePost('/aisle', (req, res, next) => {
-      LocalShopService.createAisle(req.body).then(res.json.bind(res)).catch(next)
+      LocalStockService.createAisle(req.body).then(res.json.bind(res)).catch(next)
     })
 
     super.routePost('/aisle/edit', (req, res, next) => {
-      LocalShopService.updateAisle(req.body.id, req.body).then(res.json.bind(res)).catch(next)
+      LocalStockService.updateAisle(req.body.id, req.body).then(res.json.bind(res)).catch(next)
     })
 
     super.routePost('/aisle/delete', (req, res, next) => {
-      LocalShopService.deleteAisle(req.body.id).then(res.json.bind(res)).catch(next)
+      LocalStockService.deleteAisle(req.body.id).then(res.json.bind(res)).catch(next)
     })
 
     super.routeGet('/opname', (req, res, next) => {
@@ -52,6 +76,7 @@ export default class PromotionManagementController extends BaseController {
     })
 
     super.routeGet('/in', (req, res, next) => {
+      // res.send('haha')
       res.render('cms/stock-management/in')
     })
   }

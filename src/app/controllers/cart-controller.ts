@@ -1,12 +1,7 @@
-import * as express from 'express'
-import AppConfig from '../../app-config'
-import * as Promise from 'bluebird'
-
 import BaseController from './base-controller'
-import CartService from '../../services/cart-service'
+import CartService from '../local-shop-services/cart-service'
 import { SiteData } from '../../site-definitions'
-import * as Utils from '../../libs/utils'
-import LocalShopService from '../../services/local-shop-service'
+import LocalShopService from '../local-shop-services/local-shop-service'
 
 const path = require('path')
 

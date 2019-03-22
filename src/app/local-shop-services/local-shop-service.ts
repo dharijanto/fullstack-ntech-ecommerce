@@ -1,12 +1,12 @@
 import * as util from 'util'
 
-import { CRUDService } from './crud-service'
-import ShopService from './shop-service'
+import { CRUDService } from '../../services/crud-service'
+import ShopService from '../../services/shop-service'
 import { Model } from 'sequelize'
 import * as Promise from 'bluebird'
 
-import AppConfig from '../app-config'
-import * as Utils from '../libs/utils'
+import AppConfig from '../../app-config'
+import * as Utils from '../../libs/utils'
 
 export interface ProductAvailability {
   status: 'readyStock' | 'preOrder'
@@ -24,6 +24,8 @@ export interface CategorizedProduct {
 
 /*
   Used for shop-specific code. This should re-use what's in shop-service as much as possible, though.
+
+  TODO: Move out the logics here to separate files. This file should only contain getLocalShopId() and initialization
  */
 class LocalShopService extends CRUDService {
   private localShopId: number = -1
@@ -206,7 +208,7 @@ class LocalShopService extends CRUDService {
   }
 
   addShopStock (data: Partial<ShopStock>): Promise<NCResponse<ShopStock>> {
-    const { variantId, price, quantity, date, description } = data
+    const { variantId, price, quantity, aisle, date, description } = data
     if (!description) {
       return Promise.resolve({ status: false, errMessage: 'Description is required!' })
     } else {
@@ -215,6 +217,7 @@ class LocalShopService extends CRUDService {
         variantId,
         price,
         quantity,
+        aisle,
         date,
         description
       })
@@ -333,30 +336,6 @@ class LocalShopService extends CRUDService {
       return super.delete<Promotion>('Promotion', { id: promotionId })
     } else {
       return Promise.resolve({ status: false, errMessage: 'promoitonId is required!' })
-    }
-  }
-
-  getAisles (): Promise<NCResponse<Aisle[]>> {
-    return super.read<Aisle>('ShopAisle', { shopId: this.getLocalShopId() })
-  }
-
-  createAisle (data: Partial<Aisle>): Promise<NCResponse<Aisle>> {
-    return super.create<Aisle>('ShopAisle', { shopId: this.getLocalShopId(), ...data })
-  }
-
-  updateAisle (aisleId: number, data: Partial<Aisle>): Promise<NCResponse<number>> {
-    if (aisleId) {
-      return super.update<Aisle>('ShopAisle', data, { id: aisleId })
-    } else {
-      return Promise.resolve({ status: false, errMessage: 'aisleId is required!' })
-    }
-  }
-
-  deleteAisle (aisleId: number): Promise<NCResponse<number>> {
-    if (aisleId) {
-      return super.delete<Aisle>('ShopAisle', { id: aisleId, shopId: this.getLocalShopId() })
-    } else {
-      return Promise.resolve({ status: false, errMessage: 'aisleId is required!' })
     }
   }
 }

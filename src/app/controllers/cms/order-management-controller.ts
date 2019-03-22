@@ -3,11 +3,11 @@ import * as Promise from 'bluebird'
 import * as pug from 'pug'
 
 import BaseController from '../base-controller'
-import CartService from '../../../services/cart-service'
+import CartService from '../../local-shop-services/cart-service'
 import { SiteData } from '../../../site-definitions'
 import * as Utils from '../../../libs/utils'
-import OrderService from '../../../services/local-shop/order-service'
-import AppConfig from '../../../app-config';
+import OrderService from '../../local-shop-services/order-service'
+import AppConfig from '../../../app-config'
 
 const path = require('path')
 
