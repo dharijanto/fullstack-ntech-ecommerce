@@ -7,7 +7,6 @@ import 'nc-input-library'
 
 let product: Product
 let variant: Variant
-let shopStock: ShopStock
 
 $(document).ready(() => {
   const ncProduct = $('#product').NCInputLibrary({
@@ -80,52 +79,5 @@ $(document).ready(() => {
     }
   })
 
-  const ncShopStock = $('#shop-stock').NCInputLibrary({
-    design: {
-      title: 'Shop Stock'
-    },
-    table: {
-      ui: [
-        { id: 'id', desc: 'ID', dataTable: true, input: 'hidden', disabled: true },
-        { id: 'variant.product.name', desc: 'Product', dataTable: true, input: 'hidden', disabled: true },
-        { id: 'variant.name', desc: 'Variant', dataTable: true, input: 'hidden', disabled: true },
-        { id: 'date', desc: 'Date', dataTable: true, input: 'date', data: { dateFormat: 'YYYY-MM-DD' } },
-        { id: 'price', desc: 'Purchase Price', dataTable: true, input: 'text' },
-        { id: 'quantity', desc: 'Quantity', dataTable: true, input: 'text' },
-        { id: 'aisle', desc: 'Aisle', dataTable: true, input: 'text' },
-        { id: 'description', desc: 'Description', dataTable: true, input: 'text' },
-        { id: 'createdAt', desc: 'Date Created', dataTable: true, input: 'hidden', disabled: true },
-        { id: 'updatedAt', desc: 'Date Updated', dataTable: true, input: 'hidden', disabled: true }
-      ],
-      conf: {
-        order: [['updatedAt', 'desc']],
-        getURL: () => `/cms/product-management/shop-stocks` ,
-        numColumn: 3,
-        onRowClicked: (data: ShopStock) => {
-          shopStock = data
-        }
-      }
-    },
-    buttons: {
-      ui: [
-        { id: 'add', desc: 'Add', postTo: () => {
-          const productId = product ? product.id : null
-          const variantId = variant ? variant.id : null
-          return `/cms/product-management/shop-stock?productId=${productId}&variantId=${variantId}`
-        }},
-        { id: 'edit', desc: 'Edit', postTo: () => `/cms/product-management/shop-stock/edit`, confirm: 'Are you sure?' },
-        { id: 'delete', desc: 'Delete', postTo: () => `/cms/product-management/shop-stock/delete`, confirm: 'Are you sure?' }
-      ],
-      conf: {
-        networkTimeout: 2000 // timeout for postTo request
-      },
-      onPostFinished: () => {
-        ncProduct.reloadTable()
-        ncVariant.reloadTable()
-      }
-    }
-  })
-
   ncProduct.reloadTable()
-  ncShopStock.reloadTable()
 })

@@ -75,7 +75,7 @@ export default class PromotionManagementController extends BaseController {
       res.render('cms/stock-management')
     })
 
-    super.routeGet('/in', (req, res, next) => {
+    super.routeGet('/in-management', (req, res, next) => {
       // res.send('haha')
       res.render('cms/stock-management/in')
     })

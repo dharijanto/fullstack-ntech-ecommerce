@@ -64,7 +64,7 @@ gulp.task('watchSitesDeps', function () {
 })
 
 gulp.task('sass', function () {
-  return gulp.src('./src/app/views/assets/sass/**/*.scss')
+  return gulp.src('./src/app/views/sass/**/*.scss')
     .pipe(sass().on('error', sass.logError))
     .pipe(gulp.dest('./src/app/views/assets/css/'));
 })
@@ -72,7 +72,7 @@ gulp.task('sass', function () {
 gulp.task('watchSass', function () {
   // In order to be triggered when there's a new file added/removed, we
   // have to pass in relative path as first argument and the root directory as 'cwd'
-  return gulp.watch('src/app/views/assets/sass/**/*.scss', { cwd: './' }, ['sass'])
+  return gulp.watch('src/app/views/sass/**/*.scss', { cwd: './' }, ['sass'])
 })
 
 gulp.task('watch', ['compileSites', 'copySitesDeps', 'watchSites', 'watchSitesDeps', 'watchSass'])

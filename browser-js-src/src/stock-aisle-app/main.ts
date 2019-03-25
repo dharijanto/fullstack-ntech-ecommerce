@@ -9,9 +9,9 @@ import Config from '../config'
 let aisle: Aisle
 
 $(document).ready(() => {
-  const ncProduct = $('#aisle').NCInputLibrary({
+  const ncAisle = $('#aisle').NCInputLibrary({
     design: {
-      title: 'Products'
+      title: 'Aisle Management'
     },
     table: {
       ui: [
@@ -40,4 +40,6 @@ $(document).ready(() => {
       }
     }
   })
+
+  ncAisle.reloadTable()
 })
