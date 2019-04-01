@@ -1,9 +1,11 @@
 import * as $ from 'jquery'
 import * as toastr from 'toastr'
-import { getURLQuery } from '../libs/utils'
-import axios from '../libs/axios-wrapper'
 import 'nc-image-picker'
 import 'nc-input-library'
+
+import axios from '../libs/axios-wrapper'
+import Config from '../config'
+import { getURLQuery } from '../libs/utils'
 
 let supplier: Supplier
 let product: Product
@@ -43,7 +45,7 @@ $(document).ready(() => {
         { id: 'delete', desc: 'Delete', postTo: `/${window['siteHash']}/supplier-management/supplier/delete`, confirm: 'Are you sure?' }
       ],
       conf: {
-        networkTimeout: 2000 // timeout for postTo request
+        networkTimeout: Config.NETWORK_TIMEOUT // timeout for postTo request
       }
     }
   })
@@ -73,7 +75,7 @@ $(document).ready(() => {
     buttons: {
       ui: [],
       conf: {
-        networkTimeout: 2000 // timeout for postTo request
+        networkTimeout: Config.NETWORK_TIMEOUT // timeout for postTo request
       }
     }
   })
@@ -108,7 +110,7 @@ $(document).ready(() => {
     buttons: {
       ui: [],
       conf: {
-        networkTimeout: 2000 // timeout for postTo request
+        networkTimeout: Config.NETWORK_TIMEOUT // timeout for postTo request
       }
     }
   })
@@ -146,7 +148,7 @@ $(document).ready(() => {
         { id: 'delete', desc: 'Delete', postTo: () => `/${window['siteHash']}/supplier-management/supplier-stock/delete`, confirm: 'Are you sure?' }
       ],
       conf: {
-        networkTimeout: 2000 // timeout for postTo request
+        networkTimeout: Config.NETWORK_TIMEOUT // timeout for postTo request
       }
     }
   })

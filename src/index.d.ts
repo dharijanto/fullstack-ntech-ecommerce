@@ -5,18 +5,18 @@ interface NCResponse<T> {
   errCode?: number
 }
 
-/* interface NCResponseSuccess<T> {
-  status: true
+/* type NCResponse<T> = NCSuccessResponse<T> | NCFailedResponse
+
+interface NCSuccessResponse<T> {
+  status: true,
   data: T
 }
 
-interface NCResponseFailed {
-  status: false
+interface NCFailedResponse {
+  status: false,
   errMessage: string
   errCode?: number
-}
-
-type NCResponse<T> = NCResponseSuccess<T> | NCResponseFailed */
+} */
 
 /*
 -------------------------------------------------------------------------------
@@ -105,8 +105,8 @@ interface Shop extends BaseModel {
 interface ShopStock extends BaseModel {
   shopId: number
   variantId: number
-  price: number
   quantity: number
+  price: number
   aisle: string
   date: string
   variant?: Variant
@@ -284,6 +284,7 @@ interface OrderDetail extends BaseModel {
   quantity: number
   price: number
   status: 'PO' | 'Ready'
+  aisle: string
   preOrderDuration: number
   orderId: number
   productName: string

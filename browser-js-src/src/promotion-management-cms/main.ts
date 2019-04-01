@@ -1,9 +1,11 @@
 import * as $ from 'jquery'
 import * as toastr from 'toastr'
-import { getURLQuery } from '../libs/utils'
-import axios from '../libs/axios-wrapper'
 import 'nc-image-picker'
 import 'nc-input-library'
+
+import axios from '../libs/axios-wrapper'
+import Config from '../config'
+import { getURLQuery } from '../libs/utils'
 
 let shop: Shop
 let promotion: Promotion
@@ -38,7 +40,7 @@ $(document).ready(() => {
     buttons: {
       ui: [],
       conf: {
-        networkTimeout: 2000 // timeout for postTo request
+        networkTimeout: Config.NETWORK_TIMEOUT // timeout for postTo request
       }
     }
   })
@@ -82,7 +84,7 @@ $(document).ready(() => {
         { id: 'delete', desc: 'Delete', postTo: () => `/${window['siteHash']}/shop-management/promotion/delete`, confirm: 'Are you sure?' }
       ],
       conf: {
-        networkTimeout: 2000 // timeout for postTo request
+        networkTimeout: Config.NETWORK_TIMEOUT // timeout for postTo request
       }
     }
   })
@@ -139,7 +141,7 @@ $(document).ready(() => {
     buttons: {
       ui: [],
       conf: {
-        networkTimeout: 2000 // timeout for postTo request
+        networkTimeout: Config.NETWORK_TIMEOUT // timeout for postTo request
       }
     }
   })

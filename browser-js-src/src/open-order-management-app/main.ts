@@ -39,7 +39,7 @@ const ncOrder = $('#order').NCInputLibrary({
     ui: [
       { id: 'add', desc: 'Add', postTo: '/cms/order-management/order' },
       { id: 'edit', desc: 'Edit', postTo: '/cms/order-management/order/edit' },
-      { id: 'cancel', desc: 'Cancel', postTo: '/cms/order-management/order/cancel' },
+      { id: 'cancel', desc: 'Cancel', postTo: '/cms/order-management/order/cancel', confirm: 'Are you sure?' },
       { id: 'finish', desc: 'Close', postTo: '/cms/order-management/order/close' },
       { id: 'finishPO', desc: 'Finish PO', postTo: '/cms/order-management/order/close-po' }
     ],
@@ -78,6 +78,7 @@ const ncOrderDetail = $('#order-detail').NCInputLibrary({
       { id: 'quantity', desc: 'Quantity', dataTable: true, input: 'text' },
       { id: 'price', desc: 'Price', dataTable: true, input: 'hidden' },
       { id: 'status', desc: 'Status', dataTable: true, input: 'hidden' },
+      { id: 'aisle', desc: 'Aisle', dataTable: true, input: 'hidden' },
       { id: 'preOrderDuration', desc: 'PO Duration', dataTable: true, input: 'hidden' },
       { id: 'createdAt', desc: 'Date Created', dataTable: true, input: 'hidden', disabled: true },
       { id: 'updatedAt', desc: 'Date Updated', dataTable: true, input: 'hidden', disabled: true }
@@ -93,10 +94,13 @@ const ncOrderDetail = $('#order-detail').NCInputLibrary({
     ui: [
       { id: 'add', desc: 'Add', postTo: () => `/cms/order-management/order-detail?orderId=${order ? order.id : ''}` },
       // { id: 'edit', desc: 'Edit', postTo: () => `/cms/order-management/order-detail/edit?orderId=${order ? order.id : ''}` },
-      { id: 'delete', desc: 'Delete', postTo: () => `/cms/order-management/order-detail/delete` }
+      { id: 'delete', desc: 'Delete', postTo: () => `/cms/order-management/order-detail/delete`, confirm: 'Are you sure?' }
     ],
     conf: {
       networkTimeout: Config.NETWORK_TIMEOUT // timeout for postTo request
+    },
+    onPostFinished: (id, successOrFailed) => {
+      ncOrder.reloadTable()
     }
   }
 })

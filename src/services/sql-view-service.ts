@@ -13,16 +13,29 @@ const TAG = 'SQLViewService'
 */
 class SQLViewService extends CRUDService {
 
+  // This is shopStocks aggregated by aisle subtracted by the number of order
   createShopStocksView () {
     return super.getSequelize().query(`
 CREATE VIEW shopStocksView AS
-(SELECT
-    id, price AS price, MAX(date) AS date, SUM(quantity) AS quantity,
-    MAX(createdAt) AS createdAt, MAX(updatedAt) AS updatedAt,
-    shopId, variantId, aisle
- FROM shopStocks
- WHERE deletedAt is NULL
- GROUP BY variantId, aisle, price, shopId)
+(SELECT shopStocksView.shopId, shopStocksView.variantId,
+        shopStocksView.aisle, shopStocksView.quantity - IFNULL(orderDetailsView.quantity, 0) AS quantity
+  FROM (
+  SELECT shopStocks.shopId AS shopId, shopStocks.variantId AS variantId,
+      SUM(shopStocks.quantity) AS quantity, shopStocks.aisle AS aisle
+  FROM shopStocks
+  WHERE deletedAt IS NULL
+  GROUP BY shopStocks.shopId, shopStocks.variantId, shopStocks.aisle
+  ) AS shopStocksView
+LEFT OUTER JOIN
+  (SELECT orders.shopId AS shopId, orderDetails.variantId AS variantId,
+      SUM(orderDetails.quantity) AS quantity, orderDetails.aisle AS aisle
+    FROM orderDetails
+    INNER JOIN orders ON orders.id = orderDetails.orderId
+    WHERE orders.status != 'Cancelled' AND orderDetails.status = 'Ready' AND orderDetails.deletedAt IS NULL AND orders.deletedAt IS NULL
+    GROUP BY orders.shopId, orderDetails.variantId, orderDetails.aisle
+  ) AS orderDetailsView ON orderDetailsView.shopId = shopStocksView.shopId AND
+       orderDetailsView.variantId = shopStocksView.variantId AND orderDetailsView.aisle = shopStocksView.aisle
+)
     `)
   }
 
@@ -238,6 +251,7 @@ CREATE VIEW orderDetailsView AS
 (
 SELECT orderDetails.id AS id, orderDetails.orderId AS orderId, orderDetails.quantity AS quantity,
        orderDetails.price AS price, orderDetails.status AS status,
+       orderDetails.aisle AS aisle,
        orderDetails.createdAt AS createdAt, orderDetails.updatedAt AS updatedAt,
        variants.name AS variantName, variants.id AS variantId,
        products.name AS productName, products.id AS productId,

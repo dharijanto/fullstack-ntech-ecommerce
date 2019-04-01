@@ -4,6 +4,7 @@ import * as Promise from 'bluebird'
 import * as Utils from '../../libs/utils'
 import { CRUDService } from '../../services/crud-service'
 import LocalShopService from '../local-shop-services/local-shop-service'
+import OrderService from '../local-shop-services/order-service'
 import ProductService from '../../services/product-service'
 import Formatter from '../../libs/formatter'
 
@@ -112,22 +113,6 @@ class CartService extends CRUDService {
     })
   }
 
-  private createOrderDetail (orderId: number, variantId: number, quantity: number, itemStatus: 'PO' | 'Ready'): Promise<NCResponse<Partial<OrderDetail>>> {
-    return LocalShopService.getVariantPrice(variantId).then(resp2 => {
-      if (resp2.status && resp2.data) {
-        return super.create<OrderDetail>('OrderDetail', {
-          orderId,
-          status: itemStatus,
-          variantId: variantId,
-          quantity,
-          price: resp2.data
-        })
-      } else {
-        throw new Error(`variantId=${variantId} is not found!`)
-      }
-    })
-  }
-
   placeOrder (fullName: string, phoneNumber: string, notes: string, currentCart: CartMetaData): Promise<NCResponse<any>> {
     // TODO: Use transaction so we can rollback
     if (currentCart === undefined || (currentCart.preOrder.length === 0 && currentCart.readyStock.length === 0)) {
@@ -141,6 +126,8 @@ class CartService extends CRUDService {
           return Promise.resolve({ status: false, errMessage: 'Correct phone number is required for PO order!' })
         }
       }
+
+      // TODO: Add lock
       return super.create<Order>('Order', {
         fullName,
         phoneNumber,
@@ -152,10 +139,10 @@ class CartService extends CRUDService {
           const orderId = resp.data.id
           return Promise.join(
             Promise.map(currentCart.preOrder, cartItem => {
-              return this.createOrderDetail(orderId, cartItem.variantId, cartItem.quantity, 'PO')
+              return OrderService.addPOOrderDetail(orderId, cartItem.variantId, cartItem.quantity)
             }),
             Promise.map(currentCart.readyStock, cartItem => {
-              return this.createOrderDetail(orderId, cartItem.variantId, cartItem.quantity, 'Ready')
+              return OrderService.addInStockOrderDetail(orderId, cartItem.variantId, cartItem.quantity)
             })
           ).spread((poResults: Array<NCResponse<any>>, readyResults: Array<NCResponse<any>>) => {
             const finalResult = poResults.concat(readyResults).reduce((acc, result) => {

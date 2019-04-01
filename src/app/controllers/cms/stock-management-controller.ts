@@ -28,7 +28,13 @@ export default class PromotionManagementController extends BaseController {
     this.imageService = new siteData.services.ImageService(siteData.db.sequelize, siteData.db.models)
 
     super.routeGet('/stocks', (req, res, next) => {
-      LocalShopService.getShopStock().then(res.json.bind(res)).catch(next)
+      const variantId = req.query.variantId
+      LocalStockService.getStocks(variantId).then(res.json.bind(res)).catch(next)
+    })
+
+    super.routeGet('/stocks-left', (req, res, next) => {
+      const variantId = req.query.variantId
+      LocalStockService.getStocksGroupedByAisle(variantId).then(res.json.bind(res)).catch(next)
     })
 
     super.routePost('/stock', (req, res, next) => {
@@ -37,7 +43,7 @@ export default class PromotionManagementController extends BaseController {
       if (!variantId) {
         res.json({ status: false, errMessage: 'variantId is required' })
       } else {
-        LocalShopService.addShopStock(Object.assign({}, req.body, { variantId })).then(res.json.bind(res)).catch(next)
+        LocalStockService.addShopStock(Object.assign({}, req.body, { variantId })).then(res.json.bind(res)).catch(next)
       }
     })
 

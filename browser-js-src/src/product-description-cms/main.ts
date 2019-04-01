@@ -1,9 +1,11 @@
 import * as $ from 'jquery'
 import * as toastr from 'toastr'
-import { getURLQuery } from '../libs/utils'
-import axios from '../libs/axios-wrapper'
 import 'nc-image-picker'
 import 'nc-input-library'
+
+import axios from '../libs/axios-wrapper'
+import Config from '../config'
+import { getURLQuery } from '../libs/utils'
 
 $(document).ready(() => {
   const productId = getURLQuery(window.location.href)['id']
@@ -35,7 +37,7 @@ $(document).ready(() => {
         { id: 'delete', desc: 'Delete', postTo: `/${window['siteHash']}/product-management/product/image/delete?productId=${productId}` }
       ],
       conf: {
-        networkTimeout: 2000 // timeout for postTo request
+        networkTimeout: Config.NETWORK_TIMEOUT// timeout for postTo request
       }
     }
   })

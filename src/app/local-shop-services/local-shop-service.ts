@@ -8,7 +8,7 @@ import * as Promise from 'bluebird'
 import AppConfig from '../../app-config'
 import * as Utils from '../../libs/utils'
 
-export interface ProductAvailability {
+export interface VariantAvailability {
   status: 'readyStock' | 'preOrder'
   quantity?: number
 }
@@ -21,6 +21,8 @@ export interface CategorizedProduct {
     poProducts: Array<POProduct>
   }>
 }
+
+const a: NCResponse<null> = { status: false, errMessage: '' }
 
 /*
   Used for shop-specific code. This should re-use what's in shop-service as much as possible, though.
@@ -58,10 +60,6 @@ class LocalShopService extends CRUDService {
 
   getShopifiedProducts () {
     return ShopService.getShopifiedProducts(this.getLocalShopId())
-  }
-
-  getShopStock (searchClause = {}) {
-    return ShopService.getShopStock(this.getLocalShopId(), searchClause)
   }
 
   /*
@@ -207,23 +205,6 @@ class LocalShopService extends CRUDService {
     })
   }
 
-  addShopStock (data: Partial<ShopStock>): Promise<NCResponse<ShopStock>> {
-    const { variantId, price, quantity, aisle, date, description } = data
-    if (!description) {
-      return Promise.resolve({ status: false, errMessage: 'Description is required!' })
-    } else {
-      return this.create<ShopStock>('ShopStock', {
-        shopId: this.localShopId,
-        variantId,
-        price,
-        quantity,
-        aisle,
-        date,
-        description
-      })
-    }
-  }
-
   getVariantInformation (variantId): Promise<NCResponse<{product: ShopifiedProduct, variant: ShopifiedVariant}>> {
     return this.readOne<Variant>('Variant', {
       id: variantId
@@ -276,33 +257,19 @@ class LocalShopService extends CRUDService {
     })
   }
 
-  getProductAvailability (productId: number): Promise<NCResponse<ProductAvailability>> {
-    return Promise.join<NCResponse<any>>(
-      this.getInStockProduct(productId),
-      this.getPOProduct(productId)
-    ).spread((resp1: NCResponse<InStockProduct>, resp2: NCResponse<POProduct>) => {
-      let availability: ProductAvailability = {
-        status: 'readyStock'
-      }
-      if (resp1.status && resp1.data) {
-        availability.status = 'readyStock'
-        availability.quantity = resp1.data.stockQuantity
-      } else if (resp2.status) {
-        availability.status = 'preOrder'
-      } else {
-        return { status: false, errMessage: resp1.errMessage || resp2.errMessage }
-      }
-      return { status: true, data: availability }
-    })
-  }
-
-  getVariantAvailability (variantId: number): Promise<NCResponse<ProductAvailability>> {
-    return this.readOne<Variant>('Variant', {
-      id: variantId
-    }).then(resp => {
+  // TODO: This returns the quantity of the product, but what we want is the quantity of a specific variant,
+  //       not all of them!
+  getVariantAvailability (variantId: number): Promise<NCResponse<VariantAvailability>> {
+    return this.rawReadOneQuery(`
+    SELECT * FROM shopifiedVariantsView WHERE id = ${variantId} AND shopId = ${this.getLocalShopId()}
+    `).then((resp: NCResponse<ShopifiedVariant>) => {
       if (resp.status && resp.data) {
-        const productId = resp.data.productId
-        return this.getProductAvailability(productId)
+        const availability = {
+          status: resp.data.stockQuantity > 0 ? 'readyStock' : 'preOrder',
+          quantity: resp.data.stockQuantity
+        } as VariantAvailability
+
+        return { status: true, data: availability }
       } else {
         return { status: false, errMessage: resp.errMessage }
       }

@@ -2,6 +2,7 @@ import * as $ from 'jquery'
 import * as toastr from 'toastr'
 import { getURLQuery } from '../libs/utils'
 import axios from '../libs/axios-wrapper'
+import Config from '../config'
 import 'nc-image-picker'
 import 'nc-input-library'
 
@@ -36,10 +37,13 @@ $(document).ready(() => {
     buttons: {
       ui: [],
       conf: {
-        networkTimeout: 2000 // timeout for postTo request
+        networkTimeout: Config.NETWORK_TIMEOUT // timeout for postTo request
       }
     }
   })
+  const btnReloadProduct = $('<button class="btn btn-primary"> Reload </button>')
+  btnReloadProduct.click(() => ncProduct.reloadTable())
+  ncProduct.setFirstCustomView(btnReloadProduct)
 
   const ncVariant = $('#variant').NCInputLibrary({
     design: {
@@ -49,8 +53,8 @@ $(document).ready(() => {
       ui: [
         { id: 'id', desc: 'ID', dataTable: true, input: 'hidden', disabled: true },
         { id: 'name', desc: 'Name', dataTable: true, input: 'hidden' },
-        { id: 'supplierCount', desc: '# Suppliers', dataTable: true, input: 'hidden' },
-        { id: 'stockQuantity', desc: '# Stocks', dataTable: true, input: 'hidden' }
+        { id: 'stockQuantity', desc: '# Stocks', dataTable: true, input: 'hidden' },
+        { id: 'supplierCount', desc: '# Suppliers', dataTable: true, input: 'hidden' }
       ],
       conf: {
         order: [['name', 'asc']],
@@ -58,13 +62,15 @@ $(document).ready(() => {
         numColumn: 3,
         onRowClicked: (data: Variant) => {
           variant = data
+          ncShopStock.reloadTable()
+          ncGroupedShopStock.reloadTable()
         }
       }
     },
     buttons: {
       ui: [],
       conf: {
-        networkTimeout: 2000 // timeout for postTo request
+        networkTimeout: Config.NETWORK_TIMEOUT // timeout for postTo request
       }
     }
   })
@@ -82,7 +88,7 @@ $(document).ready(() => {
 
   const ncShopStock = $('#shop-stock').NCInputLibrary({
     design: {
-      title: 'Shop Stock'
+      title: 'Stock History'
     },
     table: {
       ui: [
@@ -99,7 +105,7 @@ $(document).ready(() => {
       ],
       conf: {
         order: [['updatedAt', 'desc']],
-        getURL: () => `/cms/stock-management/stocks` ,
+        getURL: () => `/cms/stock-management/stocks?variantId=${variant ? variant.id : 0}` ,
         numColumn: 3,
         onRowClicked: (data: ShopStock) => {
           shopStock = data
@@ -117,15 +123,41 @@ $(document).ready(() => {
         { id: 'delete', desc: 'Delete', postTo: () => `/cms/stock-management/stock/delete`, confirm: 'Are you sure?' }
       ],
       conf: {
-        networkTimeout: 2000 // timeout for postTo request
+        networkTimeout: Config.NETWORK_TIMEOUT // timeout for postTo request
       },
       onPostFinished: () => {
         ncProduct.reloadTable()
         ncVariant.reloadTable()
+        ncGroupedShopStock.reloadTable()
+      }
+    }
+  })
+
+  const ncGroupedShopStock = $('#grouped-shop-stock').NCInputLibrary({
+    design: {
+      title: 'Stocks Left on Aisles'
+    },
+    table: {
+      ui: [
+        { id: 'quantity', desc: 'Quantity', dataTable: true, input: 'hidden' },
+        { id: 'aisle', desc: 'Aisle', dataTable: true, input: 'hidden' }
+      ],
+      conf: {
+        order: [['aisle', 'asc']],
+        getURL: () => `/cms/stock-management/stocks-left?variantId=${variant ? variant.id : 0}` ,
+        numColumn: 3,
+        onRowClicked: (data: ShopStock) => {
+          shopStock = data
+        }
+      }
+    },
+    buttons: {
+      ui: [],
+      conf: {
+        networkTimeout: Config.NETWORK_TIMEOUT // timeout for postTo request
       }
     }
   })
 
   ncProduct.reloadTable()
-  ncShopStock.reloadTable()
 })

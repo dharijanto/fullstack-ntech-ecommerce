@@ -7,7 +7,7 @@ import * as moment from 'moment'
 import AppConfig from '../../app-config'
 import CRUDService from '../../services/crud-service'
 import LocalShopService from './local-shop-service'
-import OrderService from '../../services/order-service'
+import ShopService from '../../services/shop-service'
 import PrintService from '../../services/print-service'
 
 /*
@@ -41,6 +41,32 @@ class LocalStockService extends CRUDService {
       return Promise.resolve({ status: false, errMessage: 'aisleId is required!' })
     }
   }
+
+  getStocks (variantId: number) {
+    return ShopService.getShopStock(LocalShopService.getLocalShopId(), { variantId })
+  }
+
+  getStocksGroupedByAisle (variantId: number): Promise<NCResponse<ShopStock[]>> {
+    return super.rawReadQuery(`SELECT * FROM shopStocksView WHERE shopId=${LocalShopService.getLocalShopId()} AND variantId=${variantId} AND quantity > 0`)
+  }
+
+  addShopStock (data: Partial<ShopStock>): Promise<NCResponse<ShopStock>> {
+    const { variantId, price, quantity, aisle, date, description } = data
+    if (!description) {
+      return Promise.resolve({ status: false, errMessage: 'Description is required!' })
+    } else {
+      return this.create<ShopStock>('ShopStock', {
+        shopId: LocalShopService.getLocalShopId(),
+        variantId,
+        price,
+        quantity,
+        aisle,
+        date,
+        description
+      })
+    }
+  }
+
 }
 
 export default new LocalStockService()

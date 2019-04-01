@@ -6,6 +6,7 @@ import * as toastr from 'toastr'
 import * as _ from 'lodash'
 
 import axios from '../libs/axios-wrapper'
+import Config from '../config'
 
 console.log(_.random(true))
 
@@ -36,7 +37,7 @@ const ncCategory = $('#category').NCInputLibrary({
       { id: 'delete', desc: 'Delete', postTo: `/${window['siteHash']}/product-management/category/delete`, confirm: 'Are you sure?' }
     ],
     conf: {
-      networkTimeout: 2000 // timeout for postTo request
+      networkTimeout: Config.NETWORK_TIMEOUT // timeout for postTo request
     }
   }
 })
@@ -68,7 +69,7 @@ const ncSubCategory = $('#sub-category').NCInputLibrary({
       { id: 'delete', desc: 'Delete', postTo: () => `/${window['siteHash']}/product-management/subCategory/delete?categoryId=${selectedCategory && selectedCategory.id}`, confirm: 'Are you sure?' }
     ],
     conf: {
-      networkTimeout: 2000 // timeout for postTo request
+      networkTimeout: Config.NETWORK_TIMEOUT // timeout for postTo request
     }
   }
 })
@@ -101,7 +102,7 @@ const ncProduct = $('#product').NCInputLibrary({
       { id: 'delete', desc: 'Delete', postTo: () => `/${window['siteHash']}/product-management/product/delete?subCategoryId=${selectedSubCategory && selectedSubCategory.id}`, confirm: 'Are you sure?' }
     ],
     conf: {
-      networkTimeout: 2000 // timeout for postTo request
+      networkTimeout: Config.NETWORK_TIMEOUT // timeout for postTo request
     }
   }
 })
@@ -133,7 +134,7 @@ const ncVariant = $('#variant').NCInputLibrary({
       { id: 'delete', desc: 'Delete', postTo: () => `/${window['siteHash']}/product-management/variant/delete?productId=${selectedProduct && selectedProduct.id}`, confirm: 'Are you sure?' }
     ],
     conf: {
-      networkTimeout: 2000 // timeout for postTo request
+      networkTimeout: Config.NETWORK_TIMEOUT // timeout for postTo request
     }
   }
 })

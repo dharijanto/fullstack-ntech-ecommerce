@@ -6,6 +6,7 @@ import * as _ from 'lodash'
 import 'jQuery.print'
 
 import axios from '../libs/axios-wrapper'
+import Config from '../config'
 
 let order: Order
 
@@ -43,7 +44,7 @@ const ncOrder = $('#order').NCInputLibrary({
       { id: 'finishPO', desc: 'Finish PO', postTo: '/cms/order-management/order/close-po' } */
     ],
     conf: {
-      networkTimeout: 2000 // timeout for postTo request
+      networkTimeout: Config.NETWORK_TIMEOUT // timeout for postTo request
     }
   }
 })
@@ -104,7 +105,7 @@ const ncOrderDetail = $('#order-detail').NCInputLibrary({
       { id: 'delete', desc: 'Delete', postTo: `/cms/order-management/order-detail/order/delete` } */
     ],
     conf: {
-      networkTimeout: 2000 // timeout for postTo request
+      networkTimeout: Config.NETWORK_TIMEOUT // timeout for postTo request
     }
   }
 })

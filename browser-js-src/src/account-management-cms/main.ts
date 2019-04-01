@@ -6,6 +6,7 @@ import * as toastr from 'toastr'
 import * as _ from 'lodash'
 
 import axios from '../libs/axios-wrapper'
+import Config from '../config'
 
 console.log(_.random(true))
 
@@ -40,7 +41,7 @@ const ncShop = $('#shop').NCInputLibrary({
   buttons: {
     ui: [],
     conf: {
-      networkTimeout: 2000 // timeout for postTo request
+      networkTimeout: Config.NETWORK_TIMEOUT // timeout for postTo request
     }
   }
 })
@@ -76,7 +77,7 @@ const ncAccount = $('#account').NCInputLibrary({
       { id: 'delete', desc: 'Delete', postTo: () => `/${window['siteHash']}/shop-management/shop/delete` }
     ],
     conf: {
-      networkTimeout: 2000 // timeout for postTo request
+      networkTimeout: Config.NETWORK_TIMEOUT // timeout for postTo request
     }
   }
 })

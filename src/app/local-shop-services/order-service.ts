@@ -3,12 +3,16 @@ import * as util from 'util'
 import * as Promise from 'bluebird'
 import { Model } from 'sequelize'
 import * as moment from 'moment'
+import * as log from 'npmlog'
 
 import AppConfig from '../../app-config'
 import CRUDService from '../../services/crud-service'
 import LocalShopService from './local-shop-service'
 import OrderService from '../../services/order-service'
 import PrintService from '../../services/print-service'
+import StockService from './stock-service'
+
+const TAG = 'OrderService'
 
 export interface ProductAvailability {
   status: 'readyStock' | 'preOrder' | 'unavailable'
@@ -191,7 +195,63 @@ class LocalOrderService extends CRUDService {
     })
   }
 
-  addOrderDetail (orderId: number, variantId: number, quantity: number): Promise<NCResponse<OrderDetail>> {
+  // TODO: Finish this off
+  addPOOrderDetail (orderId: number, variantId: number, quantity: number): Promise<NCResponse<Partial<OrderDetail[]>>> {
+    return LocalShopService.getVariantPrice(variantId).then(resp => {
+      if (resp.status && resp.data) {
+        const price = resp.data
+        return super.getModels('OrderDetail').bulkCreate([{ variantId, orderId, status: 'PO', quantity, price }]).then((data: Partial<OrderDetail>[]) => {
+          return { status: true, data } as NCResponse<Partial<OrderDetail[]>>
+        })
+      } else {
+        return { status: false, errMessage: 'Failed to get variant price: ' + resp.errMessage }
+      }
+    })
+  }
+
+  addInStockOrderDetail (orderId: number, variantId: number, quantity: number): Promise<NCResponse<Partial<OrderDetail[]>>> {
+    log.verbose(TAG, `addOrderDetailWithStatus(): orderId=${orderId} variantId=${variantId}`)
+    return LocalShopService.getVariantPrice(variantId).then(resp2 => {
+      if (resp2.status && resp2.data) {
+        const price = resp2.data
+        return StockService.getStocksGroupedByAisle(variantId).then((resp: NCResponse<ShopStock[]>) => {
+          if (resp.status && resp.data) {
+            const stocks = resp.data
+            let remainingQuantity = quantity
+            const orderDetails: Partial<OrderDetail>[] = []
+            for (let i = 0; i < stocks.length; i++) {
+              const stock = stocks[i]
+              if (remainingQuantity <= stock.quantity) {
+                orderDetails.push({ orderId, status: 'Ready', variantId, quantity: remainingQuantity, price, aisle: stock.aisle })
+                remainingQuantity = 0
+                break
+              } else {
+                orderDetails.push({ orderId, status: 'Ready', variantId, quantity: stock.quantity, price, aisle: stock.aisle })
+                remainingQuantity -= stock.quantity
+              }
+            }
+            if (remainingQuantity > 0) {
+              return { status: false, errMessage: 'No enough quantity available!' }
+            } else {
+              return super.getModels('OrderDetail').bulkCreate(orderDetails).then((data: Array<OrderDetail>) => {
+                if (data.length) {
+                  return { status: true, data }
+                } else {
+                  return { status: false, errMessage: 'Failed to create order details!' }
+                }
+              })
+            }
+          } else {
+            return { status: false, errMessage: 'shopStocks not found!' }
+          }
+        })
+      } else {
+        throw new Error(`variantId=${variantId} is not found!`)
+      }
+    })
+  }
+
+  addOrderDetail (orderId: number, variantId: number, quantity: number): Promise<NCResponse<Partial<OrderDetail[]>>> {
     /*
       1. Validate orderId -> valid order whose status is not closed / PO
       2. Validate variantId -> product with this id exists
@@ -202,21 +262,20 @@ class LocalOrderService extends CRUDService {
     } else {
       return this.isOpenOrder(orderId).then(resp => {
         if (resp.status) {
-          return Promise.join<any>(
-            LocalShopService.getVariantAvailability(variantId),
-            LocalShopService.getVariantInformation(variantId)
-          ).spread((resp2: NCResponse<ProductAvailability>,
-                    resp3: NCResponse<{product: ShopifiedProduct, variant: ShopifiedVariant}>) => {
-            if (resp2.status && resp2.data && resp3.status && resp3.data) {
+          return LocalShopService.getVariantAvailability(variantId).then((resp2: NCResponse<ProductAvailability>) => {
+            if (resp2.status && resp2.data) {
               const availability = resp2.data
+              log.verbose(TAG, `addOrderDetail(): quantity=${quantity} availability.quantity=${availability.quantity}`)
               if (availability.status === 'readyStock' && quantity > (availability.quantity || 0)) {
                 return { status: false, errMessage: `Only ${availability.quantity} ready stock(s) left!` }
               }
-              const price = resp3.data.product.shopPrice
-              const orderDetailStatus = availability.status === 'preOrder' ? 'PO' : 'Ready'
-              return super.create<OrderDetail>('OrderDetail', { variantId, orderId, status: orderDetailStatus, quantity, price })
+              if (availability.status === 'preOrder') {
+                return this.addPOOrderDetail(orderId, variantId, quantity)
+              } else {
+                return this.addInStockOrderDetail(orderId, variantId, quantity)
+              }
             } else {
-              return { status: false, errMessage: 'Failed to get variant information: ' + resp2.errMessage || resp3.errMessage }
+              return { status: false, errMessage: 'Failed to get variant information: ' + resp2.errMessage }
             }
           })
         } else {

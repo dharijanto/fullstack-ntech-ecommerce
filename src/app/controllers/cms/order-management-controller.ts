@@ -150,7 +150,7 @@ export default class OrderManagementController extends BaseController {
     super.routePost('/order-detail', (req, res, next) => {
       const orderId = req.query.orderId
       const variantId = req.body.variantId
-      const quantity = req.body.quantity
+      const quantity = parseInt(req.body.quantity, 10)
       OrderService.addOrderDetail(orderId, variantId, quantity).then(res.json.bind(res)).catch(next)
     })
 
