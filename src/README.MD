@@ -23,6 +23,10 @@ sudo sysctl -w kernel.unprivileged_userns_clone=1
 lp -d POS58 -o fit-to-page output.pdf
 ```
 
+# Search
+Search is implemented using Sphinx Search. Sphinx indexes data from mysql periodically, when there's new data
+from cloud. Config file can be found at configs/sphinx.conf
+
 # Test
 ## Unit Test
 
@@ -35,4 +39,3 @@ lp -d POS58 -o fit-to-page output.pdf
   -Check the view is consistent for:
     -shopProduct data correctly overrides product
     -stockQuantity is consistent with stock - order
-* 

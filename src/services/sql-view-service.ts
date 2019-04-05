@@ -245,6 +245,23 @@ GROUP BY orders.id
 );`)
   }
 
+  // This is order details prepared for customers
+  // For example, customer doesn't need to know about aisle information, instead
+  // we group them together.
+  createCustomerOrderDetailsView () {
+    return super.getSequelize().query(`
+CREATE VIEW customerOrderDetailsView AS
+(
+SELECT orderId, SUM(quantity) AS quantity, price, status,
+       variantName, productName, preOrderDuration
+FROM orderDetailsView
+GROUP BY orderId, productId, variantId, price, status, variantName, productName, preOrderDuration
+)
+`)
+  }
+
+  // The raw order details, but appended with additional information to make it
+  // more understandable
   createOrderDetailsView () {
     return super.getSequelize().query(`
 CREATE VIEW orderDetailsView AS
@@ -287,7 +304,7 @@ INNER JOIN shopifiedProductsView ON promotions.productId = shopifiedProductsView
 
     const views = ['shopStocksView', 'poOrdersView', 'inStockOrdersView', 'shopifiedProductsView', 'shopifiedVariantsView',
       'inStockProductsView', 'inStockVariantsView', 'poProductsView', 'poVariantsView',
-      'ordersView', 'orderDetailsView', 'shopifiedPromotionsView']
+      'ordersView', 'orderDetailsView', 'customerOrderDetailsView', 'shopifiedPromotionsView']
 
     return views.reduce((acc, view) => {
       return acc.then(() => {
@@ -317,6 +334,7 @@ INNER JOIN shopifiedProductsView ON promotions.productId = shopifiedProductsView
       this.createPOVariantsView,
       this.createOrderView,
       this.createOrderDetailsView,
+      this.createCustomerOrderDetailsView,
       this.createShopifiedPromotionsViews
     ]
     return this.destroyViews().then(result => {

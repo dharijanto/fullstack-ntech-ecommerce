@@ -18,7 +18,7 @@ block description
       label Varian:
       select#select-variant
         each variant in product.variants
-          option(data-id=variant.id data-quantity=variant.stockQuantity) #{variant.id} - #{variant.name}
+          option(data-id=variant.id data-quantity=Math.min(10, variant.stockQuantity)) #{variant.id} - #{variant.name}
     .detail
       label Quantity:
       select#select-quantity

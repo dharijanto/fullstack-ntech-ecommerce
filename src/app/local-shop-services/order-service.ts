@@ -37,6 +37,16 @@ export interface OrderReceipt {
   }[]
 }
 
+interface CustomerOrderDetail {
+  orderId: number
+  quantity: number
+  price: number
+  status: 'PO' | 'Ready'
+  variantName: string
+  productName: string
+  preOrderDuration: number
+}
+
 /*
   Used for shop-specific code. This should re-use what's in shop-service as much as possible, though.
 
@@ -81,6 +91,17 @@ class LocalOrderService extends CRUDService {
 
   getOrderDetails (orderId) {
     return OrderService.getOrderDetails(orderId)
+  }
+
+  getCustomerOrderDetails (orderId): Promise<NCResponse<CustomerOrderDetail[]>> {
+    return this.getSequelize().query(`SELECT * FROM customerOrderDetailsView WHERE orderId = ${orderId}`,
+      { type: this.getSequelize().QueryTypes.SELECT }).then(result => {
+        if (result) {
+          return { status: true, data: result }
+        } else {
+          return { status: false }
+        }
+      })
   }
 
   addOrder (data: Partial<Order>): Promise<NCResponse<Order>> {
@@ -323,6 +344,8 @@ class LocalOrderService extends CRUDService {
     }))
   }
 
+  // TODO: Modify this so we grouped the order details by variantId, because we customers don't
+  //       need aisle information
   getReceipt (orderId: number): Promise<NCResponse<OrderReceipt>> {
     if (orderId) {
       return OrderService.getOrder(orderId).then(resp => {
@@ -340,7 +363,7 @@ class LocalOrderService extends CRUDService {
               printDate: moment().format('DD-MM-YY HH:mm'),
               items: []
             }
-            return this.getOrderDetails(orderId).then(resp => {
+            return this.getCustomerOrderDetails(orderId).then(resp => {
               if (resp.status && resp.data) {
                 resp.data.forEach(orderDetail => {
                   receipt.items.push({
