@@ -33,17 +33,23 @@ html
               li
                 a(href="#menu") Menu
       nav#category-nav
-            ul#categories-top
-              for category in categories
-                li
-                  a(href=getCategoryURL(category))= category.name
-                  div#subcategories-layout
-                    for subCategory in category.subCategories
-                      article.style2
-                        a(href=getSubCategoryURL(category, subCategory))
-                          span.image
-                            img.img-fluid(src=`${getImageURL(subCategory.imageFilename)}` alt="")
-                            h2= subCategory.name
+        form#search-bar(action="/search" method="GET")
+          // form
+          input(type="search" placeholder="Search here..." name="query" value=`${searchQuery || ''}`)
+          button(type="submit")
+            i.fa.fa-search
+        ul#categories-top
+          for category in categories
+            li
+              a(href=getCategoryURL(category))= category.name
+              div#subcategories-layout
+                for subCategory in category.subCategories
+                  article.style2
+                    a(href=getSubCategoryURL(category, subCategory))
+                      span.image
+                        img.img-fluid(src=`${getImageURL(subCategory.imageFilename)}` alt="")
+                        h2= subCategory.name
+
       // Menu
       nav#menu
         include include/menu
@@ -51,7 +57,7 @@ html
       #main
         .inner
           block content
-            
+
       // Footer
       footer#footer
         .inner

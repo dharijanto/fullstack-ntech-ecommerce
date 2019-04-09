@@ -57,14 +57,15 @@ $(document).ready(() => {
     table: {
       ui: [
         { id: 'id', desc: 'ID', dataTable: true, input: 'hidden', disabled: true },
-        { id: 'createdAt', desc: 'Date Created', dataTable: true, input: 'hidden', disabled: true },
-        { id: 'updatedAt', desc: 'Date Updated', dataTable: true, input: 'hidden', disabled: true },
         { id: 'name', desc: 'Name', dataTable: true, input: 'hidden' },
-        { id: 'price', desc: 'Price', dataTable: true, input: 'hidden' }
+        { id: 'price', desc: 'Price', dataTable: true, input: 'hidden' },
+        { id: 'suppliersCount', desc: '# Suppliers', dataTable: true, input: 'hidden' },
+        { id: 'createdAt', desc: 'Date Created', dataTable: true, input: 'hidden', disabled: true },
+        { id: 'updatedAt', desc: 'Date Updated', dataTable: true, input: 'hidden', disabled: true }
       ],
       conf: {
         order: [['updatedAt', 'desc']],
-        getURL: `/${window['siteHash']}/product-management/products` ,
+        getURL: `/${window['siteHash']}/supplier-management/products` ,
         numColumn: 3,
         onRowClicked: (data: Product) => {
           product = data
@@ -91,15 +92,16 @@ $(document).ready(() => {
     table: {
       ui: [
         { id: 'id', desc: 'ID', dataTable: true, input: 'hidden', disabled: true },
+        { id: 'name', desc: 'Name', dataTable: true, input: 'hidden' },
+        { id: 'suppliersCount', desc: '# Suppliers', dataTable: true, input: 'hidden' },
         { id: 'createdAt', desc: 'Date Created', dataTable: true, input: 'hidden', disabled: true },
-        { id: 'updatedAt', desc: 'Date Updated', dataTable: true, input: 'hidden', disabled: true },
-        { id: 'name', desc: 'Name', dataTable: true, input: 'hidden' }
+        { id: 'updatedAt', desc: 'Date Updated', dataTable: true, input: 'hidden', disabled: true }
       ],
       conf: {
         order: [['updatedAt', 'desc']],
         getURL: () => {
           const productId = product ? product.id : null
-          return `/${window['siteHash']}/product-management/variants?productId=${productId}`
+          return `/${window['siteHash']}/supplier-management/variants?productId=${productId}`
         },
         numColumn: 3,
         onRowClicked: (data: Variant) => {
@@ -122,11 +124,11 @@ $(document).ready(() => {
     table: {
       ui: [
         { id: 'id', desc: 'ID', dataTable: true, input: 'hidden', disabled: true },
-        { id: 'createdAt', desc: 'Date Created', dataTable: true, input: 'hidden', disabled: true },
-        { id: 'updatedAt', desc: 'Date Updated', dataTable: true, input: 'hidden', disabled: true },
         { id: 'productName', desc: 'Product Name', dataTable: true, input: 'text', disabled: true },
-        { id: 'price', desc: 'Supplier Price', dataTable: true, input: 'text' },
-        { id: 'updatedAt', desc: 'Updated At', dataTable: true, input: 'date', data: { dateFormat: 'YYYY-MM-DD' } }
+        { id: 'variantName', desc: 'Variant Name', dataTable: true, input: 'text', disabled: true },
+        { id: 'supplierPrice', desc: 'Supplier Price', dataTable: true, input: 'text' },
+        { id: 'createdAt', desc: 'Date Created', dataTable: true, input: 'hidden', disabled: true },
+        { id: 'updatedAt', desc: 'Date Updated', dataTable: true, input: 'hidden', disabled: true }
       ],
       conf: {
         order: [['updatedAt', 'desc']],
@@ -149,6 +151,10 @@ $(document).ready(() => {
       ],
       conf: {
         networkTimeout: Config.NETWORK_TIMEOUT // timeout for postTo request
+      },
+      onPostFinished: (id, successOrFailed, response) => {
+        ncProduct.reloadTable()
+        ncVariant.reloadTable()
       }
     }
   })

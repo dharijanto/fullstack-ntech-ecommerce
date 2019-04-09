@@ -1,82 +1,161 @@
 doctype html
-//
-  Phantom by HTML5 UP
-  html5up.net | @ajlkn
-  Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
 html
   head
-    block head
-      title Phantom by HTML5 UP
-      meta(charset='utf-8')
-      meta(name='viewport', content='width=device-width, initial-scale=1, user-scalable=no')
-      link(rel="stylesheet" href="/assets/vendor/bootstrap/bootstrap.min.css")
-      link(rel="stylesheet" href="/assets/css/ntech-cms.css")
-      link(rel="stylesheet" href="/assets/css/main-cms.css")
-      link(rel="stylesheet" type="text/css" href=`/assets/vendor/toastr/toastr.css`)
-      // NC Input Library
-      link(rel="stylesheet" type="text/css" href=`/assets/vendor/datatables/datatables.min.css`)
-      link(rel="stylesheet" type="text/css" href=`/assets/css/nprogress.css`)
-      link(rel="stylesheet" type="text/css" href=`/assets/css/nc-input-library.css`)
-      link(rel="stylesheet" type="text/css" href=`/assets/vendor/select2/select2.css`)
-      noscript
-        link(rel="stylesheet" href="/assets/css/noscript.css")
-  body.is-preload
-    // Wrapper
-    #wrapper
-      // Header
-      header#header
-        .inner
-          // Logo
-          a.logo(href='/cms')
-            span.symbol
-              img(src='/assets/images/logo.svg', alt='')
-            span.title Nusantara Gizmo Management System
-          // Nav
-          nav
-            ul
-              li
-                a(href='#menu') Menu
-      // Menu
-      nav#menu
-        h2 Menu
-        ul
-          li
-            a(href='/cms/order-management/open-order-management') Open Order Management
-          li
-            a(href='/cms/order-management/closed-order-management') Closed Order Management
-          li
-            a(href='/cms/product-management/') Product Management
-          li
-            a(href='/cms/promotion-management/') Promotion Management
-          li
-            a(href='/cms/stock-in') Stock In
-          li
-            a(href='/cms/stock-opname') Stock Opname
-          li
-            a(href='/cms/price-list') Price List
-      // Main
-      #main
-        .inner
-          block content
+    meta(charset='utf-8')
+    meta(name='viewport', content='width=device-width, initial-scale=1')
+    link(href='/assets/vendor/lumino-template/css/bootstrap.min.css', rel='stylesheet')
+    link(href='/assets/vendor/lumino-template/css/font-awesome.min.css', rel='stylesheet')
+    link(href='/assets/vendor/lumino-template/css/datepicker3.css', rel='stylesheet')
+    link(rel="stylesheet" type="text/css" href=`/assets/vendor/toastr/toastr.css`)
+    link(href='/assets/css/cms.css', rel='stylesheet')
 
-      // Footer
-      footer#footer
-        .inner
-          section
-          ul.copyright
-            li © Nusantara Gizmo. All rights reserved
+    //NC Input Library
+    link(rel="stylesheet" type="text/css" href=`/assets/vendor/datatables/datatables.min.css`)
+    link(rel="stylesheet" type="text/css" href=`/assets/vendor/datatables/responsive.bootstrap.min.css`)
+    link(rel="stylesheet" type="text/css" href=`/assets/css/nprogress.css`)
+    link(rel="stylesheet" type="text/css" href=`/assets/css/nc-input-library.css`)
+    link(rel="stylesheet" type="text/css" href=`/assets/vendor/select2/select2.css`)
+    block head
+      title Nusantara Gizmo - Dashboard
+  body
+    nav.navbar.navbar-custom.navbar-fixed-top(role='navigation')
+      .container-fluid
+        .navbar-header
+          button.navbar-toggle.collapsed(type='button', data-toggle='collapse', data-target='#sidebar-collapse')
+            span.sr-only Toggle navigation
+            span.icon-bar
+            span.icon-bar
+            span.icon-bar
+          a.navbar-brand(href='#')
+            span Nusantara
+            |  Gizmo
+          ul.nav.navbar-top-links.navbar-right
+            li.dropdown
+              a.dropdown-toggle.count-info(data-toggle='dropdown', href='#')
+                em.fa.fa-envelope
+                span.label.label-danger
+                  // 15
+              ul.dropdown-menu.dropdown-messages
+                //
+                  <li>
+                  <div class="dropdown-messages-box"><a href="profile.html" class="pull-left">
+                  <img alt="image" class="img-circle" src="http://placehold.it/40/30a5ff/fff">
+                  </a>
+                  <div class="message-body"><small class="pull-right">3 mins ago</small>
+                  <a href="#"><strong>John Doe</strong> commented on <strong>your photo</strong>.</a>
+                  <br /><small class="text-muted">1:24 pm - 25/03/2015</small></div>
+                  </div>
+                  </li>
+                  <li class="divider"></li>
+                  <li>
+                  <div class="dropdown-messages-box"><a href="profile.html" class="pull-left">
+                  <img alt="image" class="img-circle" src="http://placehold.it/40/30a5ff/fff">
+                  </a>
+                  <div class="message-body"><small class="pull-right">1 hour ago</small>
+                  <a href="#">New message from <strong>Jane Doe</strong>.</a>
+                  <br /><small class="text-muted">12:27 pm - 25/03/2015</small></div>
+                  </div>
+                  </li>
+                  <li class="divider"></li>
+                li
+                  .all-button
+                    a(href='#')
+                      em.fa.fa-inbox
+                      strong All Messages
+            li.dropdown
+              a.dropdown-toggle.count-info(data-toggle='dropdown', href='#')
+                em.fa.fa-bell
+                span.label.label-info
+                  // 5
+              ul.dropdown-menu.dropdown-alerts
+                //
+                  <li><a href="#">
+                  <div><em class="fa fa-envelope"></em> 1 New Message
+                  <span class="pull-right text-muted small">3 mins ago</span></div>
+                  </a></li>
+                  <li class="divider"></li>
+                  <li><a href="#">
+                  <div><em class="fa fa-heart"></em> 12 New Likes
+                  <span class="pull-right text-muted small">4 mins ago</span></div>
+                  </a></li>
+                  <li class="divider"></li>
+                  <li><a href="#">
+                  <div><em class="fa fa-user"></em> 5 New Followers
+                  <span class="pull-right text-muted small">4 mins ago</span></div>
+                  </a></li>
+      // /.container-fluid
+    #sidebar-collapse.col-sm-3.col-lg-2.sidebar
+      .profile-sidebar
+        .profile-userpic
+          img.img-responsive(src='http://placehold.it/50/30a5ff/fff', alt='')
+        .profile-usertitle
+          .profile-usertitle-name Username
+          .profile-usertitle-status
+            span.indicator.label-success
+            | Online
+        .clear
+      .divider
+      ul.nav.menu
+        li.active
+          a(href='index.html')
+            em.fa.fa-dashboard  
+            |  Dashboard
+        li.parent
+          a(data-toggle='collapse', href='#order-management')
+            em.fa.fa-navicon
+            |  Order Management
+            span.icon.pull-right(data-toggle='collapse', href='#order-management')
+              em.fa.fa-plus
+          ul#order-management.children.collapse
             li
-              | Design:
-              a(href='http://html5up.net') HTML5 UP
+              a(href='/cms/order-management/open-order-management')
+                span.fa.fa-arrow-right  
+                |  Open Order
             li
-              | Demo Images:
-              a(href='http://unsplash.com') Unsplash
-    // Scripts
+              a(href='/cms/order-management/closed-order-management')
+                span.fa.fa-arrow-right  
+                |  Close Order
+        li.parent
+          a(data-toggle='collapse', href='#stock-management')
+            em.fa.fa-navicon
+            |  Stock Management
+            span.icon.pull-right(data-toggle='collapse', href='#stock-management')
+              em.fa.fa-plus
+          ul#stock-management.children.collapse
+            li
+              a(href='/cms/stock-management/aisle-management')
+                span.fa.fa-arrow-right  
+                | Aisle Management
+            li
+              a(href='/cms/stock-management/in-management')
+                span.fa.fa-arrow-right
+                |  In Management
+        li.parent
+          a(data-toggle='collapse', href='#shop-management')
+            em.fa.fa-navicon
+            |  Shop Management
+            span.icon.pull-right(data-toggle='collapse', href='#shop-management')
+              em.fa.fa-plus
+          ul#shop-management.children.collapse
+            li
+              a(href='/cms/product-management')
+                span.fa.fa-arrow-right  
+                | Product Management
+            li
+              a(href='/cms/promotion-management')
+                span.fa.fa-arrow-right
+                |  Promotion Management
+
+        li
+          a(href='login.html')
+            em.fa.fa-power-off  
+            |  Logout
+    // /.sidebar
+    .col-sm-9.col-sm-offset-3.col-lg-10.col-lg-offset-2.main
+      block content
+    // /.main
+    script(src="/assets/js/jquery.min.js")
+    // script(src='/assets/vendor/lumino-template/js/jquery-1.11.1.min.js')
+    script(src='/assets/vendor/lumino-template/js/bootstrap.min.js')
+    script(src='/assets/vendor/lumino-template/js/custom.js')
     block scripts
-      script(src="/assets/js/jquery.min.js")
-      script(src="/assets/js/browser.min.js")
-      script(src="/assets/js/breakpoints.min.js")
-      script(src="/assets/js/util.js")
-      script(src="/assets/js/main.js")
-      script(src="/assets/vendor/bootstrap/bootstrap.min.js")
-      script(src="/assets/vendor/bootstrap/popper.min.js")

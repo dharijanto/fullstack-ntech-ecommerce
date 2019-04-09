@@ -1,0 +1,84 @@
+doctype html
+//
+  Phantom by HTML5 UP
+  html5up.net | @ajlkn
+  Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+html
+  head
+    block head
+      title Phantom by HTML5 UP
+      meta(charset='utf-8')
+      meta(name='viewport', content='width=device-width, initial-scale=1, user-scalable=no')
+      link(rel="stylesheet" href="/assets/vendor/bootstrap/bootstrap.min.css")
+      link(rel="stylesheet" href="/assets/css/ntech-cms.css")
+      link(rel="stylesheet" href="/assets/css/main-cms.css")
+      link(rel="stylesheet" type="text/css" href=`/assets/vendor/toastr/toastr.css`)
+      // NC Input Library
+      link(rel="stylesheet" type="text/css" href=`/assets/vendor/datatables/datatables.min.css`)
+      link(rel="stylesheet" type="text/css" href=`/assets/css/nprogress.css`)
+      link(rel="stylesheet" type="text/css" href=`/assets/css/nc-input-library.css`)
+      link(rel="stylesheet" type="text/css" href=`/assets/vendor/select2/select2.css`)
+      noscript
+        link(rel="stylesheet" href="/assets/css/noscript.css")
+  body.is-preload
+    // Wrapper
+    #wrapper
+      // Header
+      header#header
+        .inner
+          // Logo
+          a.logo(href='/cms')
+            span.symbol
+              img(src='/assets/images/logo.svg', alt='')
+            span.title Nusantara Gizmo Management System
+          // Nav
+          nav
+            ul
+              li
+                a(href='#menu') Menu
+      // Menu
+      nav#menu
+        h2 Menu
+        ul
+          li
+            a(href='/cms/order-management/open-order-management') Open Order Management
+          li
+            a(href='/cms/order-management/closed-order-management') Closed Order Management
+          li
+            a(href='/cms/product-management/') Product Management
+          li
+            a(href='/cms/promotion-management/') Promotion Management
+          li
+            a(href='/cms/stock-management/aisle-management') Stock Aisle
+          li
+            a(href='/cms/stock-management/in') Stock In
+          li
+            a(href='/cms/stock-management/opname') Stock Opname
+          li
+            a(href='/cms/price-list') Price List
+      // Main
+      #main
+        .inner
+          block content
+
+      // Footer
+      footer#footer
+        .inner
+          section
+          ul.copyright
+            li © Nusantara Gizmo. All rights reserved
+            li
+              | Design:
+              a(href='http://html5up.net') HTML5 UP
+            li
+              | Demo Images:
+              a(href='http://unsplash.com') Unsplash
+    // Scripts
+    block scripts
+      script(src="/assets/js/jquery.min.js")
+      script(src="/assets/js/browser.min.js")
+      script(src="/assets/js/breakpoints.min.js")
+      script(src="/assets/js/util.js")
+      script(src="/assets/js/main.js")
+      script(src="/assets/vendor/bootstrap/bootstrap.min.js")
+      script(src="/assets/vendor/bootstrap/popper.min.js")
