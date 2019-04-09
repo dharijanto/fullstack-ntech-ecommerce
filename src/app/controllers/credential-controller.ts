@@ -1,8 +1,7 @@
 import BaseController from './base-controller'
-var path = require('path')
-
-var passport = require('passport')
-var log = require('npmlog')
+let path = require('path')
+let passport = require('passport')
+let log = require('npmlog')
 
 /* var PassportHelper = require(path.join(__dirname, '../utils/passport-helper')) */
 

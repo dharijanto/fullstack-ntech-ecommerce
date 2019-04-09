@@ -1837,6 +1837,7 @@ button,
   #category-nav ul#categories-top {
     display: flex;
     position: relative;
+    padding: 0;
     width: 100%;
     margin: auto;
     list-style: none; }
@@ -1862,6 +1863,16 @@ button,
       #category-nav ul#categories-top #subcategories-layout article {
         width: calc(20% - 2.5em);
         margin: 1.25em; }
+  #category-nav #search-bar {
+    width: 95%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 2%;
+    display: flex; }
+    #category-nav #search-bar input {
+      width: 100%;
+      background-color: #faf6f6;
+      padding: 0 1% 0 1%; }
 
 /* Menu */
 #wrapper {

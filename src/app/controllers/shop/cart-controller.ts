@@ -1,7 +1,7 @@
-import BaseController from './base-controller'
-import CartService from '../local-shop-services/cart-service'
-import { SiteData } from '../../site-definitions'
-import LocalShopService from '../local-shop-services/local-shop-service'
+import BaseController from '../base-controller'
+import CartService from '../../local-shop-services/cart-service'
+import { SiteData } from '../../../site-definitions'
+import LocalShopService from '../../local-shop-services/local-shop-service'
 
 const path = require('path')
 

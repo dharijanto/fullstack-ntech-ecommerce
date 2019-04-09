@@ -9,6 +9,7 @@
   ul#categories-top {
     display: flex;
     position: relative;
+    padding: 0;
     // padding: 0 5% 0 5%;
     width: 100%;
     margin: auto;
@@ -42,6 +43,20 @@
         width: calc(20% - 2.5em);
         margin: 1.25em;
       }
+    }
+  }
+
+  #search-bar {
+    width: 95%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 2%;
+    display: flex;
+
+    input {
+      width: 100%;
+      background-color: #faf6f6;
+      padding: 0 1% 0 1%;
     }
   }
 }

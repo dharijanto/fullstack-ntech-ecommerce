@@ -60,7 +60,7 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
     primary: { type: Sequelize.BOOLEAN }
   }, {
     indexes: [
-      { fields: ['productId', 'imageFilename'], unique: true }
+      // { fields: ['productId', 'imageFilename'], unique: true }
     ],
     paranoid: true
   })
@@ -87,7 +87,7 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
     date: { type: Sequelize.DATE }
   }, {
     indexes: [
-      { fields: ['supplierId', 'variantId'], unique: true }
+      // { fields: ['supplierId', 'variantId'], unique: true }
     ],
     paranoid: true
   })

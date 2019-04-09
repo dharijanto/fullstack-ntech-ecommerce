@@ -54,7 +54,7 @@ export default class ProductManagementController extends BaseController {
     })
 
     super.routeGet('/subCategories', (req, res, next) => {
-      ProductService.getSubCategories(req.query.categoryId).then(resp => {
+      ProductService.getSubCategories({ categoryId: req.query.categoryId }).then(resp => {
         res.json(resp)
       }).catch(next)
     })

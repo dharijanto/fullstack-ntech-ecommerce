@@ -58,8 +58,8 @@ class ProductService extends CRUDService {
     return super.create('SubCategory', data)
   }
 
-  getSubCategories (categoryId) {
-    return super.read<SubCategory>('SubCategory', { categoryId })
+  getSubCategories (searchClause): Promise<NCResponse<SubCategory[]>> {
+    return super.read<SubCategory>('SubCategory', searchClause)
   }
 
   /* getSubCategory (searchClause: Partial<Category>) {

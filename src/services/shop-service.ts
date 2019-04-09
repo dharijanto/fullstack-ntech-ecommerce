@@ -44,16 +44,25 @@ class ShopService extends CRUDService {
       })
   }
 
-  // TODO: Limit should be done on the final queries. Solution is to add categoryId on SQL view
+  /*
+    productId: undefined -> disregard it
+               number/string -> single product
+               array -> products with matching ids
+   */
   getInStockProducts ({ pageSize = 10, pageIndex = 0,
                         productId = null, categoryId = null,
                         subCategoryId = null }, shopId): Promise<NCResponse<{ products: InStockProduct[], totalProducts: number }>> {
-    if (productId !== null && !Utils.isNumber(productId)) {
-      return Promise.reject('productId has to be number!')
+    if (productId !== null && !(Utils.isNumber(productId) || Array.isArray(productId))) {
+      return Promise.reject('productId has to be number or array! ' + JSON.stringify(productId))
     } else if (categoryId !== null && !Utils.isNumber(categoryId)) {
       return Promise.reject('categoryId has to be number!')
     } else if (subCategoryId !== null && !Utils.isNumber(subCategoryId)) {
       return Promise.reject('subCategoryId has to be number!')
+    }
+
+    // When productId is empty array, we can't pass it to SQL
+    if (Array.isArray(productId) && (productId || []).length === 0) {
+      productId = null
     }
 
     const getQuery = `
@@ -86,7 +95,8 @@ class ShopService extends CRUDService {
     FROM (SELECT *
           FROM inStockProductsView
           WHERE inStockProductsView.shopId = ${shopId}
-                ${productId ? 'AND inStockProductsView.id =' + productId : ''}
+                ${productId && typeof productId !== 'object' ? 'AND inStockProductsView.id =' + productId : ''}
+                ${productId && typeof productId === 'object' ? 'AND inStockProductsView.id IN (' + (productId || []).join(', ') + ')' : ''}
                 ${subCategoryId ? ' AND inStockProductsView.subCategoryId =' + subCategoryId : ''}
                 ${categoryId ? ' AND inStockProductsView.categoryId = ' + categoryId : '' }
           LIMIT ${pageSize * pageIndex}, ${pageSize}
@@ -104,7 +114,8 @@ class ShopService extends CRUDService {
         FROM (SELECT *
               FROM inStockProductsView
               WHERE inStockProductsView.shopId = ${shopId}
-                    ${productId ? 'AND inStockProductsView.id =' + productId : ''}
+                    ${productId && typeof productId !== 'object' ? 'AND inStockProductsView.id =' + productId : ''}
+                    ${productId && typeof productId === 'object' ? 'AND inStockProductsView.id IN (' + (productId || []).join(', ') + ')' : ''}
                     ${subCategoryId ? ' AND inStockProductsView.subCategoryId =' + subCategoryId : ''}
                     ${categoryId ? ' AND inStockProductsView.categoryId = ' + categoryId : '' }
               ) as inStockProductsView;`
@@ -128,12 +139,17 @@ class ShopService extends CRUDService {
   getPOProducts ({ pageSize = 10, pageIndex = 0,
                   productId = null, categoryId = null,
                   subCategoryId = null }, shopId): Promise<NCResponse<{ products: POProduct[], totalProducts: number }>> {
-    if (productId !== null && !Utils.isNumber(productId)) {
+    if (productId !== null && !(Utils.isNumber(productId) || Array.isArray(productId))) {
       return Promise.reject('productId has to be number!')
     } else if (categoryId !== null && !Utils.isNumber(categoryId)) {
       return Promise.reject('categoryId has to be number!')
     } else if (subCategoryId !== null && !Utils.isNumber(subCategoryId)) {
       return Promise.reject('subCategoryId has to be number!')
+    }
+
+    // When productId is empty array, we can't pass it to SQL
+    if (Array.isArray(productId) && (productId || []).length === 0) {
+      productId = null
     }
 
     const getQuery = `
@@ -167,7 +183,8 @@ class ShopService extends CRUDService {
       FROM (SELECT *
         FROM poProductsView
         WHERE poProductsView.shopId = ${shopId}
-              ${productId ? 'AND poProductsView.id =' + productId : ''}
+              ${productId && typeof productId !== 'object' ? 'AND poProductsView.id =' + productId : ''}
+              ${productId && typeof productId === 'object' ? 'AND poProductsView.id IN (' + (productId || []).join(', ') + ')' : ''}
               ${subCategoryId ? 'AND poProductsView.subCategoryId =' + subCategoryId : ''}
               ${categoryId ? ' AND poProductsView.categoryId = ' + categoryId : '' }
         LIMIT ${pageSize * pageIndex}, ${pageSize}
@@ -185,7 +202,8 @@ class ShopService extends CRUDService {
         (SELECT *
           FROM poProductsView
           WHERE poProductsView.shopId = ${shopId}
-                ${productId ? 'AND poProductsView.id =' + productId : ''}
+                ${productId && typeof productId !== 'object' ? 'AND poProductsView.id =' + productId : ''}
+                ${productId && typeof productId === 'object' ? 'AND poProductsView.id IN (' + (productId || []).join(', ') + ')' : ''}
                 ${subCategoryId ? 'AND poProductsView.subCategoryId =' + subCategoryId : ''}
                 ${categoryId ? ' AND poProductsView.categoryId = ' + categoryId : '' }
           ) as poProductsView`
@@ -234,24 +252,40 @@ class ShopService extends CRUDService {
     })
   }
 
+  // To easily figure out which product doesn't have suppliers
+  getProductsWithSuppliersCount () {
+    return super.rawReadQuery(`
+      SELECT products.id id, products.name name,
+              products.price price, MAX(variants.createdAt) createdAt,
+              MAX(variants.updatedAt) updatedAt, COUNT(supplierStocks.id) suppliersCount
+      FROM products
+      INNER JOIN variants ON variants.productId = products.id AND variants.deletedAt IS NULL
+      LEFT OUTER JOIN supplierStocks ON supplierStocks.variantId = variants.id AND supplierStocks.deletedAt IS NULL
+      WHERE products.deletedAt IS NULL
+      GROUP BY products.id, products.name, products.price
+    `)
+  }
+
+  getVariantsWithSupplierCount (productId: number) {
+    if (!productId) {
+      return Promise.reject({ status: false, errMessage: 'productId is required!' })
+    } else {
+      return super.rawReadQuery(`
+        SELECT variants.productId productId, variants.id id, variants.name name,
+               MAX(variants.createdAt) createdAt,
+               MAX(variants.updatedAt) updatedAt, COUNT(supplierStocks.id) suppliersCount
+        FROM variants
+        LEFT OUTER JOIN supplierStocks ON supplierStocks.variantId = variants.id AND supplierStocks.deletedAt IS NULL
+        WHERE variants.deletedAt IS NULL AND variants.productId = ${productId}
+        GROUP BY variants.productId, variants.id, variants.name
+      `)
+    }
+  }
+
   getSupplierStock (supplierId: number) {
-    return this.getModels('SupplierStock').findAll({
-      where: { supplierId },
-      include: [
-        {
-          model: this.getModels('Variant'),
-          required: true,
-          include: [
-            {
-              model: this.getModels('Product'),
-              required: true
-            }
-          ]
-        }
-      ]
-    }).then(data => {
-      return { status: true, data }
-    }).catch(this.errHandler)
+    return this.rawReadQuery(`
+      SELECT * FROM supplierStocksView
+    `)
   }
 
   addSupplierStock ({ supplierId, variantId, price }) {

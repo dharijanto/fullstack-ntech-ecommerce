@@ -32,6 +32,15 @@ export default class SupplierManagementController extends BaseController {
       ShopService.delete<Supplier>('Supplier', { id: req.body.id }).then(res.json.bind(res)).catch(next)
     })
 
+    super.routeGet('/products', (req, res, next) => {
+      ShopService.getProductsWithSuppliersCount().then(res.json.bind(res)).catch(next)
+    })
+
+    super.routeGet('/variants', (req, res, next) => {
+      const productId = req.query.productId
+      ShopService.getVariantsWithSupplierCount(productId).then(res.json.bind(res)).catch(next)
+    })
+
     super.routeGet('/supplier-stocks', (req, res, next) => {
       const supplierId = req.query.supplierId
       if (!supplierId) {

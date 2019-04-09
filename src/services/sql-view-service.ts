@@ -12,6 +12,19 @@ const TAG = 'SQLViewService'
   We have LocalShopService, this is specifically for shop-specific code.
 */
 class SQLViewService extends CRUDService {
+  createSupplierStocksView () {
+    return super.getSequelize().query(`
+      CREATE VIEW supplierStocksView AS
+      (SELECT supplierStocks.id id, products.name AS productName, variants.name AS variantName,
+              supplierStocks.price AS supplierPrice, supplierStocks.createdAt AS createdAt,
+              supplierStocks.updatedAt AS updatedAt
+        FROM supplierStocks
+        INNER JOIN variants ON variants.id = supplierStocks.variantId AND variants.deletedAt IS NULL
+        INNER JOIN products ON products.id = variants.productId AND products.deletedAt IS NULL
+        WHERE supplierStocks.deletedAt IS NULL
+      )
+    `)
+  }
 
   // This is shopStocks aggregated by aisle subtracted by the number of order
   createShopStocksView () {
@@ -302,7 +315,8 @@ INNER JOIN shopifiedProductsView ON promotions.productId = shopifiedProductsView
   destroyViews () {
     log.info(TAG, 'destroyViews()')
 
-    const views = ['shopStocksView', 'poOrdersView', 'inStockOrdersView', 'shopifiedProductsView', 'shopifiedVariantsView',
+    const views = ['supplierStocksView', 'shopStocksView', 'poOrdersView', 'inStockOrdersView',
+      'shopifiedProductsView', 'shopifiedVariantsView',
       'inStockProductsView', 'inStockVariantsView', 'poProductsView', 'poVariantsView',
       'ordersView', 'orderDetailsView', 'customerOrderDetailsView', 'shopifiedPromotionsView']
 
@@ -323,6 +337,7 @@ INNER JOIN shopifiedProductsView ON promotions.productId = shopifiedProductsView
 
   populateViews () {
     const promises: Array<() => Promise<any>> = [
+      this.createSupplierStocksView,
       this.createShopStocksView,
       this.createPOOrdersView,
       this.createInStockOrdersView,

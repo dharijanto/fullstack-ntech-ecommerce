@@ -25,7 +25,11 @@ lp -d POS58 -o fit-to-page output.pdf
 
 # Search
 Search is implemented using Sphinx Search. Sphinx indexes data from mysql periodically, when there's new data
-from cloud. Config file can be found at configs/sphinx.conf
+from cloud.
+
+# Installation
+* Install Sphinx Search
+* Modify Sphinx Search config according to what's on configs/sphinx.conf, make sure to modify localShopId appropriately
 
 # Test
 ## Unit Test
