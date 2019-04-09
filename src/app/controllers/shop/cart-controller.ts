@@ -11,7 +11,7 @@ const TAG = 'MainController'
 
 export default class CartController extends BaseController {
   constructor (siteData: SiteData) {
-    super(Object.assign(siteData, { viewPath: path.join(__dirname, '../views') }))
+    super(Object.assign(siteData, { viewPath: path.join(__dirname, '../../views') }))
 
     // TODO: This should take into account the case where number thing to add > available stocks
     this.routePost('/add-item', (req, res, next) => {

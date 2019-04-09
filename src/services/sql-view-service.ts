@@ -15,8 +15,8 @@ class SQLViewService extends CRUDService {
   createSupplierStocksView () {
     return super.getSequelize().query(`
       CREATE VIEW supplierStocksView AS
-      (SELECT supplierStocks.id id, products.name AS productName, variants.name AS variantName,
-              supplierStocks.price AS supplierPrice, supplierStocks.createdAt AS createdAt,
+      (SELECT supplierStocks.id id, supplierStocks.supplierId supplierId, products.name AS productName, variants.name AS variantName,
+              supplierStocks.price AS price, supplierStocks.createdAt AS createdAt,
               supplierStocks.updatedAt AS updatedAt
         FROM supplierStocks
         INNER JOIN variants ON variants.id = supplierStocks.variantId AND variants.deletedAt IS NULL

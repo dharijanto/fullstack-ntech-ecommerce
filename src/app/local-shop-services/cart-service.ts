@@ -151,7 +151,6 @@ class CartService extends CRUDService {
             return finalResult
           })
         } else {
-          console.log('here')
           return Promise.resolve({ status: false, errMessage: resp.errMessage })
         }
       })

@@ -284,7 +284,7 @@ class ShopService extends CRUDService {
 
   getSupplierStock (supplierId: number) {
     return this.rawReadQuery(`
-      SELECT * FROM supplierStocksView
+      SELECT * FROM supplierStocksView WHERE supplierId = ${supplierId}
     `)
   }
 

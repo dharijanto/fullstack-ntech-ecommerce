@@ -15,21 +15,6 @@ const TAG = 'MainController'
 export default class CartController extends BaseController {
   constructor (siteData: SiteData) {
     super(Object.assign(siteData, { viewPath: path.join(__dirname, '../../views') }))
-    this.addInterceptor((req, res, next) => {
-      ProductService.getCategories({}, true).then(resp => {
-        if (resp.status && resp.data) {
-          Object.keys(Utils).forEach(key => {
-            res.locals[key] = Utils[key]
-          })
-          res.locals.categories = resp.data
-          next()
-        } else {
-          throw new Error('Failed to retrieve categories: ' + resp.errMessage)
-        }
-      }).catch(err => {
-        next(err)
-      })
-    })
 
     this.routeGet('/search', (req, res, next) => {
       log.verbose(TAG, '/search.GET()')

@@ -178,7 +178,7 @@ class LocalOrderService extends CRUDService {
             }
           })
         } else {
-          console.log('status=' + JSON.stringify(resp.data))
+          // console.log('status=' + JSON.stringify(resp.data))
           return { status: false, errMessage: 'Only open order can be closed!' }
         }
       } else {

@@ -29,7 +29,7 @@ export default class CMSController extends BaseController {
     super.routeGet('/price-list', (req, res, next) => {
       LocalShopService.getProductsByCategories().then(resp => {
         if (resp.status && resp.data) {
-          console.log(JSON.stringify(resp.data, null, 2))
+          // console.log(JSON.stringify(resp.data, null, 2))
           res.locals.lastUpdated = resp.data.lastUpdated
           res.locals.categories = resp.data.categories
           res.render('cms/price-list')

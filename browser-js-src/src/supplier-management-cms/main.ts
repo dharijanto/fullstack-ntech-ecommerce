@@ -126,7 +126,7 @@ $(document).ready(() => {
         { id: 'id', desc: 'ID', dataTable: true, input: 'hidden', disabled: true },
         { id: 'productName', desc: 'Product Name', dataTable: true, input: 'text', disabled: true },
         { id: 'variantName', desc: 'Variant Name', dataTable: true, input: 'text', disabled: true },
-        { id: 'supplierPrice', desc: 'Supplier Price', dataTable: true, input: 'text' },
+        { id: 'price', desc: 'Supplier Price', dataTable: true, input: 'text' },
         { id: 'createdAt', desc: 'Date Created', dataTable: true, input: 'hidden', disabled: true },
         { id: 'updatedAt', desc: 'Date Updated', dataTable: true, input: 'hidden', disabled: true }
       ],

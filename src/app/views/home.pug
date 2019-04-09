@@ -5,37 +5,42 @@ block content
   #home
     section.promotion
       h2 Promoted Products
-      section.tiles
-        each promotion in promotions
-          article
-            span.image
-              img(src=`${getImageURL(promotion.imageFilename)}`)
-            a(href=`${getPromotionURL(promotion)}`)
-              .content
-                p
-                  =promotion.name
-                  br
-                  =promotion.productName
-
-    section.promotion.small-promotion.with-header
-      section.tiles
-        each smallPromotion in smallPromotions
+      if promotions.length > 0
+        section.tiles
+          each promotion in promotions
             article
               span.image
-                img(src=`${getImageURL(smallPromotion.imageFilename)}`)
-              a(href=`${getPromotionURL(smallPromotion)}`)
+                img(src=`${getImageURL(promotion.imageFilename)}`)
+              a(href=`${getPromotionURL(promotion)}`)
                 .content
                   p
-                    =smallPromotion.name
+                    =promotion.name
                     br
-                    =smallPromotion.productName
+                    =promotion.productName
+        br
+
+    section.promotion.small-promotion.with-header
+      if smallPromotions.length > 0
+        section.tiles
+          each smallPromotion in smallPromotions
+              article
+                span.image
+                  img(src=`${getImageURL(smallPromotion.imageFilename)}`)
+                a(href=`${getPromotionURL(smallPromotion)}`)
+                  .content
+                    p
+                      =smallPromotion.name
+                      br
+                      =smallPromotion.productName
     section.product-catalog
       h2 Produk - Ready Stock
-      section.tiles#in-stock-products
-        +renderProducts(inStockProducts)
-      +renderPagination(currentInStockProductPage, inStockProductTotalPage, getHomeURL('__pageNumber', currentPOProductPage, 'in-stock-products'))
+      if inStockProducts.length > 0
+        section.tiles#in-stock-products
+          +renderProducts(inStockProducts)
+        +renderPagination(currentInStockProductPage, inStockProductTotalPage, getHomeURL('__pageNumber', currentPOProductPage, 'in-stock-products'))
     section.product-catalog
       h2 Produk - Pre-Order
-      section.tiles#po-products
-        +renderProducts(poProducts)
-      +renderPagination(currentPOProductPage, poProductTotalPage, getHomeURL(currentInStockProductPage, '__pageNumber', 'po-products'))
+      if poProducts.length > 0
+        section.tiles#po-products
+          +renderProducts(poProducts)
+        +renderPagination(currentPOProductPage, poProductTotalPage, getHomeURL(currentInStockProductPage, '__pageNumber', 'po-products'))
