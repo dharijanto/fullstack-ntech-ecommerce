@@ -2,7 +2,7 @@ import * as express from 'express'
 import * as Promise from 'bluebird'
 import * as pug from 'pug'
 
-import AppConfig from '../../../app-config'
+import * as AppConfig from '../../../app-config'
 import BaseController from '../base-controller'
 import ShopService from '../../../services/shop-service'
 import LocalShopService from '../../local-shop-services/local-shop-service'

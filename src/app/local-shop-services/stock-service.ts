@@ -4,7 +4,7 @@ import * as Promise from 'bluebird'
 import { Model } from 'sequelize'
 import * as moment from 'moment'
 
-import AppConfig from '../../app-config'
+import * as AppConfig from '../../app-config'
 import CRUDService from '../../services/crud-service'
 import LocalShopService from './local-shop-service'
 import ShopService from '../../services/shop-service'

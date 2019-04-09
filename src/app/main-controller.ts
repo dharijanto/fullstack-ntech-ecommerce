@@ -1,7 +1,7 @@
 import * as express from 'express'
 import * as Promise from 'bluebird'
 
-import AppConfig from '../app-config'
+import * as AppConfig from '../app-config'
 import BaseController from './controllers/base-controller'
 import CartController from './controllers/shop/cart-controller'
 import CMSController from './controllers/cms-controller'

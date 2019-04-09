@@ -1,5 +1,5 @@
 import * as express from 'express'
-import AppConfig from '../../app-config'
+import * as AppConfig from '../../app-config'
 import * as Promise from 'bluebird'
 
 import BaseController from './base-controller'

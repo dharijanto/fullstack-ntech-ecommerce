@@ -5,7 +5,7 @@ import { Model } from 'sequelize'
 import * as moment from 'moment'
 import * as log from 'npmlog'
 
-import AppConfig from '../../app-config'
+import * as AppConfig from '../../app-config'
 import CRUDService from '../../services/crud-service'
 import LocalShopService from './local-shop-service'
 import OrderService from '../../services/order-service'

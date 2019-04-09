@@ -1,6 +1,6 @@
 import * as Sequelize from 'sequelize'
 
-import AppConfig from '../app-config'
+import * as AppConfig from '../app-config'
 import SearchService from '../services/search-service'
 import SequelizeService from '../services/sequelize-service'
 import LocalShopService from '../app/local-shop-services/local-shop-service'

@@ -5,7 +5,7 @@ import ShopService from '../../services/shop-service'
 import { Model } from 'sequelize'
 import * as Promise from 'bluebird'
 
-import AppConfig from '../../app-config'
+import * as AppConfig from '../../app-config'
 import * as Utils from '../../libs/utils'
 
 export interface VariantAvailability {

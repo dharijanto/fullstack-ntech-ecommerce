@@ -5,7 +5,7 @@ import { ImageService } from '../../site-definitions'
 
 import * as Utils from '../../libs/utils'
 
-import AppConfig from '../../app-config'
+import * as AppConfig from '../../app-config'
 
 let log = require('npmlog')
 

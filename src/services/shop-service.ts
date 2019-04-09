@@ -4,7 +4,7 @@ import { Model, Instance, Op } from 'sequelize'
 import * as Promise from 'bluebird'
 
 import { CRUDService } from './crud-service'
-import AppConfig from '../app-config'
+import * as AppConfig from '../app-config'
 import * as Utils from '../libs/utils'
 
 /*

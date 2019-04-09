@@ -3,7 +3,7 @@ import BaseController from './base-controller'
 import OrderService from '../../services/order-service'
 import { ImageService } from '../../site-definitions'
 
-import AppConfig from '../../app-config'
+import * as AppConfig from '../../app-config'
 import ShopService from '../../services/shop-service'
 
 let log = require('npmlog')

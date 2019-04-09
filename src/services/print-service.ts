@@ -3,7 +3,7 @@ import * as path from 'path'
 // import * as Promise from 'bluebird'
 import * as puppeteer from 'puppeteer'
 import * as printer from 'printer'
-import AppConfig from '../app-config'
+import * as AppConfig from '../app-config'
 
 // TODO:
 /*

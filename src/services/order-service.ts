@@ -2,7 +2,7 @@ import { CRUDService } from './crud-service'
 import { Model, Instance, Sequelize } from 'sequelize'
 import * as Promise from 'bluebird'
 
-import AppConfig from '../app-config'
+import * as AppConfig from '../app-config'
 
 /*
   This is used to do shop management.

@@ -7,7 +7,7 @@ import CartService from '../../local-shop-services/cart-service'
 import { SiteData } from '../../../site-definitions'
 import * as Utils from '../../../libs/utils'
 import OrderService from '../../local-shop-services/order-service'
-import AppConfig from '../../../app-config'
+import * as AppConfig from '../../../app-config'
 
 const path = require('path')
 

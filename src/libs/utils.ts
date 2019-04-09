@@ -1,6 +1,6 @@
 import * as util from 'util'
 
-import AppConfig from '../app-config'
+import * as AppConfig from '../app-config'
 import * as getSlug from 'speakingurl'
 
 import * as Treeize from 'treeize'

@@ -9,7 +9,7 @@ import SQLViewService from '../services/sql-view-service'
 import { SiteData, ImageService } from '../site-definitions'
 import * as Utils from '../libs/utils'
 
-import AppConfig from '../app-config'
+import * as AppConfig from '../app-config'
 
 const log = require('npmlog')
 
