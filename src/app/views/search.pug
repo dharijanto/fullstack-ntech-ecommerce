@@ -4,12 +4,14 @@ include include/product-catalog.pug
 block content
   h1 Search Result
 
-  //if subCategories.length > 0
-    section.product-catalog
+  if subCategories.length > 0
       h2 Sub Categories
-      section.tiles#in-stock-products
-        +renderProducts(inStockProducts)
-        +renderPagination(currentInStockProductPage, inStockProductTotalPage, getCategoryURL(category, '__pageNumber', currentPOProductPage, 'in-stock-products'))
+      section#subcategories-search-result
+        for subCategory in subCategories
+          article
+            a(href='getSubCategoryURL(category, subCategory)')
+              img.img-fluid(src=`${getImageURL(subCategory.imageFilename)}` alt="")
+              h2.text-center= subCategory.name
 
 
   if inStockProducts.length > 0

@@ -1,6 +1,11 @@
+import * as Promise from 'bluebird'
 import * as SphinxClient from 'sphinxapi'
+import * as log from 'npmlog'
 import LocalShopService from '../app/local-shop-services/local-shop-service'
 import productService from './product-service'
+
+const TAG = 'SearchService'
+
 /*
 TODO:
   1. Add pagination support
@@ -8,7 +13,7 @@ TODO:
 class SearchService {
   private sphinxClient
   constructor () {
-    this.sphinxClient = new SphinxClient()
+    this.sphinxClient = Promise.promisifyAll(new SphinxClient())
   }
 
   initialize () {
@@ -24,70 +29,70 @@ class SearchService {
     })
   }
 
+  validateQuery (query): Promise<NCResponse<null>> {
+    if (query === undefined || query === null || query === '') {
+      return Promise.resolve({ status: false, errMessage: 'query cannot be empty!' })
+    } else {
+      return Promise.resolve({ status: true })
+    }
+  }
+
   // TODO: Format the returned results
   searchInStockProducts (query: string): Promise<NCResponse<{ products: InStockProduct[], totalProducts: number }>> {
-    return new Promise((resolve, reject) => {
-      // this.sphinxClient.Query(`SELECT * FROM instockproducts WHERE MATCH('${query}')`, (err, result) => {
-      this.sphinxClient.Query(query, 'inStockProducts', (err, result) => {
-        try {
-          if (err) {
-            throw err
-          } else {
-            const ids = result.matches.map(match => match.id)
-            LocalShopService.getInStockProducts({ productId: ids }).then(resp => {
-              resolve(resp)
-            }).catch(err => {
-              throw err
+    // this.sphinxClient.Query(`SELECT * FROM instockproducts WHERE MATCH('${query}')`, (err, result) => {
+    return this.validateQuery(query).then(resp => {
+      if (resp.status) {
+        return this.sphinxClient.QueryAsync(query, 'inStockProducts').then(result => {
+          log.verbose(TAG, `searchInStockProducts(): sphinx result=${JSON.stringify(result, null, 2)}`)
+          const ids = result.matches.map(match => match.id)
+          if (ids.length > 0) {
+            return LocalShopService.getInStockProducts({ productId: ids }).then(resp => {
+              return resp
             })
+          } else {
+            return { status: true, data: { products: [], totalProducts: 0 } }
           }
-        } catch (err) {
-          reject(err)
-        }
-      })
+        })
+      } else {
+        return { status: false, errMessage: 'Invalid query: ' + resp.errMessage }
+      }
     })
   }
 
   searchPOProducts (query: string): Promise<NCResponse<{ products: POProduct[], totalProducts: number }>> {
-    return new Promise((resolve, reject) => {
       // this.sphinxClient.Query(`SELECT * FROM instockproducts WHERE MATCH('${query}')`, (err, result) => {
-      this.sphinxClient.Query(query, 'poProducts', (err, result) => {
-        try {
-          if (err) {
-            throw err
-          } else {
-            const ids = result.matches.map(match => match.id)
-            LocalShopService.getPOProducts({ productId: ids }).then(resp => {
-              resolve(resp)
-            }).catch(err => {
-              throw err
+    return this.validateQuery(query).then(resp => {
+      if (resp.status) {
+        return this.sphinxClient.QueryAsync(query, 'poProducts').then(result => {
+          log.verbose(TAG, `searchPOProducts(): sphinx result=${JSON.stringify(result, null, 2)}`)
+          const ids = result.matches.map(match => match.id)
+          if (ids.length > 0) {
+            return LocalShopService.getPOProducts({ productId: ids }).then(resp => {
+              return resp
             })
+          } else {
+            return { status: true, data: { products: [], totalProducts: 0 } }
           }
-        } catch (err) {
-          reject(err)
-        }
-      })
+        })
+      } else {
+        return { status: false, errMessage: 'Invalid query: ' + resp.errMessage }
+      }
     })
   }
 
   searchSubCategories (query: string): Promise<NCResponse<SubCategory[]>> {
-    return new Promise((resolve, reject) => {
-      // this.sphinxClient.Query(`SELECT * FROM instockproducts WHERE MATCH('${query}')`, (err, result) => {
-      this.sphinxClient.Query(query, 'subCategories', (err, result) => {
-        try {
-          if (err) {
-            throw err
-          } else {
-            const ids = result.matches.map(match => match.id)
-            productService.getSubCategories({ id: ids }).then(resp => {
-              resolve(resp)
-            }).catch(err => {
-              throw err
-            })
-          }
-        } catch (err) {
-          reject(err)
-        }
-      })
+    return this.validateQuery(query).then(resp => {
+      if (resp.status) {
+        return this.sphinxClient.QueryAsync(query, 'subCategories').then(result => {
+          log.verbose(TAG, `searchSubCategories(): sphinx result=${JSON.stringify(result, null, 2)}`)
+          const ids = result.matches.map(match => match.id)
+          return productService.getSubCategories({ id: ids }).then(resp => {
+            return resp
+          })
+        })
+      } else {
+        return { status: false, errMessage: 'Invalid query: ' + resp.errMessage }
+      }
     })
   }
 }

@@ -38,6 +38,10 @@ Functions in this service requires currentCart, which is cart information stored
 on the session.
  */
 class CartService extends CRUDService {
+  // Used to add/reduce item to cart. To reduce use negative quantity
+  //
+  // This method can also conveniently used to delete item from cart by
+  // entering negative quantity smaller than what's currently on the cart.
   addItemToCart (type: 'readyStock' | 'preOrder', currentCart: CartMetaData, item: CartItemMeta): Promise<NCResponse<CartMetaData>> {
     let cart: CartMetaData
     if (currentCart) {

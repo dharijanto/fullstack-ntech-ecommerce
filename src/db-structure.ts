@@ -179,7 +179,7 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
     fullName: { type: Sequelize.STRING },
     phoneNumber: { type: Sequelize.STRING },
-    status: { type: Sequelize.ENUM(['Open', 'Close', 'PO', 'Canceled']) },
+    status: { type: Sequelize.ENUM(['Open', 'Close', 'PO', 'Cancelled']) },
     notes: Sequelize.STRING
   }, {
     paranoid: true

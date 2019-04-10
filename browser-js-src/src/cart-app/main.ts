@@ -12,7 +12,10 @@ function addItem (variantId: number, quantity: number) {
     const resp = rawResp.data
     if ('status' in resp) {
       if (resp.status) {
-        location.reload()
+        toastr.success('Success!')
+        setTimeout(() => {
+          location.reload()
+        }, 300)
       } else {
         toastr.error(resp.errMessage)
         console.error('Failed to add item: ' + resp.errMessage)
@@ -27,17 +30,23 @@ function addItem (variantId: number, quantity: number) {
 }
 
 $(window).ready(() => {
-  $('.add-item').on('click', function () {
-    console.log('add item clicked')
+  $('button.add-item').on('click', function () {
+    // console.log('add item clicked')
     const variantId = $(this).data('variant-id')
     const quantity = 1
     addItem(variantId, quantity)
   })
 
-  $('.reduce-item').on('click', function () {
-    console.log('reeduce item clicked')
+  $('button.reduce-item').on('click', function () {
+    // console.log('reeduce item clicked')
     const variantId = $(this).data('variant-id')
     const quantity = -1
+    addItem(variantId, quantity)
+  })
+
+  $('button.delete-item').on('click', function () {
+    const variantId = $(this).data('variant-id')
+    const quantity = -100
     addItem(variantId, quantity)
   })
 

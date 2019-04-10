@@ -18,7 +18,7 @@ export default class CartController extends BaseController {
 
     this.routeGet('/search', (req, res, next) => {
       log.verbose(TAG, '/search.GET()')
-      const query = req.query.query
+      const query = req.query.query || ' '
 
       Promise.join<any>(
         SearchService.searchSubCategories(query),
@@ -27,12 +27,10 @@ export default class CartController extends BaseController {
       ).spread((resp: NCResponse<SubCategory[]>,
                 resp2: NCResponse<{ products: InStockProduct[],totalProducts: number }>,
                 resp3: NCResponse<{ products: POProduct[], totalProducts: number }>) => {
-        let data = 'resp=' + JSON.stringify(resp, null, 2) + '<br><br>'
-        data += 'resp2=' + JSON.stringify(resp2, null, 2) + '<br><br>'
-        data += 'resp3=' + JSON.stringify(resp3, null, 2)
         if (resp.status && resp.data &&
             resp2.status && resp2.data &&
             resp3.status && resp3.data) {
+          res.locals.subCategories = resp.data
           res.locals.inStockProducts = resp2.data.products
           res.locals.poProducts = resp3.data.products
           res.locals.searchQuery = query
@@ -42,7 +40,7 @@ export default class CartController extends BaseController {
         }
 
         /* res.send(data) */
-      })
+      }).catch(next)
     })
 
     // Landing page

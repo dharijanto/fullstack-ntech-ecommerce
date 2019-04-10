@@ -26,6 +26,8 @@ lp -d POS58 -o fit-to-page output.pdf
 # Search
 Search is implemented using Sphinx Search. Sphinx indexes data from mysql periodically, when there's new data
 from cloud.
+## TODO
+1. When user searches for 'Sandisk', we should show up appropriate subCategories (i.e. flash drive)
 
 # Installation
 * Install Sphinx Search
@@ -43,3 +45,9 @@ from cloud.
   -Check the view is consistent for:
     -shopProduct data correctly overrides product
     -stockQuantity is consistent with stock - order
+* Orders
+   -Check open, closed, and po orders decrease inStockProduct quantity
+   -Check that cancelled order restores inStockProduct quantity
+
+## CI Test
+* Check that all the pages returns 200
