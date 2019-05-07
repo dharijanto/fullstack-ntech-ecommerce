@@ -21,6 +21,10 @@ class ProductService extends CRUDService {
     })
   }
 
+  createProduct (data: Partial<Product>): Promise<NCResponse<Product>> {
+    return super.create('Product', data)
+  }
+
   createCategory (data: Partial<Category>) {
     return super.create('Category', data)
   }
@@ -54,8 +58,14 @@ class ProductService extends CRUDService {
     return super.delete('Category', { id })
   }
 
-  createSubCategory (data: Partial<SubCategory>) {
-    return super.create('SubCategory', data)
+  createSubCategory (data: Partial<SubCategory>): Promise<NCResponse<SubCategory>> {
+    return super.create<SubCategory>('SubCategory', data).catch(err => {
+      if (err.name.includes('SequelizeForeignKeyConstraintError')) {
+        return { status: false , errMessage: 'Foreign key constraint error! Have you selected an image or category?' }
+      } else {
+        throw err
+      }
+    })
   }
 
   getSubCategories (searchClause): Promise<NCResponse<SubCategory[]>> {

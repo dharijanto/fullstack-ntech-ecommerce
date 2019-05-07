@@ -2,4 +2,6 @@ node_modules/
 browser-js-src/node_modules/
 /images/
 /gen-pdf
+/gen-cloud-sync-data
 /dist/
+/src/app-config.js

@@ -2068,6 +2068,12 @@ body.is-menu-visible #menu {
     #main {
       padding: 0em 0 4em 0 ; } }
 
+#login-wrapper {
+  display: flex;
+  align-items: center; }
+  #login-wrapper .panel {
+    width: 50%; }
+
 /* Promotion */
 section.promotion h2 {
   margin: 1% 0 1% 0; }

@@ -1,0 +1,31 @@
+extends ../layout/cms
+
+append head
+  style.
+    #login-wrapper {
+      min-height: 700px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    #login-wrapper .panel {
+      width: 50%;
+    }
+
+block content
+  .container
+    #login-wrapper
+      .panel.panel-default
+        .panel-body
+          form(action="/cms/account/login" method="post")
+            .form-group
+              label Username
+              input.form-control(type="text" name="username")
+            .form-group
+              label Password
+              input.form-control(type="password" name="password")
+            .form-group
+              button.btn.btn-default(type="submit") Login
+            if errors.length > 0
+              .alert.alert-danger(role='alert')= errors

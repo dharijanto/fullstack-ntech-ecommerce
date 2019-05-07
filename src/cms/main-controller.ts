@@ -26,6 +26,15 @@ class MainController extends BaseController {
     this.addInterceptor((req, res, next) => {
       log.verbose(TAG, 'req.path=' + req.path)
       res.locals.siteHash = this.siteHash
+      res.locals.__sidebar = [
+        { title: 'Product Management', url: `/${this.siteHash}/`, faicon: '' },
+        { title: 'Shop Management', url: `/${this.siteHash}/shop-management`, faicon: '' },
+        { title: 'Supplier Management', url: `/${this.siteHash}/supplier-management`, faicon: '' },
+        { title: 'Promotion Management', url: `/${this.siteHash}/shop-management/promotion-management`, faicon: '' },
+        { title: 'Order Management', url: `/${this.siteHash}/order-management/`, faicon: '' },
+        { title: 'Account Management', url: `/${this.siteHash}/account-management/`, faicon: '' },
+        { title: 'Populate Views', url: `/${this.siteHash}/populate-views`, faicon: '' }
+      ]
       next()
     })
 

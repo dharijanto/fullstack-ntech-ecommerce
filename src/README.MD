@@ -1,3 +1,8 @@
+# TODO
+- Closed order management should only show last 7 days, so we're not giving out unnecessary informations
+  to staffs.
+- 
+
 # Receipt
 ## Description
 Receipt is formatted as HTML. We then use puppeteer to convert into to PDF, and finally
@@ -29,10 +34,26 @@ from cloud.
 ## TODO
 1. When user searches for 'Sandisk', we should show up appropriate subCategories (i.e. flash drive)
 
+# Sync
+## Cloud to Shop
+* Shop requests sync using POST: /cloud-sync/request { timeSince: '2019-04-03 11:12:00' }
+    * Shop checks its internal state to determine whether it's currently syncing. If it's, do nothing.
+      Otherwise, move on. -> ShopSyncService.getLastSyncState()
+    * LocalSyncService.requestSync()
+* Cloud responds with { status: true, data: { status: 'preparing } }
+    * CloudSyncService.
+* Shop requests sync using POST: /cloud-sync/request { timeSince: '2019-04-03 11:12:00' }
+* Cloud checks its database and see it's been prepared, hence sends back
+  { status: true, data: { status: 'ready', url: '/sync-data/7.json', timeUntil: '2019-04-03 14:08:00' } }
+* Shop downloads the JSON file and updates its local state. While updating,
+  sets its internal status to { state: 'Syncing', since: '2019-04-03 11:12:00' until: '2019-04-03 14:08:00' }
+  to prevent parallel synchronization
+* After syncing has finished, update its state to { status: 'Finished', since: '2019-04-03 11:12:00' until: '2019-04-03 14:08:00' }
+
 # Installation
 * Install Sphinx Search
 * Modify Sphinx Search config according to what's on configs/sphinx.conf, make sure to modify localShopId appropriately
-
+ 
 # Test
 ## Unit Test
 

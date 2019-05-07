@@ -72,13 +72,9 @@ export default class ProductManagementController extends BaseController {
     })
 
     super.routePost('/product', (req, res, next) => {
-      if (req.query.subCategoryId) {
-        ProductService.create('Product', { ...req.body, subCategoryId: req.query.subCategoryId }).then(resp => {
-          res.json(resp)
-        }).catch(next)
-      } else {
-        res.json({ status: false, errMessage: 'Sub-Category is needed' })
-      }
+      ProductService.createProduct({ ...req.body, subCategoryId: req.query.subCategoryId }).then(resp => {
+        res.json(resp)
+      }).catch(next)
     })
 
     super.routeGet('/products', (req, res, next) => {

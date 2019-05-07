@@ -23,7 +23,7 @@ class SearchService {
         if (err) {
           reject(err)
         } else {
-          resolve()
+          resolve({ status: true })
         }
       })
     })

@@ -12,6 +12,29 @@ const log = require('npmlog')
 const TAG = 'AccountService'
 
 class AccountService extends CRUDService {
+  login (username: string, password: string, shopId: number): Promise<NCResponse<User>> {
+    if (!username || !password) {
+      return Promise.resolve({ status: false, errMessage: 'Username and/or password are required!' })
+    } else if (!shopId) {
+      return Promise.resolve({ status: false, errMessage: 'shopId is required!' })
+    }
+
+    log.verbose(TAG, `login(): username=${username} shopId=${shopId}`)
+    return super.readOne<User>('User', { username, shopId }).then(resp => {
+      if (resp.status && resp.data) {
+        const user = resp.data
+        const enteredSaltedPass = Crypto.saltPass(password, user.salt)
+        if (user.saltedPass === enteredSaltedPass) {
+          return { status: true, data: resp.data }
+        } else {
+          return { status: false, errMessage: 'Invalid username or password!' }
+        }
+      } else {
+        return { status: false, errMessage: 'Invalid username or password.' }
+      }
+    })
+  }
+
   getAccounts (shopId): Promise<NCResponse<User[]>> {
     if (shopId) {
       return super.read<User>('User', { shopId })

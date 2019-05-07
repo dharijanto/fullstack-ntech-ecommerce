@@ -18,7 +18,7 @@ export default class SequelizeService {
     if (!SequelizeService.instance) {
       SequelizeService.instance = new SequelizeService(sequelize, models)
     } else {
-      throw new Error('SequelizeService is already initialized')
+      log.info(TAG, 'SequelizeService is already initialized')
     }
   }
 
@@ -28,5 +28,9 @@ export default class SequelizeService {
     } else {
       throw new Error('SequelizeService is not initialized!')
     }
+  }
+
+  close () {
+    this.sequelize.close()
   }
 }

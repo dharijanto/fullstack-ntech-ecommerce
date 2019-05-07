@@ -9,7 +9,11 @@ import * as flatToTrees from 'flatToTrees'
 // Depending whether the server is locally hosted or on the cloud,
 // image mount path could be differentz
 export function getImageURL (imageFilename) {
-  return `${AppConfig.BASE_URL}${AppConfig.IMAGE_MOUNT_PATH}${imageFilename}`
+  if (imageFilename) {
+    return `${AppConfig.BASE_URL}${AppConfig.IMAGE_MOUNT_PATH}${imageFilename}`
+  } else {
+    return ``
+  }
 }
 
 // Convert 10000 -> Rp. 10.000
@@ -19,7 +23,6 @@ export function formatPrice (price) {
   for (let i = 0; i < price.length; i++) {
     const index = price.length - i - 1
     const c = price[index]
-    console.log(c)
     result = c + result
     if ((i + 1) % 3 === 0 && i !== 0 && i !== price.length - 1) {
       result = '.' + result

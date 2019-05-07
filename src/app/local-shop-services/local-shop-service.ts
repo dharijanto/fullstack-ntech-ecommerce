@@ -41,7 +41,7 @@ class LocalShopService extends CRUDService {
             this.localShopId = resp.data.id
             return { status: true, data: null }
           } else {
-            return { status: false, errMessage: 'Shop name is not found!' }
+            throw new Error('Shop name is not found!')
           }
         })
       } else {
@@ -53,6 +53,14 @@ class LocalShopService extends CRUDService {
   getLocalShopId (): number {
     if (this.localShopId !== -1) {
       return this.localShopId
+    } else {
+      throw new Error('Local shop id is not yet retrieved!')
+    }
+  }
+
+  getLocalShopName (): string {
+    if (this.localShopId !== -1) {
+      return AppConfig.LOCAL_SHOP_INFORMATION.NAME
     } else {
       throw new Error('Local shop id is not yet retrieved!')
     }

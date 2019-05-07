@@ -50,7 +50,7 @@ class PrintService {
     await page.goto(fullURL, {
       waitUntil: 'networkidle0'
     })
-    const outFile = path.join(AppConfig.GENERATED_PRINT_PDF_PATH, `${new Date().getMilliseconds()}.pdf`)
+    const outFile = path.join(AppConfig.GENERATED_PRINT_PDF_PATH, `${Date.now()}.pdf`)
     await page.pdf({ width: this.paperWidth, height: this.paperHeight, path: outFile })
     return this.printFile(outFile, numCopies)
   }

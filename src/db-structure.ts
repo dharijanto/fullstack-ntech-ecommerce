@@ -4,7 +4,7 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
   /*
     ----------------------------
       Cloud-specific Database
-      Local shop shouldn't modify the following tables at all!
+      Local shop shouldn't modify the following tables at all, due to synchronization purposes!
     ----------------------------
    */
   models.Image = sequelize.define('image', {
@@ -14,7 +14,7 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
 
   models.Category = sequelize.define('category', {
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
-    name: { type: Sequelize.STRING, unique: true, allowNull: false, validate: { len: [1, 255] } },
+    name: { type: Sequelize.STRING, allowNull: false, validate: { len: [1, 255] } },
     description: { type: Sequelize.STRING }
   }, {
     paranoid: true
@@ -98,7 +98,7 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
 
   models.Shop = sequelize.define('shop', {
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
-    name: { type: Sequelize.STRING, allowNull: false, unique: true },
+    name: { type: Sequelize.STRING, allowNull: false },
     location: { type: Sequelize.STRING },
     city: { type: Sequelize.STRING },
     address: { type: Sequelize.STRING },
@@ -117,6 +117,38 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
   models.Promotion.belongsTo(models.Product)
   models.Promotion.belongsTo(models.Image, { targetKey: 'filename', foreignKey: 'imageFilename' })
 
+  // Used for mapping map local-to-cloud id
+  models.SyncMap = sequelize.define('syncMap', {
+    shopName: { type: Sequelize.STRING }, // Identify which school
+    serverHash: { type: Sequelize.STRING }, // Identify which version of local server
+    localId: { type: Sequelize.INTEGER },
+    cloudId: { type: Sequelize.INTEGER },
+    tableName: { type: Sequelize.STRING }
+  })
+
+  models.ShopSyncHistory = sequelize.define('shopSyncHistory', {
+    id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
+    status: { type: Sequelize.ENUM(['Syncing', 'Success', 'Failed']) },
+    shopName: { type: Sequelize.STRING },
+    // Date of last synchronization. Intentionally STRING type instead of DATE
+    // because we're storing local server's date, not ours. And to avoid confusion
+    // with timezone conversion, STRING is way easier to work with in this case
+    untilTime: { type: Sequelize.STRING }
+  })
+
+  models.CloudSyncHistory = sequelize.define('cloudSyncHistory', {
+    id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
+    status: { type: Sequelize.ENUM(['Preparing', 'Success', 'Failed']) },
+    shopName: { type: Sequelize.STRING },
+    info: { type: Sequelize.STRING },
+    // Date of last synchronization. Intentionally STRING type instead of DATE
+    // because we're storing local server's date, not ours. And to avoid confusion
+    // with timezone conversion, STRING is way easier to work with in this case
+    sinceTime: { type: Sequelize.STRING },
+    untilTime: { type: Sequelize.STRING },
+    syncFileName: { type: Sequelize.STRING }
+  })
+
   /*
   ----------------------------
   End of Cloud-only database
@@ -126,10 +158,11 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
   /*
   ----------------------------
     Local-shop specific Database
-    Cloud shouldn't modify the following tables at all!
+    Cloud shouldn't modify the following tables at all, due to synchronization purposes!
   ----------------------------
   */
 
+  // No need to sync this table
   models.User = sequelize.define('user', {
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
     username: { type: Sequelize.STRING }, // The pair of (username, schoolId) should be unique, we should use MySQL composite key for this
@@ -148,7 +181,8 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
     date: { type: Sequelize.DATE },
     aisle: { type: Sequelize.STRING, allowNull: false },
     description: { type: Sequelize.STRING },
-    quantity: { type: Sequelize.INTEGER }
+    quantity: { type: Sequelize.INTEGER },
+    onCloud: { type: Sequelize.BOOLEAN, defaultValue: true }
   }, {
     paranoid: true
   })
@@ -156,6 +190,7 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
   models.ShopStock.belongsTo(models.Variant)
   models.Variant.hasMany(models.ShopStock)
 
+  // No need to sync this table
   models.ShopAisle = sequelize.define('shopAisle', {
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
     aisle: { type: Sequelize.STRING, allowNull: false, unique: true }
@@ -167,7 +202,8 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
     price: { type: Sequelize.INTEGER }, // sell price. If unset, use product.price
     preOrderAllowed: { type: Sequelize.BOOLEAN },
     preOrderDuration: { type: Sequelize.INTEGER },
-    disabled: { type: Sequelize.BOOLEAN, defaultValue: false } // when enabled, the item is not sold on the store
+    disabled: { type: Sequelize.BOOLEAN, defaultValue: false }, // when enabled, the item is not sold on the store
+    onCloud: { type: Sequelize.BOOLEAN, defaultValue: true }
   }, {
     paranoid: true
   })
@@ -180,27 +216,20 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
     fullName: { type: Sequelize.STRING },
     phoneNumber: { type: Sequelize.STRING },
     status: { type: Sequelize.ENUM(['Open', 'Close', 'PO', 'Cancelled']) },
-    notes: Sequelize.STRING
+    notes: Sequelize.STRING,
+    onCloud: { type: Sequelize.BOOLEAN, defaultValue: true }
   }, {
     paranoid: true
   })
   models.Order.belongsTo(models.Shop)
-
-  models.OrderHistory = sequelize.define('orderHistory', {
-    id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
-    action: Sequelize.STRING
-  }, {
-    paranoid: true
-  })
-  models.OrderHistory.belongsTo(models.Order)
-  models.OrderHistory.belongsTo(models.User)
 
   models.OrderDetail = sequelize.define('orderDetail', {
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
     quantity: { type: Sequelize.INTEGER, allowNull: false },
     aisle: { type: Sequelize.STRING },
     price: { type: Sequelize.INTEGER, allowNull: false },
-    status: { type: Sequelize.ENUM(['PO', 'Ready']) }
+    status: { type: Sequelize.ENUM(['PO', 'Ready']) },
+    onCloud: { type: Sequelize.BOOLEAN, defaultValue: true }
   }, {
     paranoid: true
   })
@@ -208,6 +237,26 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
   models.OrderDetail.belongsTo(models.Variant)
   models.OrderDetail.belongsTo(models.Order)
   models.Variant.hasMany(models.OrderDetail)
+
+  // Not synced to the cloud
+  // Currently used to create a hash for a local server.
+  // When we try to sync local-to-cloud, we send this hash to tell the server
+  // which mapping table should be used. This is needed when for example a local
+  // server got stolen and we have to replace it. Since the database is brand new
+  // the ids are different and hence the old mapping table is not applicable
+  models.LocalMetaData = sequelize.define('localMetaData', {
+    id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
+    key: { type: Sequelize.STRING, unique: true },
+    value: { type: Sequelize.STRING }
+  })
+
+  models.ShopSyncState = sequelize.define('shopSyncState', {
+    id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
+    status: { type: Sequelize.ENUM(['Syncing', 'Success', 'Failed']) },
+    description: { type: Sequelize.STRING },
+    timeUntil: { type: Sequelize.STRING }
+  })
+
   /*
   ----------------------------
     End of local-only database

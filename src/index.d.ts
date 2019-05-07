@@ -163,6 +163,22 @@ interface User extends BaseModel {
   shopId: number
 }
 
+type CloudSyncStatus = 'Preparing' | 'Success' | 'Failed'
+interface CloudSyncHistory extends BaseModel {
+  status: CloudSyncStatus
+  info?: string
+  shopName: string
+  sinceTime: string
+  untilTime: string,
+  syncFileName?: string
+}
+
+interface ShopSyncHistory extends BaseModel {
+  status: 'Syncing' | 'Success' | 'Failed'
+  shopName: string
+  untilTime: string
+}
+
 /*
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
@@ -292,6 +308,12 @@ interface OrderDetail extends BaseModel {
   variantId: number
   variant?: Variant
   productId: number
+}
+
+interface ShopSyncState extends BaseModel {
+  state: 'Syncing' | 'Success' | 'Failed',
+  timeUntil: string
+  description: string
 }
 
 /*

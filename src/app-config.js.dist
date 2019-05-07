@@ -4,6 +4,10 @@ const LOCAL_SHOP_INFORMATION = {
   NAME: 'Nusantara Gizmo 1' // This should be the same as shop.name
 }
 
+const CLOUD_SERVER = {
+  HOST: 'https://ntech-ngizmo.nusantara-cloud.com'
+}
+
 // For each products, we can customize certain information, depending
 // on the shop. This is the default configuration
 // NOTE: To apply changes, SQL views have to be re-created! (see. services/sql-view-service)
@@ -18,7 +22,8 @@ const DB = {
   PASSWORD: '',
   HOST: 'localhost',
   PORT: 3306,
-  DB_NAME: 'app_ntech'
+  DB_NAME: 'app_ntech',
+  TEST_DB_NAME: 'test_ntech'
 }
 
 const RECEIPT_PRINTER = {
@@ -27,14 +32,18 @@ const RECEIPT_PRINTER = {
 }
 
 module.exports = {
+  SQL_DB: `mysql://${DB.USERNAME}:${DB.PASSWORD}@${DB.HOST}:3306/${DB.DB_NAME}`,
+  TEST_SQL_DB: `mysql://${DB.USERNAME}:${DB.PASSWORD}@${DB.HOST}:3306/${DB.TEST_DB_NAME}`,
   PRODUCTION: false,
   BASE_URL: 'http://ntech.nusantara-local.com',
   IMAGE_PATH: path.join(__dirname, './images/'),
   IMAGE_MOUNT_PATH: '/images/',
   GENERATED_PRINT_PDF_PATH: path.join(__dirname, './gen-pdf/'),
+  GENERATED_CLOUD_SYNC_DATA: path.join(__dirname, '../gen-cloud-sync-data'),
   CLOUD_SERVER: false,
   LOCAL_SHOP_INFORMATION,
   DEFAULT_SHOP_PRODUCT_BEHAVIOR,
   DB,
-  RECEIPT_PRINTER
+  RECEIPT_PRINTER,
+  CLOUD_SERVER
 }

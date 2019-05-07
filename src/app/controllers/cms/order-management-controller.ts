@@ -42,6 +42,7 @@ export default class OrderManagementController extends BaseController {
       OrderService.getOpenOrders().then(res.json.bind(res)).catch(next)
     })
 
+    // TODO: Modify this so we only show data for the past 7 days
     super.routeGet('/closed-orders', (req, res, next) => {
       OrderService.getClosedOrders().then(res.json.bind(res)).catch(next)
     })

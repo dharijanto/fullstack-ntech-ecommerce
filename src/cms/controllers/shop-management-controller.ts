@@ -66,7 +66,7 @@ export default class ShopManagementController extends BaseController {
     })
 
     super.routePost('/shop', (req, res, next) => {
-      ShopService.create<Shop>('Shop', req.body).then(res.json.bind(res)).catch(next)
+      ShopService.createShop(req.body).then(res.json.bind(res)).catch(next)
     })
 
     super.routePost('/shop/edit', (req, res, next) => {

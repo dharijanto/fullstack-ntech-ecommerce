@@ -85,69 +85,66 @@ html
                   </a></li>
       // /.container-fluid
     #sidebar-collapse.col-sm-3.col-lg-2.sidebar
-      .profile-sidebar
-        .profile-userpic
-          img.img-responsive(src='http://placehold.it/50/30a5ff/fff', alt='')
-        .profile-usertitle
-          .profile-usertitle-name Username
-          .profile-usertitle-status
-            span.indicator.label-success
-            | Online
-        .clear
+      if user
+        .profile-sidebar
+          .profile-userpic
+            img.img-responsive(src='http://placehold.it/50/30a5ff/fff', alt='')
+          .profile-usertitle
+            .profile-usertitle-name= user.fullName
+            .profile-usertitle-status
+              span.indicator.label-success
+              | Online
+          .clear
       .divider
       ul.nav.menu
-        li.active
-          a(href='index.html')
-            em.fa.fa-dashboard  
-            |  Dashboard
-        li.parent
-          a(data-toggle='collapse', href='#order-management')
-            em.fa.fa-navicon
-            |  Order Management
-            span.icon.pull-right(data-toggle='collapse', href='#order-management')
-              em.fa.fa-plus
-          ul#order-management.children.collapse
-            li
-              a(href='/cms/order-management/open-order-management')
-                span.fa.fa-arrow-right  
-                |  Open Order
-            li
-              a(href='/cms/order-management/closed-order-management')
-                span.fa.fa-arrow-right  
-                |  Close Order
-        li.parent
-          a(data-toggle='collapse', href='#stock-management')
-            em.fa.fa-navicon
-            |  Stock Management
-            span.icon.pull-right(data-toggle='collapse', href='#stock-management')
-              em.fa.fa-plus
-          ul#stock-management.children.collapse
-            li
-              a(href='/cms/stock-management/aisle-management')
-                span.fa.fa-arrow-right  
-                | Aisle Management
-            li
-              a(href='/cms/stock-management/in-management')
-                span.fa.fa-arrow-right
-                |  In Management
-        li.parent
-          a(data-toggle='collapse', href='#shop-management')
-            em.fa.fa-navicon
-            |  Shop Management
-            span.icon.pull-right(data-toggle='collapse', href='#shop-management')
-              em.fa.fa-plus
-          ul#shop-management.children.collapse
-            li
-              a(href='/cms/product-management')
-                span.fa.fa-arrow-right  
-                | Product Management
-            li
-              a(href='/cms/promotion-management')
-                span.fa.fa-arrow-right
-                |  Promotion Management
-
+        if user
+          li.parent
+            a(data-toggle='collapse', href='#order-management')
+              em.fa.fa-navicon
+              |  Order Management
+              span.icon.pull-right(data-toggle='collapse', href='#order-management')
+                em.fa.fa-plus
+            ul#order-management.children.collapse
+              li
+                a(href='/cms/order-management/open-order-management')
+                  span.fa.fa-arrow-right  
+                  |  Open Order
+              li
+                a(href='/cms/order-management/closed-order-management')
+                  span.fa.fa-arrow-right  
+                  |  Close Order
+          li.parent
+            a(data-toggle='collapse', href='#stock-management')
+              em.fa.fa-navicon
+              |  Stock Management
+              span.icon.pull-right(data-toggle='collapse', href='#stock-management')
+                em.fa.fa-plus
+            ul#stock-management.children.collapse
+              li
+                a(href='/cms/stock-management/aisle-management')
+                  span.fa.fa-arrow-right  
+                  | Aisle Management
+              li
+                a(href='/cms/stock-management/in-management')
+                  span.fa.fa-arrow-right
+                  |  In Management
+          li.parent
+            a(data-toggle='collapse', href='#shop-management')
+              em.fa.fa-navicon
+              |  Shop Management
+              span.icon.pull-right(data-toggle='collapse', href='#shop-management')
+                em.fa.fa-plus
+            ul#shop-management.children.collapse
+              li
+                a(href='/cms/product-management')
+                  span.fa.fa-arrow-right  
+                  | Product Management
+              li
+                a(href='/cms/promotion-management')
+                  span.fa.fa-arrow-right
+                  |  Promotion Management
         li
-          a(href='login.html')
+          a(href='/cms/account/logout')
             em.fa.fa-power-off  
             |  Logout
     // /.sidebar

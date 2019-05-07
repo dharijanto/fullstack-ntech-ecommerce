@@ -30,6 +30,10 @@ class ShopService extends CRUDService {
     })
   }
 
+  createShop (data: Partial<Shop>) {
+    return super.create<Shop>('Shop', data)
+  }
+
   // TODO: We should create test cases to ensure this is correct...
   // i.e. when there are suppliers, supplier count is correct
   //      when there are shopStocks, the count is correct
@@ -101,9 +105,9 @@ class ShopService extends CRUDService {
                 ${categoryId ? ' AND inStockProductsView.categoryId = ' + categoryId : '' }
           LIMIT ${pageSize * pageIndex}, ${pageSize}
          ) as inStockProductsView
-    LEFT OUTER JOIN productImages ON inStockProductsView.id = productImages.productId
+    LEFT OUTER JOIN productImages ON inStockProductsView.id = productImages.productId AND productImages.deletedAt IS NULL
     LEFT OUTER JOIN
-      (SELECT * FROM productImages WHERE \`primary\` = TRUE) as primaryImages ON inStockProductsView.id = primaryImages.productId
+      (SELECT * FROM productImages WHERE \`primary\` = TRUE AND deletedAt IS NULL) as primaryImages ON inStockProductsView.id = primaryImages.productId
     INNER JOIN subCategories ON subCategories.id = inStockProductsView.subCategoryId
     INNER JOIN categories ON subCategories.categoryId = categories.id
     LEFT OUTER JOIN inStockVariantsView ON inStockVariantsView.productId = inStockProductsView.id AND inStockVariantsView.shopId = ${shopId}
@@ -190,8 +194,8 @@ class ShopService extends CRUDService {
         LIMIT ${pageSize * pageIndex}, ${pageSize}
         ) as poProductsView
       LEFT OUTER JOIN
-        (SELECT * FROM productImages WHERE \`primary\` = TRUE) as primaryImages ON poProductsView.id = primaryImages.productId
-      LEFT OUTER JOIN productImages on poProductsView.id = productImages.productId
+        (SELECT * FROM productImages WHERE \`primary\` = TRUE AND deletedAt IS NULL) as primaryImages ON poProductsView.id = primaryImages.productId
+      LEFT OUTER JOIN productImages ON poProductsView.id = productImages.productId AND productImages.deletedAt IS NULL
       INNER JOIN subCategories on subCategories.id = poProductsView.subCategoryId
       INNER JOIN categories on subCategories.categoryId = categories.id
       LEFT OUTER JOIN poVariantsView ON poVariantsView.productId = poProductsView.id AND poVariantsView.shopId = ${shopId}
