@@ -15,13 +15,13 @@ export default class ShopSyncController extends BaseController {
     super(Object.assign(siteData, { viewPath: path.join(__dirname, '../views') }))
 
     // Get this shop's sync histories from the cloud
-    super.routeGet('/cloud-sync/histories', (req, res, next) => {
+    /* super.routeGet('/cloud-sync/histories', (req, res, next) => {
     })
-
+ */
     // Cron job calls on this GET request periodically
     super.routeGet('/cloud-sync/request', (req, res, next) => {
       try {
-        SyncService.requestCloudData().then(resp => {
+        SyncService.cloudToLocalSync().then(resp => {
           res.json(resp)
         })
       } catch (err) {

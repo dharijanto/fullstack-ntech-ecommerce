@@ -33,6 +33,12 @@ interface BaseModel {
   updatedAt: string,
 }
 
+
+// ---- Start of cloud-exclusive tables ---
+// ----------------------------------------
+/*
+The following are tables that are read-only on the cloud server.
+*/
 interface Category extends BaseModel {
   name: string
   description: string
@@ -172,25 +178,58 @@ interface CloudSyncHistory extends BaseModel {
   untilTime: string,
   syncFileName?: string
 }
+// ----------------------------------------
+// ---- End of cloud-exclusive tables ---
 
-interface ShopSyncHistory extends BaseModel {
-  status: 'Syncing' | 'Success' | 'Failed'
-  shopName: string
+
+// ---- Start of local-exclusive tables ---
+// ----------------------------------------
+/*
+The following are tables that are read-only on the local server.
+ */
+interface Order extends BaseModel {
+  fullName: string,
+  phoneNumber: string
+  notes: string,
+  quantity: number,
+  price: number,
+  status: 'Open' | 'Close' | 'PO' | 'Cancelled',
+  shopId: number
+}
+
+interface OrderDetail extends BaseModel {
+  quantity: number
+  price: number
+  status: 'PO' | 'Ready'
+  aisle: string
+  preOrderDuration: number
+  orderId: number
+  productName: string
+  variantName: string
+  variantId: number
+  variant?: Variant
+  productId: number
+}
+
+/* interface ShopSyncState extends BaseModel {
+  state: 'Syncing' | 'Success' | 'Failed',
+  timeUntil: string
+  description: string
+} */
+
+interface CloudToLocalSyncHistory extends BaseModel {
+  status: 'Preparing' | 'Applying' | 'Success' | 'Failed'
+  info: string
   untilTime: string
 }
 
-/*
--------------------------------------------------------------------------------
--------------------------------------------------------------------------------
-*/
+// ----------------------------------------
+// ---- End of local-exclusive tables ---
 
-/*
--------------------------------------------------------------------------------
-Model that directly map to SQL views (created in services/sql-view-service.ts)
-For anything else, please define a new interface!
--------------------------------------------------------------------------------
-*/
 
+//-------------------------------------------------------------------------------
+// ---------------Start of model that comes from SQL views-----------------------
+// ---------------(created in services/sql-view-service.ts)----------------------
 interface ShopifiedProduct extends BaseModel {
   subCategoryId: number
   subCategoryName: string
@@ -285,38 +324,5 @@ interface POVariant extends BaseModel {
   productId: number,
   name: string
 }
-
-interface Order extends BaseModel {
-  fullName: string,
-  phoneNumber: string
-  notes: string,
-  quantity: number,
-  price: number,
-  status: 'Open' | 'Close' | 'PO' | 'Cancelled',
-  shopId: number
-}
-
-interface OrderDetail extends BaseModel {
-  quantity: number
-  price: number
-  status: 'PO' | 'Ready'
-  aisle: string
-  preOrderDuration: number
-  orderId: number
-  productName: string
-  variantName: string
-  variantId: number
-  variant?: Variant
-  productId: number
-}
-
-interface ShopSyncState extends BaseModel {
-  state: 'Syncing' | 'Success' | 'Failed',
-  timeUntil: string
-  description: string
-}
-
-/*
--------------------------------------------------------------------------------
--------------------------------------------------------------------------------
-*/
+//-------------------------------------------------------------------------------
+// ---------------End of model that comes from SQL views-------------------------

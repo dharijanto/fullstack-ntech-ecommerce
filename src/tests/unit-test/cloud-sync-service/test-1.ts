@@ -3,60 +3,26 @@ import * as assert from 'assert'
 import * as process from 'process'
 
 import * as Sequelize from 'sequelize'
-import * as moment from 'moment'
-// tslint:disable-next-line:no-duplicate-imports
-import { Transaction } from 'sequelize'
 import * as Promise from 'bluebird'
 
 import * as AppConfig from '../../../app-config'
 import SequelizeService from '../../../services/sequelize-service'
-import CRUDService from '../../../services/crud-service'
-import CloudSyncService, { CloudSyncServiceCls } from '../../../services/cloud-sync-service'
+import CRUDService from '../../classes/crud-service'
+import CloudSyncService from '../../classes/cloud-sync-service'
 import ShopService from '../../../services/shop-service'
 import ProductService from '../../../services/product-service'
 const createModel = require(path.join('../../../db-structure'))
-// import createModel = require('../../../db-structure')
-
-class MyCRUDService extends CRUDService {
-  public getModels (name) {
-    return super.getModels(name)
-  }
-
-  public getSequelize () {
-    return super.getSequelize()
-  }
-  // Delete everything on the database
-  destroyAllTables () {
-    const modelNames = Object.keys(SequelizeService.getInstance().models)
-    return Promise.map(modelNames, modelName => {
-      return this.getModels(modelName).destroy({ where: {} })
-    })
-  }
-}
-class MyCloudSyncService extends CloudSyncServiceCls {
-  public prepareData (shopName: string, sinceTime: string, untilTime: string, syncHistoryId: number): Promise<NCResponse<CloudSyncHistory>> {
-    return super.prepareData.apply(this, arguments)
-  }
-
-  public createSyncHistory (shopName: string, status: CloudSyncStatus, sinceTime: string, transaction?: Transaction): Promise<NCResponse<CloudSyncHistory>> {
-    return super.createSyncHistory.apply(this, arguments)
-  }
-
-  public getSyncHistory (shopName: string, lastSyncTime: string, transaction?: Transaction): Promise<NCResponse<CloudSyncHistory>> {
-    return super.getSyncHistory.apply(this, arguments)
-  }
-}
 
 describe('Test CloudSyncservice', () => {
-  let crud: MyCRUDService
-  let csService: MyCloudSyncService
+  let crud: CRUDService
+  let csService: CloudSyncService
   before(done => {
     const sequelize = new Sequelize(AppConfig.TEST_SQL_DB, { logging: !!process.env.DEBUG_SQL, operatorsAliases: false })
     const models = createModel(sequelize, {})
     SequelizeService.initialize(sequelize, models)
     SequelizeService.getInstance().sequelize.sync().then(() => {
-      crud = new MyCRUDService()
-      csService = new MyCloudSyncService()
+      crud = new CRUDService()
+      csService = new CloudSyncService()
       done()
     })
   })
@@ -150,23 +116,50 @@ describe('Test CloudSyncservice', () => {
       csService.createSyncHistory('My Shop 1', 'Preparing', lastSyncTime).then(resp => {
         if (resp.status && resp.data) {
           const syncHistoryId = resp.data.id
-          return csService.prepareData('My Shop 1', lastSyncTime, resp.data.untilTime, resp.data.id).then(resp => {
+          const untilTime = resp.data.untilTime
+          return csService.prepareData('My Shop 1', lastSyncTime, untilTime, resp.data.id).then(resp => {
             if (resp.status && resp.data) {
-              /* const data: any = resp.data
-              assert(data.Category.length > 0, 'Category should exist')
-              assert(data.SubCategory.length > 0, 'Sub-Category should exist')
-              assert(data.Product.length > 0, 'Product should exist') */
               assert(resp.data.syncFileName !== undefined)
               assert(resp.data.status === 'Success')
               assert(resp.data.id === syncHistoryId)
-              return
+
+              // Lets wait a bit until data is successfully prepared
+              const getState = () => {
+                return csService.getSyncHistory('My Shop 1', lastSyncTime).then(resp => {
+                  if (resp.status && resp.data && resp.data.status === 'Success') {
+                    assert.ok(resp.data.syncFileName, 'syncFileName does not exist!')
+                    return
+                  } else {
+                    throw new Error('Not yet finished!')
+                  }
+                })
+              }
+
+              const rejectDelay = (timeout, reason) => {
+                return new Promise((resolve, reject) => {
+                  setTimeout(() => {
+                    reject(reason)
+                  }, timeout)
+                })
+              }
+
+              // Wait for a while until data is prepared
+              let p = Promise.reject('Initial')
+              for (let i = 0 ; i < 10 ; i++) {
+                p = p.catch(() => {
+                  return getState()
+                }).catch(err => {
+                  return rejectDelay(200, err)
+                })
+              }
+              // TODO: Check that the data retrieved is good
+              return p
             } else {
               throw new Error('prepareData() failed! resp=' + JSON.stringify(resp))
             }
           })
         } else {
-          assert.fail(`Sync history can't be created: ` + resp.errMessage)
-          return
+          throw new Error(`Sync history can't be created: ` + resp.errMessage)
         }
       }).then(resp => {
         done()

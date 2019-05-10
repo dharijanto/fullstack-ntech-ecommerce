@@ -1,127 +1,179 @@
-import Axios from 'axios'
+import * as fs from 'fs'
+import * as path from 'path'
+
 import * as Promise from 'bluebird'
+import * as moment from 'moment'
 import * as log from 'npmlog'
+
+import { Transaction } from 'sequelize'
+import axios from 'axios'
 
 import * as AppConfig from '../../app-config'
 import CRUDService from '../../services/crud-service'
-import SequelizeService from '../../services/sequelize-service'
 import Sequelize = require('sequelize')
 import LocalShopService from './local-shop-service'
 
-const TAG = 'SyncService'
+const TAG = 'CloudSyncService'
 
-interface InternalSyncState {
-  /**
-   * Syncing: Shop server is currently updating its database
-   * Ready: Shop server is ready to sync
-   * Failed: Last syncing effort was failed
-   */
-  status: 'Ready' | 'Syncing' | 'Failed'
-}
+/*
+This is used by Cloud Server to serve sync requests from local-server
 
+There are 2 different kind of SQL tables:
+1. Cloud tables
+2. Local tables
+
+Cloud tables are supposed to be modified only on the cloud server (i.e. accessed using the Internet).
+Respectively, local tables should only be modified by local server. Due to this clear separation of
+table ownerships, syncing can be done easily because each of the tables have different owners and
+
+TODO:
+1. Mapping table to map local-ID to cloud-ID
+ */
 class SyncService extends CRUDService {
-
-  /**
-   * Returns shop data to be synced
-   */
-  getShopData (lastSyncDate?: string) {
-    return
-  }
-
-  /**
-   * Talk to cloud server, get sync histories
-   *
-   * @param shopIdentifier
-   */
-  getSyncHistories () {
-    return
-  }
-
-  // Functions related to syncing cloud-to-local
-
-  getCloudSyncHistories () {
-    return super.read<ShopSyncState>('ShopSyncState', {})
-  }
-
-  private getLastCloudSyncState (): Promise<NCResponse<ShopSyncState>> {
-    return super.readOne<ShopSyncState>('ShopSyncState', {}, { order: [['updatedAt', 'DESC']] })
-  }
-
-  // This is needed to know the age of the data to be requested from the cloud
-  private getLastCloudSuccessSyncState () {
-    return super.readOne<ShopSyncState>('ShopSyncState', { state: 'Success' }, { order: [['updatedAt', 'DESC']] })
-  }
-
-  // Process cloud data
-  private processCloudData (url: string, timeUntil: string): Promise<NCResponse<any>> {
-    // 1. Update syncState to be 'Syncing'
-    return super.create<ShopSyncState>('ShopSyncState', { state: 'Syncing', timeUntil }).then(resp => {
-      if (resp.status && resp.data) {
-        const shopSyncState = resp.data
-        return super.getSequelize().transaction({ isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.READ_COMMITTED }, transaction => {
-          // 2. Download cloud data
-          // 3. Apply cloud data to local db
-          throw new Error('Not implemented yet!')
-        }).then(() => {
-          // 4. Update syncState to be 'Ready'
-          throw new Error('Not implemented yet!')
-        }).catch(err => {
-          return super.update<ShopSyncState>('ShopSyncState', { state: 'Failed', description: err.message }, { id: shopSyncState.id })
-        })
-      } else {
-        throw new Error('Failed to create ShopSyncState: ' + resp.errMessage)
-      }
-    })
-  }
-
-  requestCloudData (): Promise<NCResponse<{syncState: string}>> {
-    return this.getLastCloudSyncState().then(resp => {
-      if ((resp.status && resp.data && resp.data.state !== 'Syncing') || !resp.status) {
-        return this.getLastCloudSuccessSyncState().then(resp2 => {
-          let timeUntil = ''
-          // If we've successfully synced before, we just wanna get data
-          // that is newer than that, otherwise, we sync everything (by leaving timeUntil blank)
-          if (resp2.status && resp2.data) {
-            timeUntil = resp2.data.timeUntil
-          }
-          // TODO: Make this mockable for testing purposes?
-          return Axios.post(`${AppConfig.CLOUD_SERVER.HOST}/cloud-sync/request`, {
-            timeSince: timeUntil,
-            shopName: LocalShopService.getLocalShopName()
-          }).then(rawResp => {
-            const resp3 = rawResp.data
-            if (resp3.status && resp3.data) {
-              const state: string = resp3.data.syncState
-              if (state === 'preparing') {
-                // Data is being prepared by the cloud
-                return { status: true, data: { syncState: state } }
-              } else if (state === 'ready') {
-                if (!resp3.data.url || !resp3.data.timeUntil) {
-                  throw new Error(`Cloud syncState is ready but doesn't return url and timeUntil!`)
-                }
-                this.processCloudData(resp3.data.url, resp3.data.timeUntil).then(resp => {
-                  if (resp.status) {
-                    log.info(TAG, 'requestSync(): processCloudData() succeeded!')
-                  } else {
-                    throw new Error(resp.errMessage)
-                  }
-                }).catch(err => {
-                  log.error(TAG, 'requestSync(): processCloudData() failed: ' + err.message)
-                })
-                return { status: true, data: { syncState: 'Ready' } } as NCResponse<{syncState: string}>
-              } else {
-                throw new Error(`Unexpected syncState from the cloud: ${state}`)
-              }
-            } else {
-              throw new Error(`/cloud-sync/request.POST returns unexpected data: ${JSON.stringify(resp3)}`)
+  cloudToLocalSync (): Promise<NCResponse<Partial<CloudToLocalSyncHistory>>> {
+    return super.getSequelize().transaction({ isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE }, trx => {
+      // Check whether there's a sync that's currently being processed
+      return this.getApplyingCloudToLocalSyncHistory(trx).then(resp => {
+        // Sync data is currently being applied, bailing
+        if (resp.status && resp.data) {
+          return resp
+        // No sync is progressing
+        } else {
+          // Get the last time we had successfully sync. We'll retrieve only data that is newer
+          return this.getLastSuccessfulCloudToLocalSyncHistory(trx).then(resp => {
+            // Fallback value, we leave it empty. Server knows it means we've never synced before
+            let lastSyncTime = ''
+            if (resp.status && resp.data) {
+              lastSyncTime = resp.data.untilTime
             }
+            // Ask cloud server for data since lastSyncTime
+            return this.requestCloudToLocalSync(lastSyncTime).then(resp => {
+              if (resp.status && resp.data) {
+                const cloudSyncHistory = resp.data
+                // Server has the data ready! We can apply them
+                if (cloudSyncHistory.status === 'Success') {
+                  if (cloudSyncHistory.syncFileName) {
+                    return this.retrieveAndApplyCloudToLocalData(cloudSyncHistory.syncFileName, cloudSyncHistory.untilTime, trx)
+                  } else {
+                    throw new Error('cloudSyncHistory status is success, but it doesn\'t have filename!')
+                  }
+                } else if (cloudSyncHistory.status === 'Preparing') {
+                  return { status: true, data: { status: 'Preparing' } } as NCResponse<Partial<CloudToLocalSyncHistory>>
+                } else {
+                  throw new Error('')
+                }
+              } else {
+                throw new Error('Failed to retrieve cloud data: ' + resp.errMessage)
+              }
+            })
           })
+        }
+      })
+    })
+  }
+
+  protected retrieveAndApplyCloudToLocalData (
+    remoteSyncFileName: string,
+    untilTime: string,
+    transaction: Sequelize.Transaction,
+    fileNameToJSONData?: (filename: string) => Promise<object> // Used for unit-testing purposes
+  ): Promise<NCResponse<Partial<CloudToLocalSyncHistory>>> {
+    return this.createCloudToLocalSyncHistory('Applying', untilTime, transaction).then(resp => {
+      if (resp.status && resp.data) {
+        const cloudToLocalSyncHistory = resp.data
+        let jsonResolver: (filename: string) => Promise<Object>
+        if (fileNameToJSONData) {
+          jsonResolver = fileNameToJSONData
+        } else {
+          jsonResolver = (filename: string) => {
+            return Promise.resolve(axios.get(`${AppConfig.CLOUD_SERVER.HOST}/sync/cloud-data/${filename}`).then(rawResp => {
+              return rawResp.data
+            }))
+          }
+        }
+        jsonResolver(remoteSyncFileName).then(json => {
+          const modelNames = Object.keys(json)
+          // TODO: This transaction should be outside, so status creation/update uses this as well
+          return super.getSequelize().transaction({ isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE }, trx => {
+            return Promise.map(modelNames, modelName => {
+              return Promise.map(json[modelName], (data: any) => {
+                // Clear out updatedAt so that it's generated by Sequelize ORM
+                // And to make sure there's an update so that we can rely on count to figure out
+                // new entry
+                return super.getModels(modelName).update(
+                  { ...data, updatedAt: null },
+                  { where: { id: data.id, transaction: trx } }
+                ).spread((count: number) => {
+                  if (count === 0) {
+                    return super.getModels(modelName).create({ ...data, updatedAt: null, transaction: trx })
+                  } else {
+                    return
+                  }
+                })
+              })
+            })
+          })
+        }).then(() => {
+          this.updateCloudToLocalSyncHistory(cloudToLocalSyncHistory.id, 'Success')
+        }).catch(err => {
+          this.updateCloudToLocalSyncHistory(cloudToLocalSyncHistory.id, 'Failed', err.message)
         })
+        return resp
       } else {
-        return { status: false, errMessage: 'Sync is in progress! syncState=' + JSON.stringify(resp) } as NCResponse<{syncState: string}>
+        throw new Error('Failed to create cloudToLocalSyncHistory: ' + resp.errMessage)
       }
     })
+  }
+
+  protected createCloudToLocalSyncHistory (
+    status: 'Applying' | 'Success' | 'Failed',
+    untilTime: string, transaction?: Sequelize.Transaction
+  ): Promise<NCResponse<CloudToLocalSyncHistory>> {
+    return super.create<CloudToLocalSyncHistory>('CloudToLocalSyncHistory', {
+      status,
+      untilTime
+    }, { transaction })
+  }
+
+  protected updateCloudToLocalSyncHistory (id: number, status: 'Applying' | 'Success' | 'Failed', info?: string, transaction?: Sequelize.Transaction) {
+    return super.update<CloudToLocalSyncHistory>('CloudToLocalSyncHistory', {
+      status,
+      info
+    }, { id : id }, { transaction })
+  }
+
+  protected getLastSuccessfulCloudToLocalSyncHistory (transaction?: Transaction): Promise<NCResponse<CloudToLocalSyncHistory>> {
+    return super.readOne<CloudToLocalSyncHistory>(
+      'CloudToLocalSyncHistory',
+      { status: 'Success' },
+      { order: [['updatedAt', 'DESC']], transaction, lock: transaction && transaction.LOCK.UPDATE }
+    )
+  }
+
+  protected getApplyingCloudToLocalSyncHistory (transaction?: Transaction): Promise<NCResponse<CloudToLocalSyncHistory>> {
+    return super.readOne<CloudToLocalSyncHistory>(
+      'CloudToLocalSyncHistory',
+      { status: 'Applying' },
+      { order: [['updatedAt', 'DESC']], transaction, lock: transaction && transaction.LOCK.UPDATE }
+    )
+  }
+
+  protected requestCloudToLocalSync (lastSyncTime: string): Promise<NCResponse<CloudSyncHistory>> {
+    const shopName = LocalShopService.getLocalShopName()
+    return Promise.resolve(axios.post(`${AppConfig.CLOUD_SERVER.HOST}/sync/request-cloud-data`, { lastSyncTime, shopName }).then(rawResp => {
+      const resp: NCResponse<CloudSyncHistory> = rawResp.data
+      if ('status' in resp) {
+        if (resp.status && resp.data) {
+          return resp
+        } else {
+          throw new Error('Failed to request cloud data: ' + resp.errMessage)
+        }
+      } else {
+        throw new Error('Unexpected server response: ' + JSON.stringify(resp))
+      }
+    }))
   }
 }
 
 export default new SyncService()
+export { SyncService as SyncServiceCls }

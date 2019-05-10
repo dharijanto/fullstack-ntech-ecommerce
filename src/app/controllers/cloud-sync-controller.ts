@@ -1,7 +1,12 @@
+import * as path from 'path'
+
+import * as express from 'express'
+
 import BaseController from './base-controller'
 import { SiteData } from '../../site-definitions'
 
-const path = require('path')
+import CloudSyncService from '../../services/cloud-sync-service'
+import * as AppConfig from '../../app-config'
 
 let log = require('npmlog')
 
@@ -13,44 +18,21 @@ This controller is running only on the cloud server in order to serve syncing
 export default class CloudSyncController extends BaseController {
   constructor (siteData: SiteData) {
     super(Object.assign(siteData, { viewPath: path.join(__dirname, '../views') }))
-
-    // Get data from the cloud, update it to the local database
-    // TODO: Figure out how we do this, since cloud data can be pretty large,
-    //       we'll have to wait
-    /*
-    req:
-    {
-      shopName: 'Shop 1',
-      lastSync: '2019-04-16 17:00:00'
+    if (!AppConfig.CLOUD_SERVER) {
+      super.routeAll('*', (req, res, next) => {
+        res.status(500).send('This is a cloud-specific feature!')
+      })
+    } else {
+      super.routeUse('/cloud-data', express.static(AppConfig.GENERATED_CLOUD_SYNC_DATA))
+      // Get data from the cloud, update it to the local database
+      super.routePost('/request-cloud-data', (req, res, next) => {
+        const { lastSyncTime, shopName } = req.body
+        CloudSyncService.getCloudData(lastSyncTime, shopName).then(resp => {
+          res.json(resp)
+        }).catch(err => {
+          next(err)
+        })
+      })
     }
-
-    resp:
-    { status: true
-      data : {
-        state: 'preparing'
-      }
-    }
-
-    { status: true
-      data : {
-        state: 'ready',
-        syncTime: '2019-04-16 18:20:00'
-        syncData : {
-          Image: ...
-          Category: ...
-          SubCategory: ...
-          Product: ...
-          ProductImage: ...
-          Variant: ...
-          Supplier: ...
-          SupplierStock: ...
-          Promotion: ...
-        }
-      }
-    }
-     */
-    super.routeGet('/sync-cloud-data', (req, res, next) => {
-      res.send('hello')
-    })
   }
 }

@@ -6,6 +6,7 @@ import BaseController from './controllers/base-controller'
 import CartController from './controllers/shop/cart-controller'
 import AccountController from './controllers/account-controller'
 import CMSController from './controllers/cms-controller'
+import CloudSyncController from './controllers/cloud-sync-controller'
 import LocalShopService from './local-shop-services/local-shop-service'
 import ProductService from '../services/product-service'
 import ShopController from './controllers/shop/shop-controller'
@@ -60,6 +61,7 @@ class Controller extends BaseController {
           this.routeUse('/cms', PassportHelper.ensureLoggedIn({}), (new CMSController(siteData).getRouter()))
           // More involved logics are separated into different controllers
           this.routeUse('/cart', (new CartController(siteData).getRouter()))
+          this.routeUse('/sync', (new CloudSyncController(siteData).getRouter()))
           this.routeUse('/', (new ShopController(siteData).getRouter()))
         } else {
           throw new Error(resp1.errMessage || resp2.errMessage)

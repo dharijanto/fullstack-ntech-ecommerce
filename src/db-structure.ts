@@ -136,6 +136,10 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
     untilTime: { type: Sequelize.STRING }
   })
 
+  // When there's a request for cloud-to-local sync, cloud server
+  // prepares a data fulfills the required sinceTime and untilTime.
+  // Those data are saved here so that subsequent redundant request
+  // don't have to be re-computed.
   models.CloudSyncHistory = sequelize.define('cloudSyncHistory', {
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
     status: { type: Sequelize.ENUM(['Preparing', 'Success', 'Failed']) },
@@ -250,11 +254,20 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
     value: { type: Sequelize.STRING }
   })
 
+  // Local-to-cloud sync histories
   models.ShopSyncState = sequelize.define('shopSyncState', {
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
     status: { type: Sequelize.ENUM(['Syncing', 'Success', 'Failed']) },
     description: { type: Sequelize.STRING },
     timeUntil: { type: Sequelize.STRING }
+  })
+
+  // Cloud-to-local sync histories
+  models.CloudToLocalSyncHistory = sequelize.define('cloudToLocalSyncHistory', {
+    id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
+    status: { type: Sequelize.ENUM(['Preparing', 'Applying', 'Success', 'Failed']) },
+    info: { type: Sequelize.STRING }, // error message, would be stored here
+    untilTime: { type: Sequelize.STRING }
   })
 
   /*

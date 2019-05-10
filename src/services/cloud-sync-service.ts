@@ -53,10 +53,14 @@ class CloudSyncService extends CRUDService {
    * @param lastSyncDate When specified, this will return only data whose updatedAt is bigger
    *
    */
-  protected getCloudData (lastSyncTime: string, shopName: string): Promise<NCResponse<CloudSyncResp>> {
+  getCloudData (lastSyncTime: string, shopName: string): Promise<NCResponse<CloudSyncResp>> {
     if (!shopName) {
       return Promise.reject('shopName is required!')
     } else {
+      // When leave empty, we'll just sync from the beginning
+      if (!lastSyncTime) {
+        lastSyncTime = '2017-01-01 00:00:00'
+      }
       return super.getSequelize().transaction({ isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE }, trx => {
         return this.getSyncHistory(shopName, lastSyncTime, trx).then(resp => {
           // We already have the data
@@ -179,14 +183,6 @@ class CloudSyncService extends CRUDService {
         })
       })
     })
-  }
-
-  /**
-   * Returns the record of this shop's synchronization
-   *
-   */
-  getShopSyncHistories (shopIdentifier: string) {
-    return
   }
 }
 
