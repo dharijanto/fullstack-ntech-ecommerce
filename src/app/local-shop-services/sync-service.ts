@@ -13,6 +13,8 @@ import CRUDService from '../../services/crud-service'
 import Sequelize = require('sequelize')
 import LocalShopService from './local-shop-service'
 
+import { CloudSyncResp } from '../../services/cloud-sync-service'
+
 const TAG = 'CloudSyncService'
 
 /*
@@ -52,8 +54,8 @@ class SyncService extends CRUDService {
                 const cloudSyncHistory = resp.data
                 // Server has the data ready! We can apply them
                 if (cloudSyncHistory.status === 'Success') {
-                  if (cloudSyncHistory.syncFileName) {
-                    return this.retrieveAndApplyCloudToLocalData(cloudSyncHistory.syncFileName, cloudSyncHistory.untilTime, undefined, trx)
+                  if (cloudSyncHistory.fileName) {
+                    return this.retrieveAndApplyCloudToLocalData(cloudSyncHistory.fileName, cloudSyncHistory.untilTime, undefined, trx)
                   } else {
                     throw new Error('cloudSyncHistory status is success, but it doesn\'t have filename!')
                   }
@@ -86,7 +88,7 @@ class SyncService extends CRUDService {
           jsonResolver = fileNameToJSONData
         } else {
           jsonResolver = (filename: string) => {
-            return Promise.resolve(axios.get(`${AppConfig.CLOUD_SERVER.HOST}/sync/cloud-data/${filename}`).then(rawResp => {
+            return Promise.resolve(axios.get(`${AppConfig.CLOUD_SERVER.HOST}/cloud-sync/cloud-data/${filename}`).then(rawResp => {
               return rawResp.data
             }))
           }
@@ -177,9 +179,9 @@ class SyncService extends CRUDService {
     )
   }
 
-  protected requestCloudToLocalSync (lastSyncTime: string): Promise<NCResponse<CloudSyncHistory>> {
+  protected requestCloudToLocalSync (lastSyncTime: string): Promise<NCResponse<CloudSyncResp>> {
     const shopName = LocalShopService.getLocalShopName()
-    return Promise.resolve(axios.post(`${AppConfig.CLOUD_SERVER.HOST}/sync/request-cloud-data`, { lastSyncTime, shopName }).then(rawResp => {
+    return Promise.resolve(axios.get(`${AppConfig.CLOUD_SERVER.HOST}/cloud-sync/request-cloud-data?lastSyncTime=${lastSyncTime}&shopName=${shopName}`).then(rawResp => {
       const resp: NCResponse<CloudSyncHistory> = rawResp.data
       if ('status' in resp) {
         if (resp.status && resp.data) {

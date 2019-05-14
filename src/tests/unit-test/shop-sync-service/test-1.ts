@@ -15,7 +15,6 @@ import ShopSyncService from '../../classes/shop-sync-service'
 import ShopService from '../../../services/shop-service'
 import ProductService from '../../../services/product-service'
 import { fstat, readFile } from 'fs'
-import productService from '../../../services/product-service'
 const createModel = require(path.join('../../../db-structure'))
 
 describe('Test CloudSyncservice', () => {
@@ -218,7 +217,7 @@ describe('Test CloudSyncservice', () => {
         const now = moment().format('YYYY-MM-DD HH:mm:ss')
         return csService.getSyncHistory('My Shop 1', '2017-01-01').then(resp => {
           if (resp.status && resp.data) {
-            const syncFileName = resp.data.syncFileName || ''
+            const syncFileName = resp.data.fileName || ''
             if (resp.data.status !== 'Success') {
               throw new Error('getSyncHistory() return non success status: ' + resp.data.status)
             } else {

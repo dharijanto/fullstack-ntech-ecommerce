@@ -10,9 +10,9 @@ const path = require('path')
 
 let log = require('npmlog')
 
-const TAG = 'MainController'
+const TAG = 'ShopController'
 
-export default class CartController extends BaseController {
+export default class ShopController extends BaseController {
   constructor (siteData: SiteData) {
     super(Object.assign(siteData, { viewPath: path.join(__dirname, '../../views') }))
 
@@ -82,7 +82,7 @@ export default class CartController extends BaseController {
 
     // Product page
     // Information related to a specific product, customer can order here
-    this.routeGet('/:categoryId/*/:subCategoryId/*/:productId/*/', (req, res, next) => {
+    this.routeGet('/:categoryId([0-9]+)/*/:subCategoryId([0-9]+)/*/:productId([0-9]+)/*/', (req, res, next) => {
       log.verbose(TAG, '/:categoryId/*/:subCategoryId/*/:productId/*/.GET()')
       const categoryId = req.params.categoryId
       const subCategoryId = req.params.subCategoryId
@@ -111,7 +111,7 @@ export default class CartController extends BaseController {
     })
 
     // Sub-category page
-    this.routeGet('/:categoryId/*/:subCategoryId/*/', (req, res, next) => {
+    this.routeGet('/:categoryId([0-9]+)/*/:subCategoryId([0-9]+)/*/', (req, res, next) => {
       log.verbose(TAG, '/:categoryId/*/:subCategoryId/*/.GET()')
       const subCategoryId = req.params.subCategoryId
       res.locals.currentInStockProductPage = req.query['in-stock-products-page'] || 1
@@ -149,7 +149,7 @@ export default class CartController extends BaseController {
 
     // Category page
     // NOTE: Because this route path is a 'super-path' of sub-category page, this has to be defined later
-    this.routeGet('/:categoryId/*/', (req, res, next) => {
+    this.routeGet('/:categoryId([0-9]+)/*/', (req, res, next) => {
       log.verbose(TAG, '/:categoryId/*/.GET()')
       const categoryId = req.params.categoryId
       res.locals.currentInStockProductPage = req.query['in-stock-products-page'] || 1

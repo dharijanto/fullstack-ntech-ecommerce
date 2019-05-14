@@ -120,13 +120,13 @@ describe('Test CloudSyncservice', () => {
           const untilTime = resp.data.untilTime
           return csService.prepareData('My Shop 1', lastSyncTime, untilTime, resp.data.id).then(resp => {
             if (resp.status && resp.data) {
-              assert(resp.data.syncFileName !== undefined)
-              assert(resp.data.status === 'Success')
-              assert(resp.data.id === syncHistoryId)
+              assert(resp.data.fileName !== undefined, 'Filename should not be empty')
+              assert(resp.data.status === 'Success', 'Resp should succeed ')
+              assert(resp.data.id === syncHistoryId, 'Id should be the same as syncHistoryId')
               const getState = () => {
                 return csService.getSyncHistory('My Shop 1', lastSyncTime).then(resp => {
                   if (resp.status && resp.data && resp.data.status === 'Success') {
-                    assert.ok(resp.data.syncFileName, 'syncFileName does not exist!')
+                    assert.ok(resp.data.fileName, 'syncFileName does not exist!')
                     return
                   } else {
                     throw new Error('Not yet finished!')

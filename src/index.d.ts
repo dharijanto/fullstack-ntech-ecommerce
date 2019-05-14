@@ -177,7 +177,7 @@ interface CloudSyncHistory extends BaseModel {
   shopName: string
   sinceTime: string
   untilTime: string,
-  syncFileName?: string
+  fileName?: string
 }
 // ----------------------------------------
 // ---- End of cloud-exclusive tables ---

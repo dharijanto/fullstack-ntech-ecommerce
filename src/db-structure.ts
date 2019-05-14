@@ -150,7 +150,7 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
     // with timezone conversion, STRING is way easier to work with in this case
     sinceTime: { type: Sequelize.STRING },
     untilTime: { type: Sequelize.STRING },
-    syncFileName: { type: Sequelize.STRING }
+    fileName: { type: Sequelize.STRING }
   })
 
   /*

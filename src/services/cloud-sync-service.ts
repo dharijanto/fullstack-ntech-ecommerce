@@ -13,10 +13,10 @@ import Sequelize = require('sequelize')
 
 const TAG = 'CloudSyncService'
 
-interface CloudSyncResp {
+export interface CloudSyncResp {
   status: CloudSyncStatus
   fileName?: string
-  untilTime?: string
+  untilTime: string
 }
 
 // TODO: Figure this out
@@ -41,10 +41,6 @@ TODO:
 class CloudSyncService extends CRUDService {
   constructor () {
     super()
-
-    if (!AppConfig.CLOUD_SERVER) {
-      throw new Error('CloudSyncService can only be instantiated by cloud server!')
-    }
   }
 
   /**
@@ -66,7 +62,7 @@ class CloudSyncService extends CRUDService {
           // We already have the data
           if (resp.status && resp.data && resp.data.status === 'Success') {
             const syncHistory = resp.data
-            return { status: true, data: { status: 'Success', fileName: syncHistory.syncFileName, untilTime: syncHistory.untilTime } } as NCResponse<CloudSyncResp>
+            return { status: true, data: { status: 'Success', fileName: syncHistory.fileName, untilTime: syncHistory.untilTime } } as NCResponse<CloudSyncResp>
           // There's a sync being prepared
           } else if (resp.status && resp.data && resp.data.status === 'Preparing') {
             return { status: true, data: { status: 'Preparing' } } as NCResponse<CloudSyncResp>
@@ -152,22 +148,22 @@ class CloudSyncService extends CRUDService {
       // Write generated cloud sync data to file
       return new Promise((resolve, reject) => {
         try {
-          const syncFileName = `${Date.now()}_cloud-sync-data.json`
+          const outFileName = `${Date.now()}_cloud-sync-data.json`
           fs.writeFile(
-            path.join(AppConfig.GENERATED_CLOUD_SYNC_DATA, syncFileName),
+            path.join(AppConfig.GENERATED_CLOUD_SYNC_DATA, outFileName),
             JSON.stringify(data), err => {
               if (err) {
                 reject(err)
               } else {
-                resolve(syncFileName)
+                resolve(outFileName)
               }
             })
         } catch (err) {
           reject(err)
         }
-      }).then((syncFileName: string) => {
+      }).then((fileName: string) => {
         // Update SyncHistory
-        return super.update<CloudSyncHistory>('CloudSyncHistory', { status: 'Success', syncFileName }, { id: syncHistoryId }).then(resp2 => {
+        return super.update<CloudSyncHistory>('CloudSyncHistory', { status: 'Success', fileName }, { id: syncHistoryId }).then(resp2 => {
           if (!(resp2.status && resp2.data !== undefined && resp2.data > 0)) {
             log.error(TAG, `prepareData(): Failed to update CloudSyncHistory! id=${syncHistoryId} resp=${JSON.stringify(resp2)}`)
             // TODO: send email using MailService
