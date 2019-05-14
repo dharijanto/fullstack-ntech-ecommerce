@@ -109,7 +109,7 @@ class SyncService extends CRUDService {
                   lock: Sequelize.Transaction.LOCK.UPDATE
                 }).then(result => {
                   if (result) {
-                    const updateAny = super.getModels(modelName).update.bind(super.getModels(modelName)) as any
+                    const updateAny = super.getModels(modelName).update.bind(super.getModels(modelName))
                     // deletedAt is required so that it's reset to NULL
                     return updateAny(
                       { ...data, updatedAt: null },

@@ -1,15 +1,9 @@
-import * as path from 'path'
 import BaseController from './base-controller'
 import ProductService from '../../services/product-service'
 import { ImageService } from '../../site-definitions'
 
 import * as Utils from '../../libs/utils'
 
-import * as AppConfig from '../../app-config'
-
-let log = require('npmlog')
-
-const TAG = 'ProductManagementController'
 export default class ProductManagementController extends BaseController {
   private imageService: ImageService
   private readonly imageURLFormatter

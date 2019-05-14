@@ -1,14 +1,8 @@
-import * as express from 'express'
-import * as Promise from 'bluebird'
-import * as pug from 'pug'
-
 import * as AppConfig from '../../../app-config'
 import BaseController from '../base-controller'
-import ShopService from '../../../services/shop-service'
 import LocalShopService from '../../local-shop-services/local-shop-service'
 import { SiteData, ImageService } from '../../../site-definitions'
 import * as Utils from '../../../libs/utils'
-import OrderService from '../../local-shop-services/order-service'
 
 const path = require('path')
 

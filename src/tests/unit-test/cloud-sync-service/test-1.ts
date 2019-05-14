@@ -8,28 +8,26 @@ import * as pretry from 'bluebird-retry'
 
 import * as AppConfig from '../../../app-config'
 import SequelizeService from '../../../services/sequelize-service'
-import CRUDService from '../../classes/crud-service'
+import * as SequelizeHelper from '../../classes/sequelize-helper'
 import CloudSyncService from '../../classes/cloud-sync-service'
 import ShopService from '../../../services/shop-service'
 import ProductService from '../../../services/product-service'
 const createModel = require(path.join('../../../db-structure'))
 
 describe('Test CloudSyncservice', () => {
-  let crud: CRUDService
   let csService: CloudSyncService
   before(done => {
     const sequelize = new Sequelize(AppConfig.TEST_SQL_DB, { logging: !!process.env.DEBUG_SQL, operatorsAliases: false })
     const models = createModel(sequelize, {})
     SequelizeService.initialize(sequelize, models)
     SequelizeService.getInstance().sequelize.sync().then(() => {
-      crud = new CRUDService()
       csService = new CloudSyncService()
       done()
     })
   })
 
   beforeEach(done => {
-    crud.destroyAllTables().then(() => {
+    SequelizeHelper.destroyAllTables().then(() => {
       ShopService.createShop({ name: 'My Shop 1' }).then(resp => {
         assert.ok('status' in resp)
         assert.ok(resp.status)
@@ -41,7 +39,7 @@ describe('Test CloudSyncservice', () => {
     it('Test getLastSyncState() 1', done => {
       csService.getSyncHistory('My Shop 1', '2019-02-01 00:00:00').then(resp => {
         assert.ok('status' in resp && !resp.status, 'getLastSyncHistory should fail')
-        return crud.getSequelize().transaction({ isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE }, trx => {
+        return SequelizeService.getInstance().sequelize.transaction({ isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE }, trx => {
           const sinceTime = '2019-01-02'
           return csService.createSyncHistory('My Shop 1', 'Preparing', sinceTime, trx).then(resp => {
             assert.ok(resp.status && resp.data && resp.data.status, 'createSyncHistory should succeed 1')
@@ -68,7 +66,7 @@ describe('Test CloudSyncservice', () => {
     })
 
     it('Test getLastSyncState() 2', done => {
-      crud.getSequelize().transaction({ isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE }, trx => {
+      SequelizeService.getInstance().sequelize.transaction({ isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE }, trx => {
         const sinceTime = '2019-02-02'
         const sinceTime2 = '2019-03-01'
         return Promise.join(
@@ -154,7 +152,6 @@ describe('Test CloudSyncservice', () => {
   })
 
   after(done => {
-    SequelizeService.getInstance().close()
     done()
   })
 

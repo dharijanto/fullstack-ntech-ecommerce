@@ -4,7 +4,8 @@
   "description": "",
   "main": "db-structure.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha --file dist/tests/init.js --recursive dist/tests/unit-test/",
+    "lint": "tslint -p tsconfig.json -c tslint.json"
   },
   "repository": {
     "type": "git",

@@ -9,7 +9,7 @@ import * as pretry from 'bluebird-retry'
 
 import * as AppConfig from '../../../app-config'
 import SequelizeService from '../../../services/sequelize-service'
-import CRUDService from '../../classes/crud-service'
+import * as SequelizeHelper from '../../classes/sequelize-helper'
 import CloudSyncService from '../../classes/cloud-sync-service'
 import ShopSyncService from '../../classes/shop-sync-service'
 import ShopService from '../../../services/shop-service'
@@ -18,7 +18,6 @@ import { fstat, readFile } from 'fs'
 const createModel = require(path.join('../../../db-structure'))
 
 describe('Test CloudSyncservice', () => {
-  let crud: CRUDService
   let ssService: ShopSyncService
   let csService: CloudSyncService
   before(done => {
@@ -26,7 +25,6 @@ describe('Test CloudSyncservice', () => {
     const models = createModel(sequelize, {})
     SequelizeService.initialize(sequelize, models)
     SequelizeService.getInstance().sequelize.sync().then(() => {
-      crud = new CRUDService()
       ssService = new ShopSyncService()
       csService = new CloudSyncService()
       done()
@@ -34,7 +32,7 @@ describe('Test CloudSyncservice', () => {
   })
 
   beforeEach(done => {
-    crud.destroyAllTables().then(() => {
+    SequelizeHelper.destroyAllTables().then(() => {
       ShopService.createShop({ name: 'My Shop 1' }).then(resp => {
         assert.ok('status' in resp)
         assert.ok(resp.status)
@@ -44,7 +42,7 @@ describe('Test CloudSyncservice', () => {
   })
   describe('Test sync state', () => {
     it('Test "Applying" state', done => {
-      crud.getSequelize().transaction({ isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE }, trx => {
+      SequelizeService.getInstance().sequelize.transaction({ isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE }, trx => {
         return ssService.createCloudToLocalSyncHistory('Applying', '2019-09-09', trx).then(resp => {
           if (resp.status && resp.data) {
             assert.equal(resp.data.status, 'Applying')
@@ -69,7 +67,7 @@ describe('Test CloudSyncservice', () => {
     })
 
     it('Test "Success" state', function (done) {
-      crud.getSequelize().transaction({ isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE }, trx => {
+      SequelizeService.getInstance().sequelize.transaction({ isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE }, trx => {
         return ssService.createCloudToLocalSyncHistory('Success', '2019-09-09', trx).then(resp => {
           if (resp.status && resp.data) {
             return ssService.getApplyingCloudToLocalSyncHistory(trx).then(resp => {
@@ -99,7 +97,7 @@ describe('Test CloudSyncservice', () => {
     })
 
     it('Test state update', done => {
-      crud.getSequelize().transaction({ isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE }, trx => {
+      SequelizeService.getInstance().sequelize.transaction({ isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE }, trx => {
         return ssService.createCloudToLocalSyncHistory('Applying', '2019-09-09', trx).then(resp => {
           if (resp.status && resp.data) {
             const history = resp.data
@@ -209,10 +207,10 @@ describe('Test CloudSyncservice', () => {
     })
 
     it('Test retrieveAndApplyCloudToLocalData()', done => {
-      crud.getModels('Product').destroy({ where: {} }).then(() => {
-        return crud.getModels('SubCategory').destroy({ where: {} })
+      SequelizeService.getInstance().models['Product'].destroy({ where: {} }).then(() => {
+        return SequelizeService.getInstance().models['SubCategory'].destroy({ where: {} })
       }).then(() => {
-        return crud.getModels('Category').destroy({ where: {} })
+        return SequelizeService.getInstance().models['Category'].destroy({ where: {} })
       }).then(() => {
         const now = moment().format('YYYY-MM-DD HH:mm:ss')
         return csService.getSyncHistory('My Shop 1', '2017-01-01').then(resp => {
@@ -255,9 +253,9 @@ describe('Test CloudSyncservice', () => {
                   }
                   return Promise.delay(500).then(() => retry()).then(resp => {
                     return Promise.join(
-                      crud.getModels('Category').findAll(),
-                      crud.getModels('SubCategory').findAll(),
-                      crud.getModels('Product').findAll()
+                      SequelizeService.getInstance().models['Category'].findAll(),
+                      SequelizeService.getInstance().models['SubCategory'].findAll(),
+                      SequelizeService.getInstance().models['Product'].findAll()
                     ).spread((data: any[], data2, data3) => {
                       assert(data.length === 1, 'Unexpected number of categories: ' + data.length)
                       assert(data2.length === 3, 'Unexpected number of subCategories: ' + data2.length)
@@ -286,7 +284,6 @@ describe('Test CloudSyncservice', () => {
   })
 
   after(done => {
-    SequelizeService.getInstance().close()
     done()
   })
 

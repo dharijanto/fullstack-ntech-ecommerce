@@ -1,10 +1,9 @@
+import * as path from 'path'
+
 import BaseController from './base-controller'
 
-import * as AppConfig from '../../app-config'
 import { SiteData } from '../../site-definitions'
 import SyncService from '../local-shop-services/sync-service'
-
-const path = require('path')
 
 let log = require('npmlog')
 

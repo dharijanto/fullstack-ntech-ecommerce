@@ -1,11 +1,5 @@
-import * as express from 'express'
-import * as Promise from 'bluebird'
-import * as pug from 'pug'
-
 import BaseController from '../base-controller'
-import CartService from '../../local-shop-services/cart-service'
 import { SiteData } from '../../../site-definitions'
-import * as Utils from '../../../libs/utils'
 import OrderService from '../../local-shop-services/order-service'
 import * as AppConfig from '../../../app-config'
 

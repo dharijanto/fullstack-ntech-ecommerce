@@ -1,22 +1,12 @@
-import * as express from 'express'
-import * as AppConfig from '../../app-config'
-import * as Promise from 'bluebird'
-
 import BaseController from './base-controller'
-import CartService from '../local-shop-services/cart-service'
 import OrderManagementController from './cms/order-management-controller'
 import ProductManagementController from './cms/product-management-controller'
 import PromotionManagementController from './cms/promotion-management-controller'
 import StockManagementController from './cms/stock-management-controller'
 import { SiteData } from '../../site-definitions'
-import * as Utils from '../../libs/utils'
 import LocalShopService from '../local-shop-services/local-shop-service'
 
 const path = require('path')
-
-let log = require('npmlog')
-
-const TAG = 'MainController'
 
 export default class CMSController extends BaseController {
   constructor (siteData: SiteData) {

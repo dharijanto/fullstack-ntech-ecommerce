@@ -1,6 +1,6 @@
 import * as Sequelize from 'sequelize'
 
-export default function addTables (sequelize: Sequelize.Sequelize, models: Sequelize.Models) {
+function addTables (sequelize: Sequelize.Sequelize, models: Sequelize.Models) {
   /*
     ----------------------------
       Cloud-specific Database
@@ -278,4 +278,5 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
   return models
 }
 
-module.exports = addTables
+// module.exports = addTables
+export = addTables

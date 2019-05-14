@@ -1,31 +1,20 @@
-import * as express from 'express'
-import * as Promise from 'bluebird'
-import * as pug from 'pug'
-
-import * as AppConfig from '../../../app-config'
 import BaseController from '../base-controller'
 import ShopService from '../../../services/shop-service'
-import LocalShopService from '../../local-shop-services/local-shop-service'
 import LocalStockService from '../../local-shop-services/stock-service'
 import { SiteData, ImageService } from '../../../site-definitions'
-import * as Utils from '../../../libs/utils'
 
 const path = require('path')
-
-let log = require('npmlog')
-
-const TAG = 'MainController'
 
 /*
 TODO: Only user with admin privilege can access this page!
 */
 export default class PromotionManagementController extends BaseController {
-  private imageService: ImageService
+  // private imageService: ImageService
 
   constructor (siteData: SiteData) {
     super(Object.assign(siteData, { viewPath: path.join(__dirname, '../../views') }))
 
-    this.imageService = new siteData.services.ImageService(siteData.db.sequelize, siteData.db.models)
+    // this.imageService = new siteData.services.ImageService(siteData.db.sequelize, siteData.db.models)
 
     super.routeGet('/stocks', (req, res, next) => {
       const variantId = req.query.variantId
