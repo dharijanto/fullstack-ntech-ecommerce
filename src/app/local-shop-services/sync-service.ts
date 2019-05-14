@@ -113,11 +113,15 @@ class SyncService extends CRUDService {
                     // deletedAt is required so that it's reset to NULL
                     return updateAny(
                       { ...data, updatedAt: null },
-                      { where: { id: result.id }, paranoid: false, transaction: trx })
+                      { where: { id: result.id }, paranoid: false, transaction: trx }).catch(err => {
+                        throw new Error(`Failed to update data=${JSON.stringify(data)}: ` + err)
+                      })
                   } else {
                     return super.getModels(modelName).create(
-                      { ...result, updatedAt: null }, { transaction: trx }
-                    )
+                      { ...data, updatedAt: null }, { transaction: trx }
+                    ).catch(err => {
+                      throw new Error(`Failed to create data=${JSON.stringify(data)}: ` + err)
+                    })
                   }
                 })
               })
@@ -126,6 +130,7 @@ class SyncService extends CRUDService {
         }).then(() => {
           this.updateCloudToLocalSyncHistory(cloudToLocalSyncHistory.id, 'Success')
         }).catch(err => {
+          log.error(TAG, 'Failed to apply data from cloud: ' + err)
           this.updateCloudToLocalSyncHistory(cloudToLocalSyncHistory.id, 'Failed', err.message)
         })
 
