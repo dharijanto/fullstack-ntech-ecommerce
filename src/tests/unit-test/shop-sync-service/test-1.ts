@@ -3,27 +3,33 @@ import * as assert from 'assert'
 import * as process from 'process'
 
 import * as Sequelize from 'sequelize'
+import * as moment from 'moment'
 import * as Promise from 'bluebird'
+import * as pretry from 'bluebird-retry'
 
 import * as AppConfig from '../../../app-config'
 import SequelizeService from '../../../services/sequelize-service'
 import CRUDService from '../../classes/crud-service'
-import CloudSyncservice from '../../classes/cloud-sync-service'
+import CloudSyncService from '../../classes/cloud-sync-service'
 import ShopSyncService from '../../classes/shop-sync-service'
 import ShopService from '../../../services/shop-service'
 import ProductService from '../../../services/product-service'
+import { fstat, readFile } from 'fs'
+import productService from '../../../services/product-service'
 const createModel = require(path.join('../../../db-structure'))
 
 describe('Test CloudSyncservice', () => {
   let crud: CRUDService
-  let csService: ShopSyncService
+  let ssService: ShopSyncService
+  let csService: CloudSyncService
   before(done => {
     const sequelize = new Sequelize(AppConfig.TEST_SQL_DB, { logging: !!process.env.DEBUG_SQL, operatorsAliases: false })
     const models = createModel(sequelize, {})
     SequelizeService.initialize(sequelize, models)
     SequelizeService.getInstance().sequelize.sync().then(() => {
       crud = new CRUDService()
-      csService = new ShopSyncService()
+      ssService = new ShopSyncService()
+      csService = new CloudSyncService()
       done()
     })
   })
@@ -40,15 +46,15 @@ describe('Test CloudSyncservice', () => {
   describe('Test sync state', () => {
     it('Test "Applying" state', done => {
       crud.getSequelize().transaction({ isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE }, trx => {
-        return csService.createCloudToLocalSyncHistory('Applying', '2019-09-09', trx).then(resp => {
+        return ssService.createCloudToLocalSyncHistory('Applying', '2019-09-09', trx).then(resp => {
           if (resp.status && resp.data) {
             assert.equal(resp.data.status, 'Applying')
             assert.equal(resp.data.untilTime, '2019-09-09')
-            return csService.getApplyingCloudToLocalSyncHistory(trx).then(resp => {
+            return ssService.getApplyingCloudToLocalSyncHistory(trx).then(resp => {
               if (resp.status && resp.data) {
                 assert.equal(resp.data.status, 'Applying')
                 assert.equal(resp.data.untilTime, '2019-09-09')
-                return csService.getLastSuccessfulCloudToLocalSyncHistory(trx).then(resp => {
+                return ssService.getLastSuccessfulCloudToLocalSyncHistory(trx).then(resp => {
                   assert.equal(resp.status, false, 'Unexpected response from getlastSuccessfulCloudToLocalSyncHistory()')
                   return
                 })
@@ -65,13 +71,13 @@ describe('Test CloudSyncservice', () => {
 
     it('Test "Success" state', function (done) {
       crud.getSequelize().transaction({ isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE }, trx => {
-        return csService.createCloudToLocalSyncHistory('Success', '2019-09-09', trx).then(resp => {
+        return ssService.createCloudToLocalSyncHistory('Success', '2019-09-09', trx).then(resp => {
           if (resp.status && resp.data) {
-            return csService.getApplyingCloudToLocalSyncHistory(trx).then(resp => {
+            return ssService.getApplyingCloudToLocalSyncHistory(trx).then(resp => {
               if (resp.status && resp.data) {
                 throw new Error('Unexpected response status from getApplyingCloudToLocalSyncHistory(): ' + JSON.stringify(resp))
               } else {
-                return csService.getLastSuccessfulCloudToLocalSyncHistory(trx).then(resp => {
+                return ssService.getLastSuccessfulCloudToLocalSyncHistory(trx).then(resp => {
                   if (resp.status && resp.data) {
                     assert.equal(resp.data.status, 'Success')
                     assert.equal(resp.data.untilTime, '2019-09-09')
@@ -95,22 +101,22 @@ describe('Test CloudSyncservice', () => {
 
     it('Test state update', done => {
       crud.getSequelize().transaction({ isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE }, trx => {
-        return csService.createCloudToLocalSyncHistory('Applying', '2019-09-09', trx).then(resp => {
+        return ssService.createCloudToLocalSyncHistory('Applying', '2019-09-09', trx).then(resp => {
           if (resp.status && resp.data) {
             const history = resp.data
             assert.equal(resp.data.status, 'Applying')
             assert.equal(resp.data.untilTime, '2019-09-09')
-            return csService.getApplyingCloudToLocalSyncHistory(trx).then(resp => {
+            return ssService.getApplyingCloudToLocalSyncHistory(trx).then(resp => {
               if (resp.status && resp.data) {
                 assert.equal(resp.data.status, 'Applying')
                 assert.equal(resp.data.untilTime, '2019-09-09')
-                return csService.getLastSuccessfulCloudToLocalSyncHistory(trx).then(resp => {
+                return ssService.getLastSuccessfulCloudToLocalSyncHistory(trx).then(resp => {
                   if (resp.status) {
                     throw new Error('Unexpected response from getLastSuccessfulCloudToLocalSyncHistory()')
                   } else {
-                    return csService.updateCloudToLocalSyncHistory(history.id, 'Success', 'Successfully updated!', trx).then(resp => {
+                    return ssService.updateCloudToLocalSyncHistory(history.id, 'Success', 'Successfully updated!', trx).then(resp => {
                       if (resp.status) {
-                        return csService.getLastSuccessfulCloudToLocalSyncHistory(trx).then(resp => {
+                        return ssService.getLastSuccessfulCloudToLocalSyncHistory(trx).then(resp => {
                           if (resp.status && resp.data) {
                             assert.equal(resp.data.status, 'Success')
                             assert.equal(resp.data.info, 'Successfully updated!')
@@ -168,7 +174,6 @@ describe('Test CloudSyncservice', () => {
                     assert.fail('Failed to createProduct(): ' + results[i].errMessage)
                   }
                 }
-                const csService = new CloudSyncservice()
                 return csService.createSyncHistory('My Shop 1', 'Preparing', '2017-01-01').then(resp => {
                   if (resp.status && resp.data) {
                     const syncHistory = resp.data
@@ -184,23 +189,8 @@ describe('Test CloudSyncservice', () => {
                         })
                       }
 
-                      function rejectDelay (timeout, reason) {
-                        return new Promise((resolve, reject) => {
-                          setTimeout(() => {
-                            reject(reason)
-                          }, timeout)
-                        })
-                      }
-
-                      // Wait for a while until data is prepared
-                      let p = Promise.reject('Initial')
-                      for (let i = 0 ; i < 10 ; i++) {
-                        p = p.catch(() => {
-                          return getState()
-                        }).catch(err => {
-                          return rejectDelay(200, err)
-                        })
-                      }
+                      // After 5 seconds, prepareData() should've completed
+                      return pretry(getState, { interval: 1000, max_tries: 5 })
                     })
                   } else {
                     throw new Error('Failed to createSyncHistory(): ' + resp.errMessage)
@@ -220,8 +210,77 @@ describe('Test CloudSyncservice', () => {
     })
 
     it('Test retrieveAndApplyCloudToLocalData()', done => {
-      //csService.retrieveAndApplyCloudToLocalData('test', '')
-      done()
+      crud.getModels('Product').destroy({ where: {} }).then(() => {
+        return crud.getModels('SubCategory').destroy({ where: {} })
+      }).then(() => {
+        return crud.getModels('Category').destroy({ where: {} })
+      }).then(() => {
+        const now = moment().format('YYYY-MM-DD HH:mm:ss')
+        return csService.getSyncHistory('My Shop 1', '2017-01-01').then(resp => {
+          if (resp.status && resp.data) {
+            const syncFileName = resp.data.syncFileName || ''
+            if (resp.data.status !== 'Success') {
+              throw new Error('getSyncHistory() return non success status: ' + resp.data.status)
+            } else {
+              const jsonResolver = (filename) => {
+                console.log('jsonResolver(): filename=' + path.join(`${AppConfig.GENERATED_CLOUD_SYNC_DATA}`, filename))
+                const readFileAsync = Promise.promisify(readFile)
+                return readFileAsync(path.join(`${AppConfig.GENERATED_CLOUD_SYNC_DATA}`, filename)).then(data => {
+                  return JSON.parse(data.toString())
+                })
+              }
+              return ssService.retrieveAndApplyCloudToLocalData(syncFileName, now, jsonResolver).then(resp => {
+                if (resp.status && resp.data) {
+                  const id = resp.data.id
+                  assert.equal(resp.data.status, 'Applying')
+                  const retry = () => {
+                    return Promise.join(
+                      ssService.getLastSuccessfulCloudToLocalSyncHistory(),
+                      ssService.getLastFailedCloudToLocalSyncHistory()
+                    ).spread((resp: NCResponse<CloudToLocalSyncHistory>, resp2) => {
+                      if (resp2.status && resp2.data) {
+                        throw new Error('Fauled to retrieveAndApplyCloudToLocalData(): ' + resp2.data.info)
+                      }
+                      if (resp.status && resp.data) {
+                        if (resp.data.id === id) {
+                          return resp
+                        } else {
+                          console.error('last getLastSuccessfulCloudToLocalSyncHistory() returns different id: ' + resp.data.id)
+                          throw new Error('last getLastSuccessfulCloudToLocalSyncHistory() returns different id: ' + resp.data.id)
+                        }
+                      } else {
+                        console.error('Failed to getLastSuccessfulCloudToLocalSyncHistory(): ' + resp.errMessage)
+                        throw new Error('Failed to getLastSuccessfulCloudToLocalSyncHistory(): ' + resp.errMessage)
+                      }
+                    })
+                  }
+                  return Promise.delay(500).then(() => retry()).then(resp => {
+                    return Promise.join(
+                      crud.getModels('Category').findAll(),
+                      crud.getModels('SubCategory').findAll(),
+                      crud.getModels('Product').findAll()
+                    ).spread((data: any[], data2, data3) => {
+                      assert(data.length === 1, 'Unexpected number of categories: ' + data.length)
+                      assert(data2.length === 3, 'Unexpected number of subCategories: ' + data2.length)
+                      assert(data3.length === 4, 'Unexpected number of products: ' + data3.length)
+                      return
+                    })
+                  })
+                } else {
+                  throw new Error('Failed to retrieveAndApplyCloudToLocalData(): ' + resp.errMessage)
+                }
+              })
+            }
+          } else {
+            throw new Error('Failed to getSyncHistory(): ' + resp.errMessage)
+          }
+        }).then(() => {
+          done()
+        }).catch(err => {
+          done(err)
+        })
+      })
+      // done()
     })
 
     // TODO: Test prepare data lastSyncTime and untilTime

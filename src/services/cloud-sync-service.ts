@@ -66,17 +66,17 @@ class CloudSyncService extends CRUDService {
           // We already have the data
           if (resp.status && resp.data && resp.data.status === 'Success') {
             const syncHistory = resp.data
-            return { status: true, data: { status: 'Ready', fileName: syncHistory.syncFileName, untilTime: syncHistory.untilTime } }
+            return { status: true, data: { status: 'Success', fileName: syncHistory.syncFileName, untilTime: syncHistory.untilTime } } as NCResponse<CloudSyncResp>
           // There's a sync being prepared
           } else if (resp.status && resp.data && resp.data.status === 'Preparing') {
-            return { status: true, data: { status: 'Preparing' } }
+            return { status: true, data: { status: 'Preparing' } } as NCResponse<CloudSyncResp>
           // Never synced before
           } else if (!resp.status) {
             return this.createSyncHistory(shopName, 'Preparing', lastSyncTime, trx).then(resp => {
               if (resp.status && resp.data) {
                 const currentSyncHistory = resp.data
                 this.prepareData(shopName, lastSyncTime, currentSyncHistory.untilTime, currentSyncHistory.id)
-                return { status: true, data: { status: 'Preparing' } }
+                return { status: true, data: { status: 'Preparing' } } as NCResponse<CloudSyncResp>
               } else {
                 throw new Error('createSyncState() failed: ' + resp.errMessage)
               }
@@ -127,14 +127,17 @@ class CloudSyncService extends CRUDService {
         // Data from these tables are the ones that need to be sent
         const models = ['Image', 'Category', 'SubCategory', 'Product', 'Variant', 'ProductImage', 'Supplier', 'SupplierStock', 'Promotion']
         return Promise.map(models, model => {
-          return super.read(model, {
-            updatedAt: {
-              [Sequelize.Op.gte]: sinceTime
-            }
-          }).then(resp => {
+          return super.getModels(model).findAll({
+            where: {
+              updatedAt: {
+                [Sequelize.Op.gte]: sinceTime
+              }
+            },
+            paranoid: false
+          }).then(data => {
             return {
               model,
-              data: resp.data
+              data
             }
           })
         }, { concurrency: 5 }).then((results: Array<{model: string, data: BaseModel[]}>) => {

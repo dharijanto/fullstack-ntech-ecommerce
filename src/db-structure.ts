@@ -20,7 +20,7 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
     paranoid: true
   })
 
-  models.SubCategory = sequelize.define<SubCategory, SubCategory>('subCategory', {
+  models.SubCategory = sequelize.define('subCategory', {
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
     name: { type: Sequelize.STRING, allowNull: false },
     description: { type: Sequelize.STRING }
@@ -266,7 +266,7 @@ export default function addTables (sequelize: Sequelize.Sequelize, models: Seque
   models.CloudToLocalSyncHistory = sequelize.define('cloudToLocalSyncHistory', {
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
     status: { type: Sequelize.ENUM(['Preparing', 'Applying', 'Success', 'Failed']) },
-    info: { type: Sequelize.STRING }, // error message, would be stored here
+    info: { type: Sequelize.TEXT }, // error message, would be stored here
     untilTime: { type: Sequelize.STRING }
   })
 

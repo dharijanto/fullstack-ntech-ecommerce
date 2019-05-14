@@ -4,6 +4,7 @@ import * as process from 'process'
 
 import * as Sequelize from 'sequelize'
 import * as Promise from 'bluebird'
+import * as pretry from 'bluebird-retry'
 
 import * as AppConfig from '../../../app-config'
 import SequelizeService from '../../../services/sequelize-service'
@@ -122,8 +123,6 @@ describe('Test CloudSyncservice', () => {
               assert(resp.data.syncFileName !== undefined)
               assert(resp.data.status === 'Success')
               assert(resp.data.id === syncHistoryId)
-
-              // Lets wait a bit until data is successfully prepared
               const getState = () => {
                 return csService.getSyncHistory('My Shop 1', lastSyncTime).then(resp => {
                   if (resp.status && resp.data && resp.data.status === 'Success') {
@@ -135,25 +134,8 @@ describe('Test CloudSyncservice', () => {
                 })
               }
 
-              const rejectDelay = (timeout, reason) => {
-                return new Promise((resolve, reject) => {
-                  setTimeout(() => {
-                    reject(reason)
-                  }, timeout)
-                })
-              }
-
-              // Wait for a while until data is prepared
-              let p = Promise.reject('Initial')
-              for (let i = 0 ; i < 10 ; i++) {
-                p = p.catch(() => {
-                  return getState()
-                }).catch(err => {
-                  return rejectDelay(200, err)
-                })
-              }
-              // TODO: Check that the data retrieved is good
-              return p
+              // After 5 seconds, prepareData() should've completed
+              return pretry(getState, { interval: 1000, max_tries: 5 })
             } else {
               throw new Error('prepareData() failed! resp=' + JSON.stringify(resp))
             }

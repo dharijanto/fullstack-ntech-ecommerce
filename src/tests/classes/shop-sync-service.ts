@@ -9,8 +9,8 @@ export default class MySyncService extends SyncServiceCls {
   retrieveAndApplyCloudToLocalData (
     remoteSyncFileName: string,
     untilTime: string,
-    transaction: Sequelize.Transaction,
-    fileNameToJSONData?: (filename: string) => Promise<object> // Used for unit-testing purposes
+    fileNameToJSONData?: (filename: string) => Promise<object>, // Used for unit-testing purposes
+    transaction?: Sequelize.Transaction
   ): Promise<NCResponse<Partial<CloudToLocalSyncHistory>>> {
     return super.retrieveAndApplyCloudToLocalData.apply(this, arguments)
   }
@@ -29,6 +29,10 @@ export default class MySyncService extends SyncServiceCls {
 
   getLastSuccessfulCloudToLocalSyncHistory (transaction?: Transaction): Promise<NCResponse<CloudToLocalSyncHistory>> {
     return super.getLastSuccessfulCloudToLocalSyncHistory.apply(this, arguments)
+  }
+
+  getLastFailedCloudToLocalSyncHistory (transaction?: Transaction): Promise<NCResponse<CloudToLocalSyncHistory>> {
+    return super.getLastFailedCloudToLocalSyncHistory.apply(this, arguments)
   }
 
   getApplyingCloudToLocalSyncHistory (transaction?: Transaction): Promise<NCResponse<CloudToLocalSyncHistory>> {
