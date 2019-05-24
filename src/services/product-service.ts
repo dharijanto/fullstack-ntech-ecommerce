@@ -38,15 +38,17 @@ class ProductService extends CRUDService {
       return this.getModels('Category').findAll<Category>({
         include: [
           {
-            model: this.getModels('SubCategory')
+            model: this.getModels('SubCategory'),
+            as: 'subCategories'
           }
         ],
-        where: searchClause
+        where: searchClause,
+        order: [['name', 'asc'], [{ model: this.getModels('SubCateogry'), as: 'subCategories' }, 'subCategories.name', 'asc']]
       }).then(readData => {
         return { status: true, data: readData.map(data => data.get({ plain: true })) }
       })
     } else {
-      return super.read<Category>('Category', searchClause)
+      return super.read<Category>('Category', searchClause, { order: [['name', 'asc']] })
     }
   }
 

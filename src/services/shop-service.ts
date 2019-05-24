@@ -111,7 +111,7 @@ class ShopService extends CRUDService {
     INNER JOIN subCategories ON subCategories.id = inStockProductsView.subCategoryId
     INNER JOIN categories ON subCategories.categoryId = categories.id
     LEFT OUTER JOIN inStockVariantsView ON inStockVariantsView.productId = inStockProductsView.id AND inStockVariantsView.shopId = ${shopId}
-    ORDER BY inStockProductsView.id;`
+    ORDER BY inStockProductsView.name;`
 
     const countQuery = `
       SELECT COUNT(*) AS count
@@ -199,7 +199,7 @@ class ShopService extends CRUDService {
       INNER JOIN subCategories on subCategories.id = poProductsView.subCategoryId
       INNER JOIN categories on subCategories.categoryId = categories.id
       LEFT OUTER JOIN poVariantsView ON poVariantsView.productId = poProductsView.id AND poVariantsView.shopId = ${shopId}
-      ORDER BY poProductsView.id;`
+      ORDER BY poProductsView.name;`
 
     const countQuery = `
       SELECT COUNT(*) AS count FROM

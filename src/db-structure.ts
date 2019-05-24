@@ -10,6 +10,8 @@ function addTables (sequelize: Sequelize.Sequelize, models: Sequelize.Models) {
   models.Image = sequelize.define('image', {
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
     filename: { type: sequelize.Sequelize.STRING, unique: true }
+  }, {
+    paranoid: true
   })
 
   models.Category = sequelize.define('category', {

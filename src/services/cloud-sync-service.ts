@@ -71,7 +71,9 @@ class CloudSyncService extends CRUDService {
             return this.createSyncHistory(shopName, 'Preparing', lastSyncTime, trx).then(resp => {
               if (resp.status && resp.data) {
                 const currentSyncHistory = resp.data
-                this.prepareData(shopName, lastSyncTime, currentSyncHistory.untilTime, currentSyncHistory.id)
+                this.prepareData(shopName, lastSyncTime, currentSyncHistory.untilTime, currentSyncHistory.id).catch(err => {
+                  log.error(TAG, err)
+                })
                 return { status: true, data: { status: 'Preparing' } } as NCResponse<CloudSyncResp>
               } else {
                 throw new Error('createSyncState() failed: ' + resp.errMessage)
@@ -125,8 +127,13 @@ class CloudSyncService extends CRUDService {
         return Promise.map(models, model => {
           return super.getModels(model).findAll({
             where: {
-              updatedAt: {
-                [Sequelize.Op.gte]: sinceTime
+              [Sequelize.Op.or]: {
+                updatedAt: {
+                  [Sequelize.Op.gte]: sinceTime
+                },
+                deletedAt: {
+                  [Sequelize.Op.gte]: sinceTime
+                }
               }
             },
             paranoid: false
@@ -175,7 +182,7 @@ class CloudSyncService extends CRUDService {
       }).catch(err => {
         return super.update<CloudSyncHistory>('CloudSyncHistory', { status: 'Failed', info: err.message }, { id: syncHistoryId }).then(resp2 => {
           if (!(resp2.status && resp2.data !== undefined && resp2.data > 0)) {
-            log.error(TAG, `2prepareData(): Failed to update CloudSyncHistory! id=${syncHistoryId} resp=${JSON.stringify(resp2)}`)
+            log.error(TAG, `prepareData(): Failed to update CloudSyncHistory! id=${syncHistoryId} resp=${JSON.stringify(resp2)}`)
             // TODO: send email using MailService
           }
           throw err

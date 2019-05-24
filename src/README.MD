@@ -57,7 +57,8 @@ from cloud.
   as ncloud process so that reindexing can be done through the app.
   (verify this through App CMS -> Other Management -> Reindex Search DB)
 * Start sphinx using systemd or systemctl
-* Reindex the database using ```
+* Reindex the database using ```sphinx-indexer --rotate --all```
+* Add a cronjob that does GET request to the sync path every 30 minutes.
  
 # Test
 ## Unit Test
