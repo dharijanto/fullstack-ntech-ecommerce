@@ -242,6 +242,16 @@ function addTables (sequelize: Sequelize.Sequelize, models: Sequelize.Models) {
   models.OrderDetail.belongsTo(models.Order)
   models.Variant.hasMany(models.OrderDetail)
 
+  models.Analytics = sequelize.define('analytics', {
+    id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
+    key: { type: Sequelize.STRING },
+    value: { type: Sequelize.STRING },
+    categoryId: { type: Sequelize.INTEGER, allowNull: true },
+    subCategoryId: { type: Sequelize.INTEGER, allowNull: true },
+    productId: { type: Sequelize.INTEGER, allowNull: true },
+    variantId: { type: Sequelize.INTEGER, allowNull: true }
+  })
+
   // Not synced to the cloud
   // Currently used to create a hash for a local server.
   // When we try to sync local-to-cloud, we send this hash to tell the server

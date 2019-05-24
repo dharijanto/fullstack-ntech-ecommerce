@@ -65,6 +65,10 @@ class LocalOrderService extends CRUDService {
     return OrderService.getOrders(LocalShopService.getLocalShopId())
   }
 
+  getOrder (orderId: number) {
+    return OrderService.getOrder(orderId)
+  }
+
   getOpenOrders () {
     return this.getSequelize().query(
 `SELECT * FROM ordersView WHERE shopId = ${LocalShopService.getLocalShopId()} AND status != 'Close' AND status != 'Cancelled'`,

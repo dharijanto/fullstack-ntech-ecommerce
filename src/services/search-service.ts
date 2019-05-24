@@ -1,6 +1,9 @@
+import { spawn, exec } from 'child_process'
+
 import * as Promise from 'bluebird'
 import * as SphinxClient from 'sphinxapi'
 import * as log from 'npmlog'
+
 import LocalShopService from '../app/local-shop-services/local-shop-service'
 import productService from './product-service'
 
@@ -24,6 +27,19 @@ class SearchService {
           reject(err)
         } else {
           resolve({ status: true })
+        }
+      })
+    })
+  }
+
+  reindexDatabase (): Promise<NCResponse<{ stdout, stderr }>> {
+    return new Promise((resolve, reject) => {
+      exec('bash -c "sphinx-indexer --rotate --all"', (err, stdout, stderr) => {
+        if (err) {
+          log.error(TAG, 'reindexDatabase(): stdout: ' + stdout + '\nstderr:' + stderr)
+          resolve({ status: false, errMessage: 'stdout: ' + stdout + '\nstderr:' + stderr })
+        } else {
+          resolve({ status: true, data: { stdout, stderr } })
         }
       })
     })

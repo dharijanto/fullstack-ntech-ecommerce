@@ -1,11 +1,12 @@
+import * as path from 'path'
+
+import * as Promise from 'bluebird'
+import * as log from 'npmlog'
+
 import BaseController from '../base-controller'
 import { SiteData } from '../../../site-definitions'
 import OrderService from '../../local-shop-services/order-service'
 import * as AppConfig from '../../../app-config'
-
-const path = require('path')
-
-let log = require('npmlog')
 
 const TAG = 'OrderManagementController'
 
@@ -55,16 +56,27 @@ export default class OrderManagementController extends BaseController {
 
     super.routePost('/order/close', (req, res, next) => {
       const orderId = req.body.id
+
+      // Change order status to 'Closed', print customer receipt, print merchant receipt.
       OrderService.closeOrder(orderId).then(resp => {
         if (resp.status) {
           return OrderService.printReceipt(`${AppConfig.BASE_URL}${this.getRouter().path()}/order/receipt?orderId=${orderId}&originalCopy=1`, 1).then(resp => {
             if (resp.status && resp.data) {
-              res.json({ status: true })
-              return
+              return OrderService.printReceipt(`${AppConfig.BASE_URL}${this.getRouter().path()}/order/receipt?orderId=${orderId}`, 1).then(resp => {
+                if (resp.status && resp.data) {
+                  res.json({ status: true })
+                } else {
+                  res.json(resp)
+                  return
+                }
+              })
             } else {
               res.json(resp)
               return
             }
+          }).catch(err => {
+            log.error(TAG, err)
+            res.json({ status: false, errMessage: 'Failed to close order: ' + err.message })
           })
         } else {
           res.json({ status: false, errMessage: resp.errMessage })
@@ -121,7 +133,6 @@ export default class OrderManagementController extends BaseController {
       const originalCopy = req.query.originalCopy
       OrderService.getReceipt(orderId).then(resp => {
         if (resp.status && resp.data) {
-          console.dir(resp.data)
           // Render using pug
           res.locals.receipt = resp.data
           res.locals.originalCopy = originalCopy
@@ -131,6 +142,81 @@ export default class OrderManagementController extends BaseController {
           // res.json(resp)
         }
       }).catch(next)
+    })
+
+    super.routeGet('/order/dummy-receipt', (req, res, next) => {
+      // Render using pug
+      res.locals.receipt = {
+        orderId: 1,
+        fullName: 'John Doe',
+        phoneNumber: '081122334455',
+        status: 'Close',
+        totalPrice: 100000,
+        orderDate: '12 January 2019',
+        printDate: '12 January 2019 10:00',
+        items: [
+          {
+            status: 'Ready',
+            name: 'SanDisk Cruzer 32GB',
+            variant: 'Hitam',
+            price: 65000,
+            quantity: 1
+          },
+          {
+            status: 'Ready',
+            name: 'USB Logitech Mini E11',
+            variant: 'Biru',
+            price: 35000,
+            quantity: 1
+          }
+        ]
+      }
+      res.locals.originalCopy = true
+      res.render('cms/receipt')
+    })
+
+    super.routeGet('/order-details/receipt', (req, res, next) => {
+      const orderId = req.query.orderId
+      Promise.join<NCResponse<any>>(
+        OrderService.getOrderDetails(orderId),
+        OrderService.getOrder(orderId)
+      ).spread((resp: NCResponse<OrderDetail[]>, resp2: NCResponse<Order>) => {
+        if (resp.status && resp.data && resp2.status && resp2.data) {
+          // Render using pug
+          res.locals.order = resp2.data
+          res.locals.orderId = orderId
+          res.locals.orderDetails = resp.data
+          res.render('cms/aisles-receipt')
+        } else {
+          res.status(500).send('Error: ' + resp.errMessage)
+          // res.json(resp)
+        }
+      }).catch(next)
+    })
+
+    super.routePost('/order-details/print-receipt', (req, res, next) => {
+      res.json({ status: false, errMessage: 'Not yet implemented!' })
+      const orderId = req.body.orderId
+
+      // TODO: This is very inefficient because we're technically calling getOrderDetails() twice:
+      // Here, and from print-service. But for now, we'll live with it...
+      OrderService.getOrderDetails(orderId).then(resp => {
+        if (resp.status) {
+          return OrderService.printReceipt(`${AppConfig.BASE_URL}${this.getRouter().path()}/order-details/receipt?orderId=${orderId}`).then(resp => {
+            if (resp.status && resp.data) {
+              res.json({ status: true })
+            } else {
+              res.json(resp)
+              return
+            }
+          })
+        } else {
+          res.json({ status: false, errMessage: resp.errMessage })
+          return
+        }
+      }).catch(err => {
+        res.json({ status: false, errMessage: 'Error: ' + err.message })
+      })
     })
 
     super.routeGet('/order-details', (req, res, next) => {

@@ -1,3 +1,6 @@
+import * as log from 'npmlog'
+import * as Promise from 'bluebird'
+
 import BaseController from './controllers/base-controller'
 import OrderManagementController from './controllers/order-management-controller'
 import AccountManagementController from './controllers/account-management-controller'
@@ -10,8 +13,9 @@ import { SiteData, ImageService } from '../site-definitions'
 import * as Utils from '../libs/utils'
 
 import * as AppConfig from '../app-config'
-
-const log = require('npmlog')
+import SearchService from '../services/search-service'
+import LocalSyncService from '../app/local-shop-services/sync-service'
+import OrderService from '../app/local-shop-services/order-service'
 
 const TAG = 'MainController'
 class MainController extends BaseController {
@@ -26,15 +30,26 @@ class MainController extends BaseController {
     this.addInterceptor((req, res, next) => {
       log.verbose(TAG, 'req.path=' + req.path)
       res.locals.siteHash = this.siteHash
-      res.locals.__sidebar = [
-        { title: 'Product Management', url: `/${this.siteHash}/`, faicon: '' },
-        { title: 'Shop Management', url: `/${this.siteHash}/shop-management`, faicon: '' },
-        { title: 'Supplier Management', url: `/${this.siteHash}/supplier-management`, faicon: '' },
-        { title: 'Promotion Management', url: `/${this.siteHash}/shop-management/promotion-management`, faicon: '' },
-        { title: 'Order Management', url: `/${this.siteHash}/order-management/`, faicon: '' },
-        { title: 'Account Management', url: `/${this.siteHash}/account-management/`, faicon: '' },
-        { title: 'Populate Views', url: `/${this.siteHash}/populate-views`, faicon: '' }
-      ]
+
+      res.locals.__sidebar = []
+
+      // Cloud-only menu
+      if (AppConfig.CLOUD_SERVER || !AppConfig.PRODUCTION) {
+        res.locals.__sidebar.push({ title: 'Product Management', url: `/${this.siteHash}/`, faicon: '' })
+        res.locals.__sidebar.push({ title: 'Shop Management', url: `/${this.siteHash}/shop-management`, faicon: '' })
+        res.locals.__sidebar.push({ title: 'Supplier Management', url: `/${this.siteHash}/supplier-management`, faicon: '' })
+        res.locals.__sidebar.push({ title: 'Promotion Management', url: `/${this.siteHash}/shop-management/promotion-management`, faicon: '' })
+        res.locals.__sidebar.push({ title: 'Order Management', url: `/${this.siteHash}/order-management/`, faicon: '' })
+      }
+
+      // Local-only menu
+      if (!AppConfig.CLOUD_SERVER || !AppConfig.PRODUCTION) {
+        res.locals.__sidebar.push({ title: 'Account Management', url: `/${this.siteHash}/account-management/`, faicon: '' })
+      }
+
+      // Menu for both local and cloud
+      res.locals.__sidebar.push({ title: 'Populate Views', url: `/${this.siteHash}/populate-views`, faicon: '' })
+      res.locals.__sidebar.push({ title: 'Reindex Search Cache', url: `/${this.siteHash}/reindex-search-database`, faicon: '' })
       next()
     })
 
@@ -69,6 +84,24 @@ class MainController extends BaseController {
     this.routeGet('/populate-views', (req, res, next) => {
       SQLViewService.populateViews().then(resp => {
         res.json(resp)
+      }).catch(next)
+    })
+
+    /**
+     * Test that the build environment is set up properly.
+     * Since there are components that when missing or not setup correctly isn't easily spotted,
+     * this route is used to validate them.
+     *
+     * Things to check:
+     * 1. Sphinx setup
+     *  a. Be able to rotate the log
+     * 2.
+     */
+    this.routeGet('/reindex-search-database', (req, res, next) => {
+      Promise.join(
+        SearchService.reindexDatabase()
+      ).spread((resp: NCResponse<any>) => {
+        res.json('Success! \n' + JSON.stringify(resp.data))
       }).catch(next)
     })
 

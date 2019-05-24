@@ -1,3 +1,4 @@
+import AnalyticsService from '../../local-shop-services/analytics-service'
 import BaseController from '../base-controller'
 import CartService from '../../local-shop-services/cart-service'
 import { SiteData } from '../../../site-definitions'
@@ -23,6 +24,12 @@ export default class CartController extends BaseController {
         }
         LocalShopService.getVariantAvailability(req.body.variantId).then(resp => {
           if (resp.status && resp.data) {
+            if (resp.data.status === 'preOrder') {
+              AnalyticsService.poProductCarted(data.variantId, data.quantity)
+            } else {
+              AnalyticsService.inStockProductCarted(data.variantId, data.quantity)
+            }
+
             if (req.session) {
               CartService.addItemToCart(resp.data.status, req.session.cart, data).then(resp => {
                 if (resp.status) {

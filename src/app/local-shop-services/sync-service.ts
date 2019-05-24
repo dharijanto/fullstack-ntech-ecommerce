@@ -14,8 +14,9 @@ import Sequelize = require('sequelize')
 import LocalShopService from './local-shop-service'
 
 import { CloudSyncResp } from '../../services/cloud-sync-service'
+import SearchService from '../../services/search-service';
 
-const TAG = 'CloudSyncService'
+const TAG = 'SyncService'
 
 /*
 This is used by Cloud Server to serve sync requests from local-server
@@ -32,6 +33,10 @@ TODO:
 1. Mapping table to map local-ID to cloud-ID
  */
 class SyncService extends CRUDService {
+  getHistories (): Promise<NCResponse<CloudToLocalSyncHistory[]>> {
+    return super.read<CloudToLocalSyncHistory>('CloudToLocalSyncHistory', {})
+  }
+
   cloudToLocalSync (): Promise<NCResponse<Partial<CloudToLocalSyncHistory>>> {
     return super.getSequelize().transaction({ isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE }, trx => {
       // Check whether there's a sync that's currently being processed
@@ -128,7 +133,19 @@ class SyncService extends CRUDService {
             })
           })
         }).then(() => {
-          this.updateCloudToLocalSyncHistory(cloudToLocalSyncHistory.id, 'Success')
+          // Reindex search database
+          SearchService.reindexDatabase().then(resp => {
+            let info
+            if (!resp.status) {
+              info = 'Failed to reindex search database: ' + resp.errMessage
+              log.error(TAG, 'Failed to reindex search database: ' + resp.errMessage)
+            } else {
+              info = 'Successfully reindexed search DB!'
+            }
+            this.updateCloudToLocalSyncHistory(cloudToLocalSyncHistory.id, 'Success', info)
+          }).catch(err => {
+            log.error(TAG, err)
+          })
         }).catch(err => {
           log.error(TAG, 'Failed to apply data from cloud: ' + err)
           this.updateCloudToLocalSyncHistory(cloudToLocalSyncHistory.id, 'Failed', err.message)

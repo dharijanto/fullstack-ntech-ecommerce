@@ -17,6 +17,7 @@ export default class ShopSyncController extends BaseController {
       log.verbose(TAG, 'ShopSyncController: path=' + req.path)
       next()
     })
+
     // Cron job calls on this GET request periodically
     super.routeGet('/cloud/request', (req, res, next) => {
       SyncService.cloudToLocalSync().then(resp => {

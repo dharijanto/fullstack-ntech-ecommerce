@@ -227,6 +227,21 @@ interface CloudToLocalSyncHistory extends BaseModel {
 // ----------------------------------------
 // ---- End of local-exclusive tables ---
 
+// ---- Start of both local and cloud tables ---
+// ----------------------------------------
+
+interface Analytics extends BaseModel {
+  key: string
+  value: string
+  categoryId?: number
+  subCategoryId?: number
+  productId?: number
+  variantId?: number
+}
+
+// ----------------------------------------
+// ---- End of local-exclusive tables ---
+
 
 //-------------------------------------------------------------------------------
 // ---------------Start of model that comes from SQL views-----------------------

@@ -65,6 +65,12 @@ orderPrintBtn.on('click', () => {
 })
 ncOrder.setFirstCustomView(orderPrintBtn)
 
+const reloadBtn = $(`<button class="btn btn-default btn-block" type="button">Reload</button>`)
+reloadBtn.on('click', () => {
+  ncOrder.reloadTable()
+})
+ncOrder.setSecondCustomView(reloadBtn)
+
 const ncOrderDetail = $('#order-detail').NCInputLibrary({
   design: {
     title: 'Order Details'
@@ -104,5 +110,22 @@ const ncOrderDetail = $('#order-detail').NCInputLibrary({
     }
   }
 })
+
+const printAislesBtn = $(`<button class="btn btn-default btn-block" type="button">Print Aisle Details</button>`)
+printAislesBtn.on('click', () => {
+  axios.post('/cms/order-management/order/print-aisles', { orderId: order && order.id }).then(rawResp => {
+    let resp = rawResp.data as NCResponse<any>
+    if (resp.status) {
+      toastr.success('Print job created!')
+    } else {
+      throw new Error(resp.errMessage)
+    }
+  }).catch(err => {
+    toastr.error(err.message)
+    console.error(err.message)
+  })
+})
+
+ncOrderDetail.setFirstCustomView(printAislesBtn)
 
 ncOrder.reloadTable()

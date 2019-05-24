@@ -1,0 +1,36 @@
+// Adapted from: https://codepen.io/Sambra22/pen/JNexJP
+
+html
+  head
+    // link(rel="stylesheet" href="/assets/css/receipt-cms.css")
+    style
+      include ../assets/css/receipt-cms.css
+  body
+    #invoice-POS
+      center#top
+        // .logo
+        .info
+          // img#logo(src="/assets/images/ntech-icon.png")
+          h2
+            | Order ID: #{orderId}
+            br
+            | Customer: #{order.fullName}
+
+        // End Info
+        // End InvoiceTop
+        #mid
+          #orders
+            for orderDetail in orderDetails
+              if (orderDetail.status === 'Ready')
+                p
+                  | #[strong #{orderDetail.productName}]
+                  br
+                  | Variant: #{orderDetail.variantName}
+                  br
+                  | Qtty: #{orderDetail.quantity}
+                  br
+                  | Aisle: #{orderDetail.aisle}
+                br
+
+        // End InvoiceBot
+    // End Invoice

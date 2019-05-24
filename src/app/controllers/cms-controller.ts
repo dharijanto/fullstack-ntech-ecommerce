@@ -1,8 +1,10 @@
 import BaseController from './base-controller'
 import OrderManagementController from './cms/order-management-controller'
+import OtherManagementController from './cms/other-management-controller'
 import ProductManagementController from './cms/product-management-controller'
 import PromotionManagementController from './cms/promotion-management-controller'
 import StockManagementController from './cms/stock-management-controller'
+import SyncManagementController from './cms/sync-management-controller'
 import { SiteData } from '../../site-definitions'
 import LocalShopService from '../local-shop-services/local-shop-service'
 
@@ -33,5 +35,7 @@ export default class CMSController extends BaseController {
     super.routeUse('/product-management', new ProductManagementController(siteData).getRouter())
     super.routeUse('/promotion-management', new PromotionManagementController(siteData).getRouter())
     super.routeUse('/stock-management', new StockManagementController(siteData).getRouter())
+    super.routeUse('/sync-management', new SyncManagementController(siteData).getRouter())
+    super.routeUse('/other-management', new OtherManagementController(siteData).getRouter())
   }
 }

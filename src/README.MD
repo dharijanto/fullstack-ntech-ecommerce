@@ -53,6 +53,11 @@ from cloud.
 # Installation
 * Install Sphinx Search
 * Modify Sphinx Search config according to what's on configs/sphinx.conf, make sure to modify localShopId appropriately
+* Modify system-level daemon runner so that sphinx is run as the same user/group
+  as ncloud process so that reindexing can be done through the app.
+  (verify this through App CMS -> Other Management -> Reindex Search DB)
+* Start sphinx using systemd or systemctl
+* Reindex the database using ```
  
 # Test
 ## Unit Test

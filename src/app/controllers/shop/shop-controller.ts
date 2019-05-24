@@ -1,4 +1,5 @@
 import * as Promise from 'bluebird'
+import AnalyticsService from '../../local-shop-services/analytics-service'
 import BaseController from '../base-controller'
 import { SiteData } from '../../../site-definitions'
 import LocalShopService from '../../local-shop-services/local-shop-service'
@@ -19,6 +20,8 @@ export default class ShopController extends BaseController {
     this.routeGet('/search', (req, res, next) => {
       log.verbose(TAG, '/search.GET()')
       const query = req.query.query || ' '
+
+      AnalyticsService.searchQuery(query)
 
       Promise.join<any>(
         SearchService.searchSubCategories(query),
@@ -95,10 +98,12 @@ export default class ShopController extends BaseController {
         if (resp1.status) {
           res.locals.product = resp1.data
           log.verbose(TAG, 'product=' + JSON.stringify(resp1.data))
+          AnalyticsService.inStockProductClicked(productId)
           res.render('instock-product')
         } else if (resp2.status) {
           res.locals.product = resp2.data
           log.verbose(TAG, 'product=' + JSON.stringify(resp2.data))
+          AnalyticsService.poProductClicked(productId)
           res.render('po-product')
         } else {
           /* next(new Error('Product with id=' + productId + ' is not found!')) */
@@ -119,6 +124,8 @@ export default class ShopController extends BaseController {
       const inStockProductPageSize = 15
       const poProductPageSize = 15
 
+      AnalyticsService.subCategoryClicked(subCategoryId)
+
       Promise.join<NCResponse<any>>(
         LocalShopService.getInStockProducts({ subCategoryId }),
         LocalShopService.getPOProducts({ subCategoryId }),
@@ -137,9 +144,9 @@ export default class ShopController extends BaseController {
           res.locals.category = resp3.data.category
           res.render('sub-category')
         } else {
-          console.dir('resp1=' + JSON.stringify(resp1))
-          console.dir('resp2=' + JSON.stringify(resp2))
-          console.dir('resp3=' + JSON.stringify(resp3))
+          log.error(TAG, 'resp1=' + JSON.stringify(resp1))
+          log.error(TAG, 'resp2=' + JSON.stringify(resp2))
+          log.error(TAG, 'resp3=' + JSON.stringify(resp3))
           throw new Error('Failed to retrieve inStockProducts, poProducts, or subCategory: ' + (resp1.errMessage || resp2.errMessage || resp3.errMessage))
         }
       }).catch(err => {
@@ -156,6 +163,8 @@ export default class ShopController extends BaseController {
       res.locals.currentPOProductPage = req.query['po-products-page'] || 1
       const inStockProductPageSize = 15
       const poProductPageSize = 15
+
+      AnalyticsService.categoryClicked(categoryId)
 
       log.verbose(TAG, '/:categoryId/*.GET: req.params=' + JSON.stringify(req.params))
       Promise.join<NCResponse<any>>(

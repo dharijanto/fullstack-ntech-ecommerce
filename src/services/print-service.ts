@@ -24,7 +24,7 @@ class PrintService {
 
   }
 
-  private async printFile (pdfFilePath: string, numCopies: number = 1): Promise<NCResponse<{ jobId: number}>> {
+  private printFile (pdfFilePath: string, numCopies: number = 1): Promise<NCResponse<{ jobId: number}>> {
     return new Promise((resolve, reject) => {
       printer.printFile({filename: pdfFilePath,
         printer: this.printerName, // printer name, if missing then will print to default printer
@@ -40,19 +40,23 @@ class PrintService {
           reject(err)
         }
       })
-    }) as Promise<NCResponse<{ jobId: number}>>
+    })
   }
 
   // fullURL: Complete URL. This can't be relative path because this is passed to a separate process (puppeteer)
   async printURL (fullURL: string, numCopies: number = 1): Promise<NCResponse<{ jobId: number }>> {
-    const browser = await puppeteer.launch()
-    const page = await browser.newPage()
-    await page.goto(fullURL, {
-      waitUntil: 'networkidle0'
-    })
-    const outFile = path.join(AppConfig.GENERATED_PRINT_PDF_PATH, `${Date.now()}.pdf`)
-    await page.pdf({ width: this.paperWidth, height: this.paperHeight, path: outFile })
-    return this.printFile(outFile, numCopies)
+    try {
+      const browser = await puppeteer.launch()
+      const page = await browser.newPage()
+      await page.goto(fullURL, {
+        waitUntil: 'networkidle0'
+      })
+      const outFile = path.join(AppConfig.GENERATED_PRINT_PDF_PATH, `${Date.now()}.pdf`)
+      await page.pdf({ width: this.paperWidth, height: this.paperHeight, path: outFile })
+      return this.printFile(outFile, numCopies)
+    } catch (err) {
+      throw err
+    }
   }
 }
 

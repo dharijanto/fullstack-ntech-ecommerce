@@ -143,6 +143,32 @@ html
                 a(href='/cms/promotion-management')
                   span.fa.fa-arrow-right
                   |  Promotion Management
+          li.parent
+            a(data-toggle='collapse', href='#sync-management')
+              em.fa.fa-navicon
+              |  Sync Management
+              span.icon.pull-right(data-toggle='collapse', href='#sync-management')
+                em.fa.fa-plus
+            ul#sync-management.children.collapse
+              li
+                a(href='/cms/sync-management/cloud-to-local')
+                  span.fa.fa-arrow-right  
+                  | Cloud-to-Local
+          li.parent
+            a(data-toggle='collapse', href='#other')
+              em.fa.fa-navicon
+              |  Other
+              span.icon.pull-right(data-toggle='collapse', href='#other')
+                em.fa.fa-plus
+            ul#other.children.collapse
+              li
+                a(href='/cms/other-management/test-receipt-printer')
+                  span.fa.fa-arrow-right  
+                  | Test Receipt Printer
+              li
+                a(href='/cms/other-management/reindex-search-database')
+                  span.fa.fa-arrow-right  
+                  | Reindex Search DB
         li
           a(href='/cms/account/logout')
             em.fa.fa-power-off  
