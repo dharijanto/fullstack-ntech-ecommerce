@@ -50,6 +50,7 @@ export default class PromotionManagementController extends BaseController {
       res.render('cms/stock-management/aisle')
     })
 
+    // Aisle-management related
     super.routeGet('/aisles', (req, res, next) => {
       LocalStockService.getAisles().then(res.json.bind(res)).catch(next)
     })
@@ -66,8 +67,19 @@ export default class PromotionManagementController extends BaseController {
       LocalStockService.deleteAisle(req.body.id).then(res.json.bind(res)).catch(next)
     })
 
+    // Stock Opname-related
+    // Return only non-empty aisles
+    super.routeGet('/aisles/detailed', (req, res, next) => {
+      LocalStockService.getDetailedAisles().then(res.json.bind(res)).catch(next)
+    })
+
+    super.routeGet('/aisles/content', (req, res, next) => {
+      const aisle = req.query.aisle
+      LocalStockService.getAisleContent(aisle).then(res.json.bind(res)).catch(next)
+    })
+
     super.routeGet('/opname', (req, res, next) => {
-      res.render('cms/stock-management')
+      res.render('cms/stock-management/opname')
     })
 
     super.routeGet('/in-management', (req, res, next) => {

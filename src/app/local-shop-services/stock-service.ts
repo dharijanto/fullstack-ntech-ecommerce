@@ -42,6 +42,24 @@ class LocalStockService extends CRUDService {
     }
   }
 
+  // Used for opname, return aisle with number of quantity in it
+  getDetailedAisles () {
+    return super.rawReadQuery(`SELECT aisle AS aisle, SUM(quantity) AS quantity FROM shopStocksView GROUP BY aisle;`)
+  }
+
+  getAisleContent (aisle: string): Promise<NCResponse<any>> {
+    if (aisle) {
+      return super.rawReadQuery(`
+  SELECT products.name AS productName, variants.name AS variantName, shopStocksView.quantity AS quantity
+  FROM shopStocksView
+  INNER JOIN variants ON variants.id = shopStocksView.variantId
+  INNER JOIN products ON products.id = variants.productId
+  WHERE aisle = '${aisle}'`)
+    } else {
+      return Promise.resolve({ status: false, errMessage: 'aisle is required!' })
+    }
+  }
+
   getStocks (variantId: number) {
     return ShopService.getShopStock(LocalShopService.getLocalShopId(), { variantId })
   }

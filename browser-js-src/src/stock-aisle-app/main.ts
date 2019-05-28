@@ -32,8 +32,8 @@ $(document).ready(() => {
     buttons: {
       ui: [
         { id: 'add', desc: 'Add', postTo: () => `/cms/stock-management/aisle` },
-        { id: 'edit', desc: 'Edit', postTo: () => `/cms/stock-management/aisle/edit` },
-        { id: 'delete', desc: 'Delete', postTo: () => `/cms/stock-management/aisle/delete` }
+        { id: 'edit', desc: 'Edit', postTo: () => `/cms/stock-management/aisle/edit`, confirm: 'Are you sure?' },
+        { id: 'delete', desc: 'Delete', postTo: () => `/cms/stock-management/aisle/delete`, confirm: 'Are you sure?' }
       ],
       conf: {
         networkTimeout: Config.NETWORK_TIMEOUT // timeout for postTo request

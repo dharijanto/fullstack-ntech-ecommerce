@@ -34,7 +34,7 @@ class MainController extends BaseController {
       res.locals.__sidebar = []
 
       // Cloud-only menu
-      if (AppConfig.CLOUD_SERVER || !AppConfig.PRODUCTION) {
+      if (AppConfig.IS_CLOUD_SERVER || !AppConfig.PRODUCTION) {
         res.locals.__sidebar.push({ title: 'Product Management', url: `/${this.siteHash}/`, faicon: '' })
         res.locals.__sidebar.push({ title: 'Shop Management', url: `/${this.siteHash}/shop-management`, faicon: '' })
         res.locals.__sidebar.push({ title: 'Supplier Management', url: `/${this.siteHash}/supplier-management`, faicon: '' })
@@ -43,7 +43,7 @@ class MainController extends BaseController {
       }
 
       // Local-only menu
-      if (!AppConfig.CLOUD_SERVER || !AppConfig.PRODUCTION) {
+      if (!AppConfig.IS_CLOUD_SERVER || !AppConfig.PRODUCTION) {
         res.locals.__sidebar.push({ title: 'Account Management', url: `/${this.siteHash}/account-management/`, faicon: '' })
       }
 
