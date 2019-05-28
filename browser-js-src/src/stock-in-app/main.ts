@@ -19,6 +19,9 @@ $(document).ready(() => {
       ui: [
         { id: 'id', desc: 'ID', dataTable: true, input: 'hidden', disabled: true },
         { id: 'name', desc: 'Name', dataTable: true, input: 'hidden' },
+        { id: 'categoryName', desc: 'Category', dataTable: true, input: 'hidden' },
+        { id: 'subCategoryName', desc: 'Sub Category', dataTable: true, input: 'hidden' },
+        { id: 'shopPrice', desc: 'Sell Price', dataTable: true, input: 'hidden' },
         { id: 'supplierCount', desc: '# Suppliers', dataTable: true, input: 'hidden' },
         { id: 'stockQuantity', desc: '# Stocks', dataTable: true, input: 'hidden' },
         { id: 'createdAt', desc: 'Date Created', dataTable: true, input: 'hidden', disabled: true },
