@@ -69,6 +69,37 @@ class Controller extends BaseController {
             this.routeUse('/cms/account', (new AccountController(siteData).getRouter()))
             this.routeUse('/cms', PassportHelper.ensureLoggedIn({}), (new CMSController(siteData).getRouter()))
             this.routeUse('/cart', (new CartController(siteData).getRouter()))
+
+            this.routeGet('/other/dummy-receipt', (req, res, next) => {
+              // Render using pug
+              res.locals.receipt = {
+                orderId: 1,
+                fullName: 'John Doe',
+                phoneNumber: '081122334455',
+                status: 'Close',
+                totalPrice: 100000,
+                orderDate: '12 January 2019',
+                printDate: '12 January 2019 10:00',
+                items: [
+                  {
+                    status: 'Ready',
+                    name: 'SanDisk Cruzer 32GB',
+                    variant: 'Hitam',
+                    price: 65000,
+                    quantity: 1
+                  },
+                  {
+                    status: 'Ready',
+                    name: 'USB Logitech Mini E11',
+                    variant: 'Biru',
+                    price: 35000,
+                    quantity: 1
+                  }
+                ]
+              }
+              res.locals.originalCopy = true
+              res.render('cms/receipt')
+            })
           }
 
           // More involved logics are separated into different controllers

@@ -39,7 +39,7 @@ module.exports = {
   IMAGE_PATH: path.join(__dirname, './images/'),
   IMAGE_MOUNT_PATH: '/images/',
   GENERATED_PRINT_PDF_PATH: path.join(__dirname, './gen-pdf/'),
-  GENERATED_CLOUD_SYNC_DATA: path.join(__dirname, '../gen-cloud-sync-data'),
+  GENERATED_CLOUD_SYNC_DATA: path.join(__dirname, './gen-cloud-sync-data'),
   IS_CLOUD_SERVER: false,
   LOCAL_SHOP_INFORMATION,
   DEFAULT_SHOP_PRODUCT_BEHAVIOR,

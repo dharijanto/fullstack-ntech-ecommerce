@@ -8,9 +8,13 @@ import * as flatToTrees from 'flatToTrees'
 
 // Depending whether the server is locally hosted or on the cloud,
 // image mount path could be differentz
-export function getImageURL (imageFilename) {
+export function getImageURL (imageFilename, cms = false) {
   if (imageFilename) {
-    return `${AppConfig.BASE_URL}${AppConfig.IMAGE_MOUNT_PATH}${imageFilename}`
+    if (cms) {
+      return `${AppConfig.BASE_URL}${AppConfig.IMAGE_MOUNT_PATH}${imageFilename}`
+    } else {
+      return `${AppConfig.IMAGE_MOUNT_PATH}${imageFilename}`
+    }
   } else {
     return ``
   }

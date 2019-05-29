@@ -23,7 +23,7 @@ export default class OtherManagementController extends BaseController {
     })
 
     super.routeGet('/test-receipt-printer', (req, res, next) => {
-      OrderService.printReceipt(`${AppConfig.BASE_URL}${this.getRouter().path()}/order/dummy-receipt`).then(resp => {
+      OrderService.printReceipt(`${AppConfig.BASE_URL}/other/dummy-receipt`).then(resp => {
         if (resp.status && resp.data) {
           res.json({ status: true })
         } else {
