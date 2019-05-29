@@ -10,7 +10,7 @@ export default class ProductManagementController extends BaseController {
   constructor (initData) {
     super(initData, false)
     this.imageService = new initData.services.ImageService(initData.db.sequelize, initData.db.models)
-    this.imageURLFormatter = Utils.getImageURL// filename => `${AppConfig.BASE_URL}${AppConfig.IMAGE_MOUNT_PATH}${filename}`
+    this.imageURLFormatter = (imageFilename) => Utils.getImageURL(imageFilename, true)
 
     // Product-Management
     super.routePost('/category', (req, res, next) => {

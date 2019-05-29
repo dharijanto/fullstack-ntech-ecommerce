@@ -25,7 +25,7 @@ class MainController extends BaseController {
   constructor (initData: SiteData) {
     super(initData)
     this.imageService = new initData.services.ImageService(initData.db.sequelize, initData.db.models)
-    this.imageURLFormatter = filename => `${AppConfig.BASE_URL}${AppConfig.IMAGE_MOUNT_PATH}${filename}`
+    this.imageURLFormatter = (imageFilename) => Utils.getImageURL(imageFilename, true)
 
     this.addInterceptor((req, res, next) => {
       log.verbose(TAG, 'req.path=' + req.path)
@@ -55,7 +55,7 @@ class MainController extends BaseController {
 
     this.routePost('/image/get-url', (req, res, next) => {
       const filename = req.body.filename
-      res.json({ status: true, data: Utils.getImageURL(filename) })
+      res.json({ status: true, data: Utils.getImageURL(filename, true) })
     })
 
     super.routeGet('/images', (req, res, next) => {

@@ -22,7 +22,7 @@ export default class PromotionManagementController extends BaseController {
     super(Object.assign(siteData, { viewPath: path.join(__dirname, '../../views') }))
 
     this.imageService = new siteData.services.ImageService(siteData.db.sequelize, siteData.db.models)
-    this.imageURLFormatter = filename => `${AppConfig.BASE_URL}${AppConfig.IMAGE_MOUNT_PATH}${filename}`
+    this.imageURLFormatter = (imageFilename) => Utils.getImageURL(imageFilename, true)
 
     super.routeGet('/', (req, res, next) => {
       res.render('cms/promotion-management')
@@ -58,7 +58,7 @@ export default class PromotionManagementController extends BaseController {
 
     this.routePost('/image/get-url', (req, res, next) => {
       const filename = req.body.filename
-      res.json({ status: true, data: Utils.getImageURL(filename) })
+      res.json({ status: true, data: this.imageURLFormatter(filename) })
     })
 
     super.routeGet('/images', (req, res, next) => {
