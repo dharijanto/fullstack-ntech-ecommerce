@@ -30,7 +30,7 @@ class Controller extends BaseController {
     super(Object.assign(siteData, { viewPath: path.join(__dirname, 'views') }))
     SequelizeService.initialize(siteData.db.sequelize, siteData.db.models)
 
-    this.routeUse(AppConfig.IMAGE_MOUNT_PATH, express.static(AppConfig.IMAGE_PATH))
+    this.routeUse(AppConfig.IMAGE_MOUNT_PATH, express.static(AppConfig.IMAGE_PATH, { maxAge: AppConfig.PRODUCTION ? '1h' : '0' }))
 
     Promise.join(
       LocalShopService.initialize(),
