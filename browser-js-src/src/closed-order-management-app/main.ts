@@ -53,7 +53,11 @@ const orderPrintBtn = $(`<button class="btn btn-default btn-block" type="button"
 orderPrintBtn.on('click', () => {
   axios.post('/cms/order-management/order/print-receipt', { orderId: order && order.id }).then(rawResp => {
     const resp = rawResp.data as NCResponse<any>
-    console.dir(resp)
+    if (resp.status) {
+      toastr.success('Success!')
+    } else {
+      toastr.error('Failed: ' + resp.errMessage)
+    }
     /* if (resp.status) {
       const htmlData = resp.data
       $('<div></div>').print({
@@ -85,6 +89,7 @@ const ncOrderDetail = $('#order-detail').NCInputLibrary({
       { id: 'productName', desc: 'Product', dataTable: true, input: 'hidden' },
       { id: 'variantName', desc: 'Variant', dataTable: true, input: 'hidden' },
       { id: 'quantity', desc: 'Quantity', dataTable: true, input: 'text' },
+      { id: 'aisle', desc: 'Aisle', dataTable: true, input: 'hidden' },
       { id: 'price', desc: 'Price', dataTable: true, input: 'hidden' },
       { id: 'status', desc: 'Status', dataTable: true, input: 'hidden' },
       { id: 'preOrderDuration', desc: 'PO Duration', dataTable: true, input: 'hidden' },

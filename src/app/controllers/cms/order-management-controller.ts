@@ -128,43 +128,7 @@ export default class OrderManagementController extends BaseController {
       })
     })
 
-    super.routeGet('/order/receipt', (req, res, next) => {
-      const orderId = req.query.orderId
-      const originalCopy = req.query.originalCopy
-      OrderService.getReceipt(orderId).then(resp => {
-        if (resp.status && resp.data) {
-          // Render using pug
-          res.locals.receipt = resp.data
-          res.locals.originalCopy = originalCopy
-          res.render('cms/receipt')
-        } else {
-          res.status(500).send('Error: ' + resp.errMessage)
-          // res.json(resp)
-        }
-      }).catch(next)
-    })
-
-    super.routeGet('/order-details/receipt', (req, res, next) => {
-      const orderId = req.query.orderId
-      Promise.join<NCResponse<any>>(
-        OrderService.getOrderDetails(orderId),
-        OrderService.getOrder(orderId)
-      ).spread((resp: NCResponse<OrderDetail[]>, resp2: NCResponse<Order>) => {
-        if (resp.status && resp.data && resp2.status && resp2.data) {
-          // Render using pug
-          res.locals.order = resp2.data
-          res.locals.orderId = orderId
-          res.locals.orderDetails = resp.data
-          res.render('cms/aisles-receipt')
-        } else {
-          res.status(500).send('Error: ' + resp.errMessage)
-          // res.json(resp)
-        }
-      }).catch(next)
-    })
-
     super.routePost('/order-details/print-receipt', (req, res, next) => {
-      res.json({ status: false, errMessage: 'Not yet implemented!' })
       const orderId = req.body.orderId
 
       // TODO: This is very inefficient because we're technically calling getOrderDetails() twice:

@@ -113,7 +113,7 @@ const ncOrderDetail = $('#order-detail').NCInputLibrary({
 
 const printAislesBtn = $(`<button class="btn btn-default btn-block" type="button">Print Aisle Details</button>`)
 printAislesBtn.on('click', () => {
-  axios.post('/cms/order-management/order/print-aisles', { orderId: order && order.id }).then(rawResp => {
+  axios.post('/cms/order-management/order-details/print-receipt', { orderId: order && order.id }).then(rawResp => {
     let resp = rawResp.data as NCResponse<any>
     if (resp.status) {
       toastr.success('Print job created!')
