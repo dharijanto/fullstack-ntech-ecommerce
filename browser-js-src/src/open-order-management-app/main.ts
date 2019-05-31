@@ -26,7 +26,7 @@ const ncOrder = $('#order').NCInputLibrary({
       { id: 'updatedAt', desc: 'Date Updated', dataTable: true, input: 'hidden', disabled: true }
     ],
     conf: {
-      order: [['updatedAt', 'desc']],
+      order: [['updatedAt', 'asc']],
       getURL: () => `/cms/order-management/open-orders` ,
       onRowClicked: (data: Order) => {
         order = data
