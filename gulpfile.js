@@ -20,7 +20,8 @@ const sitesDepsFiles = [
   'src/cms/views/**',
   'src/app-config.js.dist',
   'src/tests/mocha.opts',
-  'package.json'
+  'package.json',
+  '.gitignore'
 ]
 const sitesFiles = project.config.include
   .concat(project.config.exclude.map(excludePath => '!' + excludePath))
