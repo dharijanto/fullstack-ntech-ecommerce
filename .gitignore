@@ -5,3 +5,4 @@ browser-js-src/node_modules/
 /gen-cloud-sync-data
 /dist/
 /src/app-config.js
+/user-assets
