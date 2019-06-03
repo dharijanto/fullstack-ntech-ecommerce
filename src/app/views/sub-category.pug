@@ -6,13 +6,13 @@ block content
   if inStockProducts.length > 0
     section.product-catalog
       h2 Produk - Ready Stock
-      section.tiles
+      section.tiles#in-stock-products
         +renderProducts(inStockProducts)
-      +renderPagination(currentInStockProductPage, inStockProductTotalPage, getCategoryURL(category, '__pageNumber', currentPOProductPage, 'in-stock-products'))
+      +renderPagination(currentInStockProductPage, inStockProductTotalPage, getSubCategoryURL(subCategory.category, subCategory, '__pageNumber', currentPOProductPage, 'in-stock-products'))
 
   if poProducts.length > 0
     section.product-catalog
       h2 Produk - Pre-Order
-      section.tiles
+      section.tiles#po-products
         +renderProducts(poProducts)
-      +renderPagination(currentInStockProductPage, inStockProductTotalPage, getCategoryURL(category, '__pageNumber', currentPOProductPage, 'in-stock-products'))
+      +renderPagination(currentPOProductPage, poProductTotalPage, getSubCategoryURL(subCategory.category, subCategory, currentInStockProductPage, '__pageNumber', 'po-products'))

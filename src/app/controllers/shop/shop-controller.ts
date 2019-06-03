@@ -127,8 +127,10 @@ export default class ShopController extends BaseController {
       AnalyticsService.subCategoryClicked(subCategoryId)
 
       Promise.join<NCResponse<any>>(
-        LocalShopService.getInStockProducts({ subCategoryId }),
-        LocalShopService.getPOProducts({ subCategoryId }),
+        LocalShopService.getInStockProducts({ subCategoryId, pageSize: inStockProductPageSize,
+          pageIndex: res.locals.currentInStockProductPage - 1 }),
+        LocalShopService.getPOProducts({ subCategoryId, pageSize: poProductPageSize,
+          pageIndex: res.locals.currentPOProductPage - 1 }),
         ProductService.getSubCategory(subCategoryId)
       ).spread((resp1: NCResponse<{ products: InStockProduct[], totalProducts: number }>,
                 resp2: NCResponse<{ products: POProduct[], totalProducts: number }>,
