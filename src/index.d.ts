@@ -40,6 +40,11 @@ interface BaseModel {
 /*
 The following are tables that are read-only on the cloud server.
 */
+
+interface Image extends BaseModel {
+  filename: string
+}
+
 interface Category extends BaseModel {
   name: string
   description: string

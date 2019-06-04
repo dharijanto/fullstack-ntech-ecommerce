@@ -12,9 +12,9 @@ import * as AppConfig from '../../app-config'
 import CRUDService from '../../services/crud-service'
 import Sequelize = require('sequelize')
 import LocalShopService from './local-shop-service'
-
 import { CloudSyncResp } from '../../services/cloud-sync-service'
-import SearchService from '../../services/search-service';
+import SearchService from '../../services/search-service'
+import * as Utils from '../../libs/utils'
 
 const TAG = 'SyncService'
 
@@ -142,7 +142,16 @@ class SyncService extends CRUDService {
             } else {
               info = 'Successfully reindexed search DB!'
             }
-            this.updateCloudToLocalSyncHistory(cloudToLocalSyncHistory.id, 'Success', info)
+            // Sync all the images
+            this.downloadImages().then(resp => {
+              if (resp.status && resp.data) {
+                info += ` Downloaded ${resp.data.numDownloaded} images`
+              } else {
+                info += ` Failed to download images: ${resp.errMessage}`
+              }
+              // Update the state
+              this.updateCloudToLocalSyncHistory(cloudToLocalSyncHistory.id, 'Success', info)
+            })
           }).catch(err => {
             log.error(TAG, err)
           })
@@ -215,6 +224,27 @@ class SyncService extends CRUDService {
         throw new Error('Unexpected server response: ' + JSON.stringify(resp))
       }
     }))
+  }
+
+  // TODO: Instead of checking all images, in the future we should only check those
+  // we received from sync
+  protected downloadImages (): Promise<NCResponse<{ numDownloaded: number, numSkipped: number }>> {
+    return super.read<Image>('Image', {}).then(resp => {
+      if (resp.status && resp.data) {
+        const images = resp.data
+        log.verbose(TAG, `downloadImages(): number of images: ${images.length}`)
+        return Promise.map(images, image => {
+          return Utils.download(`${AppConfig.CLOUD_SERVER.HOST}/images/${image.filename}`, `${path.join(AppConfig.IMAGE_PATH, image.filename)}`)
+        }).then(countArr => {
+          const counts = countArr.reduce((acc, count) => {
+            return count + acc
+          }, 0)
+          return { status: true, data: { numDownloaded: counts, numSkipped: images.length - counts } } as NCResponse<any>
+        })
+      } else {
+        return { status: false, errMessage: resp.errMessage }
+      }
+    })
   }
 }
 

@@ -1,10 +1,15 @@
+import * as http from 'http'
+import * as https from 'https'
+import * as fs from 'fs'
 import * as util from 'util'
 
 import * as AppConfig from '../app-config'
 import * as getSlug from 'speakingurl'
+import * as log from 'npmlog'
 
-import * as Treeize from 'treeize'
 import * as flatToTrees from 'flatToTrees'
+
+const TAG = 'Utils'
 
 // Depending whether the server is locally hosted or on the cloud,
 // image mount path could be differentz
@@ -134,4 +139,31 @@ export function getNumberOfPage (totalProducts: number, productsPerPage: number)
   } else {
     return (totalProducts / productsPerPage).toFixed()
   }
+}
+
+export function download (url: string, dest: string): Promise<number> {
+  return new Promise((resolve, reject) => {
+    return fs.access(dest, fs.constants.F_OK, (err) => {
+      // If there's an error, it means the file doesn't exist
+      if (err) {
+        let file = fs.createWriteStream(dest)
+        const protocol: any = url.startsWith('http') ? http : https
+        protocol.get(url, function (response) {
+          response.pipe(file)
+          file.on('finish', function () {
+            file.close()
+            resolve(1)
+          })
+        }).on('error', (err) => {
+          // If error happen, we need to delete local file
+          fs.unlink(dest, err => {
+            log.error(TAG, err.message)
+          })
+          reject(err)
+        })
+      } else {
+        resolve(0)
+      }
+    })
+  })
 }
