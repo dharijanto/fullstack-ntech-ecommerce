@@ -4,12 +4,10 @@ import * as Promise from 'bluebird'
 import * as AppConfig from '../app-config'
 import BaseController from './controllers/base-controller'
 import CartController from './controllers/shop/cart-controller'
-import AccountController from './controllers/account-controller'
 import CMSController from './controllers/cms-controller'
 import CloudSyncController from './controllers/cloud-sync-controller'
 import LocalSyncController from './controllers/shop-sync-controller'
 import LocalShopService from './local-shop-services/local-shop-service'
-import OrderService from './local-shop-services/order-service'
 import ProductService from '../services/product-service'
 import ShopController from './controllers/shop/shop-controller'
 import SequelizeService from '../services/sequelize-service'
@@ -17,7 +15,6 @@ import SearchService from '../services/search-service'
 import { SiteData } from '../site-definitions'
 import * as Utils from '../libs/utils'
 import PassportManager from './libs/passport-manager'
-import PassportHelper from './libs/passport-helper'
 
 const path = require('path')
 
@@ -67,83 +64,8 @@ class Controller extends BaseController {
           if (!AppConfig.PRODUCTION || !AppConfig.IS_CLOUD_SERVER) {
             // Local specific
             this.routeUse('/local-sync', (new LocalSyncController(siteData).getRouter()))
-            this.routeUse('/cms/account', (new AccountController(siteData).getRouter()))
-
-            // Non-authenticated CMS path
-            // Note: This is needed because we use puppeeteer to generate the receipt
-            //       Puppeteer needs to be able to access receipt path without authentication
-            super.routeGet('/cms/order-management/order/receipt', (req, res, next) => {
-              const orderId = req.query.orderId
-              const originalCopy = req.query.originalCopy
-              OrderService.getReceipt(orderId).then(resp => {
-                if (resp.status && resp.data) {
-                  // Render using pug
-                  res.locals.receipt = resp.data
-                  res.locals.originalCopy = originalCopy
-                  res.render('cms/receipt')
-                } else {
-                  res.status(500).send('Error: ' + resp.errMessage)
-                  // res.json(resp)
-                }
-              }).catch(next)
-            })
-
-            super.routeGet('/cms/order-management/order-details/receipt', (req, res, next) => {
-              const orderId = req.query.orderId
-
-              if (orderId) {
-                Promise.join<NCResponse<any>>(
-                  OrderService.getOrderDetails(orderId),
-                  OrderService.getOrder(orderId)
-                ).spread((resp: NCResponse<OrderDetail[]>, resp2: NCResponse<Order>) => {
-                  if (resp.status && resp.data && resp2.status && resp2.data) {
-                    // Render using pug
-                    res.locals.order = resp2.data
-                    res.locals.orderId = orderId
-                    res.locals.orderDetails = resp.data
-                    res.render('cms/aisles-receipt')
-                  } else {
-                    res.status(500).send('Error: ' + resp.errMessage)
-                    // res.json(resp)
-                  }
-                }).catch(next)
-              } else {
-                res.json({ status: false, errMessage: 'orderId is required!' })
-              }
-            })
-
-            this.routeGet('/cms/order-management/order/dummy-receipt', (req, res, next) => {
-              // Render using pug
-              res.locals.receipt = {
-                orderId: 1,
-                fullName: 'John Doe',
-                phoneNumber: '081122334455',
-                status: 'Close',
-                totalPrice: 100000,
-                orderDate: '12 January 2019',
-                printDate: '12 January 2019 10:00',
-                items: [
-                  {
-                    status: 'Ready',
-                    name: 'SanDisk Cruzer 32GB',
-                    variant: 'Hitam',
-                    price: 65000,
-                    quantity: 1
-                  },
-                  {
-                    status: 'Ready',
-                    name: 'USB Logitech Mini E11',
-                    variant: 'Biru',
-                    price: 35000,
-                    quantity: 1
-                  }
-                ]
-              }
-              res.locals.originalCopy = true
-              res.render('cms/receipt')
-            })
-            // Authenticated CMS path
-            this.routeUse('/cms', PassportHelper.ensureLoggedIn({}), (new CMSController(siteData).getRouter()))
+            // CMS path
+            this.routeUse('/cms', (new CMSController(siteData).getRouter()))
             this.routeUse('/cart', (new CartController(siteData).getRouter()))
           }
 

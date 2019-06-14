@@ -4,6 +4,7 @@ import 'nc-image-picker'
 import 'nc-input-library'
 
 import axios from '../libs/axios-wrapper'
+import axiosOrig from 'axios'
 import Config from '../config'
 import { getURLQuery } from '../libs/utils'
 
@@ -34,7 +35,7 @@ $(document).ready(() => {
       ui: [
         { id: 'add', desc: 'Add', postTo: `/${window['siteHash']}/product-management/product/image?productId=${productId}` },
         { id: 'edit', desc: 'Edit', postTo: `/${window['siteHash']}/product-management/product/image/edit?productId=${productId}` },
-        { id: 'delete', desc: 'Delete', postTo: `/${window['siteHash']}/product-management/product/image/delete?productId=${productId}` }
+        { id: 'delete', desc: 'Delete', postTo: `/${window['siteHash']}/product-management/product/image/delete?productId=${productId}`, confirm: 'Are you sure?' }
       ],
       conf: {
         networkTimeout: Config.NETWORK_TIMEOUT// timeout for postTo request
@@ -81,13 +82,22 @@ $(document).ready(() => {
       description: productDescription.summernote('code')
     }
 
-    axios.post<NCResponse<Product>>(`/${window['siteHash']}/product-management/product/edit`, body).then(rawResp => {
+    // Since product description can be lengthy, we need to have
+    // longer timeout
+    const axiosWithLongerTimeout = axiosOrig.create({
+      timeout: 50000
+    })
+
+    axiosWithLongerTimeout.post<NCResponse<Product>>(`/${window['siteHash']}/product-management/product/edit`, body).then(rawResp => {
       if (rawResp.data.status) {
         toastr.success('Success!')
       } else {
         toastr.error('Failed: ' + rawResp.data.errMessage)
         console.error(rawResp.data.errMessage)
       }
+    }).catch(err => {
+      console.error('Failed to edit product: ' + err)
+      toastr.error('Failed: ' + err.message)
     })
   })
 

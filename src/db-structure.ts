@@ -39,7 +39,7 @@ function addTables (sequelize: Sequelize.Sequelize, models: Sequelize.Models) {
     price: { type: Sequelize.INTEGER },
     notes: { type: Sequelize.TEXT },
     warranty: { type: Sequelize.STRING },
-    description: { type: Sequelize.TEXT }
+    description: { type: Sequelize.TEXT('long') }
   }, {
     paranoid: true
   })

@@ -11,7 +11,7 @@ let order: Order
 
 const ncOrder = $('#order').NCInputLibrary({
   design: {
-    title: 'Orders'
+    title: 'Open Orders'
   },
   table: {
     ui: [

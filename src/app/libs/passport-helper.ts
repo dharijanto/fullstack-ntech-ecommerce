@@ -6,7 +6,7 @@ class PassportHelper {
   // TODO: No longer needed as the session bug apparently came from express-session and is already fixed
   // Adapted from Jared Hanson's connect-ensure-login
   // The difference is that this waits until session is saved before redirecting
-  static ensureLoggedIn (options) {
+  static ensureLoggedIn (options: { redirectTo?: string, setReturnTo?: string, privileges?: Array<string> }) {
     if (typeof options === 'string') {
       options = { redirectTo: options }
     }
@@ -27,14 +27,16 @@ class PassportHelper {
           return res.redirect(url)
         }
       } else {
-        next()
+        if ('privileges' in options) {
+          if ((options.privileges || []).indexOf(req.user.privilege) !== -1) {
+            next()
+          } else {
+            res.redirect(url)
+          }
+        } else {
+          next()
+        }
       }
-    }
-  }
-
-  static ensureAdmin () {
-    return (req, res, next) => {
-
     }
   }
 

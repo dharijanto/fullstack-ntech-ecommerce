@@ -98,85 +98,28 @@ html
       .divider
       ul.nav.menu
         if user
-          li.parent
-            a(data-toggle='collapse', href='#order-management')
-              em.fa.fa-navicon
-              |  Order Management
-              span.icon.pull-right(data-toggle='collapse', href='#order-management')
-                em.fa.fa-plus
-            ul#order-management.children.collapse
-              li
-                a(href='/cms/order-management/open-order-management')
-                  span.fa.fa-arrow-right  
-                  |  Open Order
-              li
-                a(href='/cms/order-management/closed-order-management')
-                  span.fa.fa-arrow-right  
-                  |  Close Order
-          li.parent
-            a(data-toggle='collapse', href='#stock-management')
-              em.fa.fa-navicon
-              |  Stock Management
-              span.icon.pull-right(data-toggle='collapse', href='#stock-management')
-                em.fa.fa-plus
-            ul#stock-management.children.collapse
-              li
-                a(href='/cms/stock-management/aisle-management')
-                  span.fa.fa-arrow-right  
-                  | Aisle Management
-              li
-                a(href='/cms/stock-management/in-management')
-                  span.fa.fa-arrow-right
-                  |  In Management
-              li
-                a(href='/cms/stock-management/opname')
-                  span.fa.fa-arrow-right
-                  |  Opname
-          li.parent
-            a(data-toggle='collapse', href='#shop-management')
-              em.fa.fa-navicon
-              |  Shop Management
-              span.icon.pull-right(data-toggle='collapse', href='#shop-management')
-                em.fa.fa-plus
-            ul#shop-management.children.collapse
-              li
-                a(href='/cms/product-management')
-                  span.fa.fa-arrow-right  
-                  | Product Management
-              li
-                a(href='/cms/promotion-management')
-                  span.fa.fa-arrow-right
-                  |  Promotion Management
-          li.parent
-            a(data-toggle='collapse', href='#sync-management')
-              em.fa.fa-navicon
-              |  Sync Management
-              span.icon.pull-right(data-toggle='collapse', href='#sync-management')
-                em.fa.fa-plus
-            ul#sync-management.children.collapse
-              li
-                a(href='/cms/sync-management/cloud-to-local')
-                  span.fa.fa-arrow-right  
-                  | Cloud-to-Local
-          li.parent
-            a(data-toggle='collapse', href='#other')
-              em.fa.fa-navicon
-              |  Other
-              span.icon.pull-right(data-toggle='collapse', href='#other')
-                em.fa.fa-plus
-            ul#other.children.collapse
-              li
-                a(href='/cms/other-management/test-receipt-printer')
-                  span.fa.fa-arrow-right  
-                  | Test Receipt Printer
-              li
-                a(href='/cms/other-management/reindex-search-database')
-                  span.fa.fa-arrow-right  
-                  | Reindex Search DB
-        li
-          a(href='/cms/account/logout')
-            em.fa.fa-power-off  
-            |  Logout
+          each menu in sidebar || []
+            if 'privileges' in menu && menu.privileges.indexOf(user.privilege) === -1
+              // Don't display this menu
+            else
+              if 'children' in menu
+                li.parent
+                  a(data-toggle='collapse' href=`#${menu.id}`)
+                    em.fa.fa-navicon
+                    |  #{menu.title}
+                    span.icon.pull-right(data-toggle='collapse' href=`#${menu.id}`)
+                      em.fa.fa-plus
+                  ul.children.collapse(id=`${menu.id}`)
+                    each child in menu.children
+                      li
+                        a(href=`${child.href}`)
+                          span.fa(class=`${child.faIcon || 'fa-arrow-right'}`)
+                          |  #{child.title}
+              else
+                li
+                  a(href=`${menu.href}`)
+                    em.fa(class=`${menu.faIcon || ''}`)
+                    |  #{menu.title}
     // /.sidebar
     .col-sm-9.col-sm-offset-3.col-lg-10.col-lg-offset-2.main
       block content
