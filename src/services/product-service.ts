@@ -71,7 +71,7 @@ class ProductService extends CRUDService {
   }
 
   getSubCategories (searchClause): Promise<NCResponse<SubCategory[]>> {
-    return super.read<SubCategory>('SubCategory', searchClause)
+    return super.read<SubCategory>('SubCategory', searchClause, { include: [{ model: super.getModels('Category') }] })
   }
 
   /* getSubCategory (searchClause: Partial<Category>) {
