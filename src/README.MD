@@ -62,7 +62,7 @@ from cloud.
 ### Usage
 * Use a cronjob to trigger the sync in timely manner
 ```
-curl /sync-management/cloud-to-local/sync
+curl --request POST 127.0.0.1:8000/cms/sync-management/cloud-to-local/sync
 ```
 
 # Test
