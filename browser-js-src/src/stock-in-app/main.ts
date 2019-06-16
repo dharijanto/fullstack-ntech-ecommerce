@@ -22,6 +22,7 @@ $(document).ready(() => {
         { id: 'id', desc: 'ID', dataTable: true, input: 'hidden', disabled: true },
         { id: 'date', desc: 'Date', dataTable: true, input: 'date', data: { dateFormat: 'YYYY-MM-DD' } },
         { id: 'description', desc: 'Description', dataTable: true, input: 'text' },
+        { id: 'quantity', desc: 'Quantity', dataTable: true, input: 'hidden' },
         { id: 'createdAt', desc: 'Created At', dataTable: true, input: 'hidden' },
         { id: 'updatedAt', desc: 'Updated At', dataTable: true, input: 'hidden' }
       ],
@@ -163,7 +164,6 @@ $(document).ready(() => {
         { id: 'id', desc: 'ID', dataTable: true, input: 'hidden', disabled: true },
         { id: 'variant.product.name', desc: 'Product', dataTable: true, input: 'hidden', disabled: true },
         { id: 'variant.name', desc: 'Variant', dataTable: true, input: 'hidden', disabled: true },
-        { id: 'date', desc: 'Date', dataTable: true, input: 'date', data: { dateFormat: 'YYYY-MM-DD' } },
         { id: 'price', desc: 'Purchase Price', dataTable: true, input: 'text' },
         { id: 'quantity', desc: 'Quantity', dataTable: true, input: 'text' },
         { id: 'aisle', desc: 'Aisle', dataTable: true, input: 'select', selectData: getAisles },

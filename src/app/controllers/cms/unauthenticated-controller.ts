@@ -8,7 +8,7 @@ import PassportManager from '../../libs/passport-manager'
 import PassportHelper from '../../libs/passport-helper'
 import { SiteData } from '../../../site-definitions'
 import OrderService from '../../local-shop-services/order-service'
-import * as AppConfig from '../../../app-config'
+import SyncService from '../../local-shop-services/sync-service'
 
 const TAG = 'UnauthenticatedCMSController'
 
@@ -24,6 +24,17 @@ export default class UnauthenticatedCMSController extends BaseController {
       log.verbose(TAG, 'req.on=' + JSON.stringify(req.session))
       next()
     })
+    // --------- Sync-related controller path ------------
+    // ------------------------------------------------------
+    super.routePost('/sync-management/cloud-to-local/sync', (req, res, next) => {
+      SyncService.cloudToLocalSync().then(resp => {
+        res.json(resp)
+      }).catch(err => {
+        next(err)
+      })
+    })
+    // ------------------------------------------------------
+
 
     // --------- Account-related controller path ------------
     // ------------------------------------------------------

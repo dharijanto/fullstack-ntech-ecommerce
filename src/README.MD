@@ -33,6 +33,16 @@ Search is implemented using Sphinx Search. Sphinx indexes data from mysql period
 from cloud.
 ## TODO
 1. When user searches for 'Sandisk', we should show up appropriate subCategories (i.e. flash drive)
+## Installation
+* Install Sphinx Search
+* Modify Sphinx Search config according to what's on configs/sphinx.conf, make sure to modify localShopId appropriately
+* Modify system-level daemon runner so that sphinx is run as the same user/group
+  as ncloud process so that reindexing can be done through the app.
+  (verify this through App CMS -> Other Management -> Reindex Search DB)
+* Start sphinx using systemd or systemctl
+* Reindex the database using ```sphinx-indexer --rotate --all```
+* Add a cronjob that does GET request to the sync path every 30 minutes.
+ 
 
 # Sync
 ## Cloud to Shop
@@ -49,17 +59,12 @@ from cloud.
   sets its internal status to { state: 'Syncing', since: '2019-04-03 11:12:00' until: '2019-04-03 14:08:00' }
   to prevent parallel synchronization
 * After syncing has finished, update its state to { status: 'Finished', since: '2019-04-03 11:12:00' until: '2019-04-03 14:08:00' }
+### Usage
+* Use a cronjob to trigger the sync in timely manner
+```
+curl /sync-management/cloud-to-local/sync
+```
 
-# Installation
-* Install Sphinx Search
-* Modify Sphinx Search config according to what's on configs/sphinx.conf, make sure to modify localShopId appropriately
-* Modify system-level daemon runner so that sphinx is run as the same user/group
-  as ncloud process so that reindexing can be done through the app.
-  (verify this through App CMS -> Other Management -> Reindex Search DB)
-* Start sphinx using systemd or systemctl
-* Reindex the database using ```sphinx-indexer --rotate --all```
-* Add a cronjob that does GET request to the sync path every 30 minutes.
- 
 # Test
 ## Unit Test
 

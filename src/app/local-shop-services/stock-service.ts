@@ -61,7 +61,7 @@ class LocalStockService extends CRUDService {
   }
 
   getStockBSTs () {
-    return super.read<ShopStockBST>('ShopStockBST', { shopId: LocalShopService.getLocalShopId() })
+    return super.rawReadQuery(`SELECT * FROM shopStockBSTsView`)
   }
 
   addStockBST (data: Partial<ShopStockBST>): Promise<NCResponse<ShopStockBST>> {

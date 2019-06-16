@@ -21,13 +21,5 @@ export default class SyncManagementController extends BaseController {
     super.routeGet('/cloud-to-local/history', (req, res, next) => {
       SyncService.getHistories().then(res.json.bind(res)).catch(next)
     })
-
-    super.routePost('/cloud-to-local/sync', (req, res, next) => {
-      SyncService.cloudToLocalSync().then(resp => {
-        res.json(resp)
-      }).catch(err => {
-        next(err)
-      })
-    })
   }
 }
