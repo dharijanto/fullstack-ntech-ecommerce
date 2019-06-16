@@ -181,17 +181,27 @@ function addTables (sequelize: Sequelize.Sequelize, models: Sequelize.Models) {
   })
   models.User.belongsTo(models.Shop)
 
+  models.ShopStockBST = sequelize.define('shopStockBST', {
+    id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
+    description: { type: Sequelize.STRING },
+    date: { type: Sequelize.DATE },
+    onCloud: { type: Sequelize.BOOLEAN, defaultValue: true }
+  }, {
+    paranoid: true
+  })
+  models.ShopStockBST.belongsTo(models.Shop)
+
   models.ShopStock = sequelize.define('shopStock', {
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
     price: { type: Sequelize.INTEGER }, // purchase price, not sell price
     date: { type: Sequelize.DATE },
     aisle: { type: Sequelize.STRING, allowNull: false },
-    description: { type: Sequelize.STRING },
     quantity: { type: Sequelize.INTEGER },
     onCloud: { type: Sequelize.BOOLEAN, defaultValue: true }
   }, {
     paranoid: true
   })
+  models.ShopStock.belongsTo(models.ShopStockBST)
   models.ShopStock.belongsTo(models.Shop)
   models.ShopStock.belongsTo(models.Variant)
   models.Variant.hasMany(models.ShopStock)
@@ -278,7 +288,7 @@ function addTables (sequelize: Sequelize.Sequelize, models: Sequelize.Models) {
   models.CloudToLocalSyncHistory = sequelize.define('cloudToLocalSyncHistory', {
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
     status: { type: Sequelize.ENUM(['Preparing', 'Applying', 'Success', 'Failed']) },
-    info: { type: Sequelize.TEXT }, // error message, would be stored here
+    info: { type: Sequelize.TEXT('long') }, // error message, would be stored here
     untilTime: { type: Sequelize.STRING }
   })
 

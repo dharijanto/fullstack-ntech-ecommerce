@@ -189,7 +189,11 @@ class LocalShopService extends CRUDService {
   }
 
   getShopifiedVariants (productId): Promise<NCResponse<ShopifiedVariant[]>> {
-    return ShopService.getShopifiedVariants(this.localShopId, productId)
+    if (!productId) {
+      return Promise.resolve({ status: false, errMessage: 'productId is required!' })
+    } else {
+      return ShopService.getShopifiedVariants(this.localShopId, productId)
+    }
   }
 
   // Update shopProduct entry

@@ -238,8 +238,8 @@ class ShopService extends CRUDService {
       })
   }
 
-  getShopStock (shopId, searchClause = {}) {
-    return (this.getModels('ShopStock') as Model<Instance<ShopStock>, Partial<ShopStock>>).findAll({
+  getShopStock (shopId, searchClause = {}): Promise<NCResponse<Partial<ShopStock[]>>> {
+    return (this.getModels('ShopStock') as Model<ShopStock, Partial<ShopStock>>).findAll({
       where: Object.assign({}, searchClause, { shopId }),
       include: [
         {

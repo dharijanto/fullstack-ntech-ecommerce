@@ -114,15 +114,21 @@ interface Shop extends BaseModel {
   zipCode: number
 }
 
+interface ShopStockBST extends BaseModel {
+  shopId: number
+  date: string,
+  description: string
+}
+
 interface ShopStock extends BaseModel {
   shopId: number
+  shopStockBSTId: number
   variantId: number
   quantity: number
   price: number
   aisle: string
   date: string
   variant?: Variant
-  description: string
 }
 
 interface Aisle extends BaseModel {

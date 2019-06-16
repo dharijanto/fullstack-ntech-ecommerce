@@ -60,27 +60,70 @@ class LocalStockService extends CRUDService {
     }
   }
 
-  getStocks (variantId: number) {
-    return ShopService.getShopStock(LocalShopService.getLocalShopId(), { variantId })
+  getStockBSTs () {
+    return super.read<ShopStockBST>('ShopStockBST', { shopId: LocalShopService.getLocalShopId() })
+  }
+
+  addStockBST (data: Partial<ShopStockBST>): Promise<NCResponse<ShopStockBST>> {
+    if (!data.description) {
+      return Promise.resolve({ status: false, errMessage: 'description is required!' })
+    } else if (!data.date) {
+      return Promise.resolve({ status: false, errMessage: 'date is required!' })
+    } else {
+      return super.create<ShopStockBST>('ShopStockBST', { ...data, shopId: LocalShopService.getLocalShopId() })
+    }
+  }
+
+  updateStockBST (bstId: number, data: Partial<ShopStockBST>): Promise<NCResponse<number>> {
+    if (!bstId) {
+      return Promise.resolve({ status: false, errMessage: 'bstId is required!' })
+    } else if (!data.description) {
+      return Promise.resolve({ status: false, errMessage: 'description is required!' })
+    } else if (!data.date) {
+      return Promise.resolve({ status: false, errMessage: 'date is required!' })
+    } else {
+      return super.update<ShopStockBST>('ShopStockBST', data, { id : bstId })
+    }
+  }
+
+  deleteStockBST (bstId: number): Promise<NCResponse<number>> {
+    if (!bstId) {
+      return Promise.resolve({ status: false, errMessage: 'bstId is required!' })
+    } else {
+      return super.delete<ShopStockBST>('ShopStockBST', { id: bstId })
+    }
+  }
+
+  getStocks (bstId: number): Promise<NCResponse<Partial<ShopStock[]>>> {
+    if (!bstId) {
+      return Promise.resolve({ status: false, errMessage: 'bstId is required!' })
+    } else {
+      return ShopService.getShopStock(LocalShopService.getLocalShopId(), { shopStockBSTId: bstId })
+    }
   }
 
   getStocksGroupedByAisle (variantId: number): Promise<NCResponse<ShopStock[]>> {
     return super.rawReadQuery(`SELECT * FROM shopStocksView WHERE shopId=${LocalShopService.getLocalShopId()} AND variantId=${variantId} AND quantity > 0`)
   }
 
-  addShopStock (data: Partial<ShopStock>): Promise<NCResponse<ShopStock>> {
-    const { variantId, price, quantity, aisle, date, description } = data
-    if (!description) {
-      return Promise.resolve({ status: false, errMessage: 'Description is required!' })
+  addShopStock (bstId: number, data: Partial<ShopStock>): Promise<NCResponse<ShopStock>> {
+    const { variantId, price, quantity, aisle, date } = data
+
+    if (!bstId) {
+      return Promise.resolve({ status: false, errMessage: 'bstId is required!' })
+    } else if (!price) {
+      return Promise.resolve({ status: false, errMessage: 'price is required!' })
+    } else if (!variantId) {
+      return Promise.resolve({ status: false, errMessage: 'variantId is required!' })
     } else {
       return this.create<ShopStock>('ShopStock', {
         shopId: LocalShopService.getLocalShopId(),
+        shopStockBSTId: bstId,
         variantId,
         price,
         quantity,
         aisle,
-        date,
-        description
+        date
       })
     }
   }

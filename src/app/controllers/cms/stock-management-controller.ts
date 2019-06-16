@@ -14,13 +14,31 @@ export default class PromotionManagementController extends BaseController {
   constructor (siteData: SiteData) {
     super(Object.assign(siteData, { viewPath: path.join(__dirname, '../../views') }))
 
-    // this.imageService = new siteData.services.ImageService(siteData.db.sequelize, siteData.db.models)
-
-    super.routeGet('/stocks', (req, res, next) => {
-      const variantId = req.query.variantId
-      LocalStockService.getStocks(variantId).then(res.json.bind(res)).catch(next)
+    super.routeGet('/stock-bst', (req, res, next) => {
+      LocalStockService.getStockBSTs().then(res.json.bind(res)).catch(next)
     })
 
+    super.routePost('/stock-bst', (req, res, next) => {
+      LocalStockService.addStockBST(req.body).then(res.json.bind(res)).catch(next)
+    })
+
+    super.routePost('/stock-bst/edit', (req, res, next) => {
+      const bstId: number = req.body.id
+      LocalStockService.updateStockBST(bstId, req.body).then(res.json.bind(res)).catch(next)
+    })
+
+    super.routePost('/stock-bst/delete', (req, res, next) => {
+      const bstId = req.body.id
+      LocalStockService.deleteStockBST(bstId).then(res.json.bind(res)).catch(next)
+    })
+
+    // this.imageService = new siteData.services.ImageService(siteData.db.sequelize, siteData.db.models)
+    super.routeGet('/stocks', (req, res, next) => {
+      const bstId = req.query.bstId
+      LocalStockService.getStocks(bstId).then(res.json.bind(res)).catch(next)
+    })
+
+    // like /stocks, but grouped by aisle
     super.routeGet('/stocks-left', (req, res, next) => {
       const variantId = req.query.variantId
       LocalStockService.getStocksGroupedByAisle(variantId).then(res.json.bind(res)).catch(next)
@@ -28,12 +46,8 @@ export default class PromotionManagementController extends BaseController {
 
     super.routePost('/stock', (req, res, next) => {
       const variantId = req.query.variantId
-
-      if (!variantId) {
-        res.json({ status: false, errMessage: 'variantId is required' })
-      } else {
-        LocalStockService.addShopStock(Object.assign({}, req.body, { variantId })).then(res.json.bind(res)).catch(next)
-      }
+      const bstId = req.query.bstId
+      LocalStockService.addShopStock(bstId, { ...req.body, variantId }).then(res.json.bind(res)).catch(next)
     })
 
     // We should only be able to update & delete stock from today

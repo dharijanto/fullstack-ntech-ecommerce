@@ -26,6 +26,19 @@ class SQLViewService extends CRUDService {
     `)
   }
 
+  createShopStockBSTsView () {
+    return super.getSequelize().query(`
+      CREATE VIEW shopStockBSTsView AS
+        (SELECT shopStockBSTs.id id, shopStockBSTs.description description,
+             shopStockBSTs.date date, SUM(shopStocks.quantity) quantity,
+             shopStockBSTs.createdAt createdAt, shopStockBSTs.updatedAt updatedAt,
+             shopStockBSTs.shopId shopId
+        FROM shopStockBSTs
+        INNER JOIN shopStocks ON shopStocks.shopStockBSTId = shopStockBSTs.id AND shopStocks.deletedAt IS NULL
+        )
+    `)
+  }
+
   // This is shopStocks aggregated by aisle subtracted by the number of order
   createShopStocksView () {
     return super.getSequelize().query(`
@@ -36,7 +49,8 @@ CREATE VIEW shopStocksView AS
   SELECT shopStocks.shopId AS shopId, shopStocks.variantId AS variantId,
       SUM(shopStocks.quantity) AS quantity, shopStocks.aisle AS aisle
   FROM shopStocks
-  WHERE deletedAt IS NULL
+  INNER JOIN shopStockBSTs ON shopStockBSTs.id = shopStocks.shopStockBSTId AND shopStockBSTs.deletedAt IS NULL
+  WHERE shopStocks.deletedAt IS NULL
   GROUP BY shopStocks.shopId, shopStocks.variantId, shopStocks.aisle
   ) AS shopStocksView
 LEFT OUTER JOIN
@@ -163,6 +177,7 @@ CROSS JOIN shops
 LEFT OUTER JOIN
   (SELECT shopStocks.variantId as variantId, shopStocks.shopId as shopId, SUM(shopStocks.quantity) as stockQuantity
     FROM shopStocks
+    INNER JOIN shopStockBSTs ON shopStockBSTs.id = shopStocks.shopStockBSTId AND shopStockBSTs.deletedAt IS NULL
     WHERE shopStocks.deletedAt IS NULL
     GROUP BY shopStocks.variantId, shopStocks.shopId) as shopStocksTable
 ON variants.id = shopStocksTable.variantId AND shops.id = shopStocksTable.shopId
@@ -315,7 +330,7 @@ INNER JOIN shopifiedProductsView ON promotions.productId = shopifiedProductsView
   destroyViews () {
     log.info(TAG, 'destroyViews()')
 
-    const views = ['supplierStocksView', 'shopStocksView', 'poOrdersView', 'inStockOrdersView',
+    const views = ['supplierStocksView', 'shopStockBSTsView', 'shopStocksView', 'poOrdersView', 'inStockOrdersView',
       'shopifiedProductsView', 'shopifiedVariantsView',
       'inStockProductsView', 'inStockVariantsView', 'poProductsView', 'poVariantsView',
       'ordersView', 'orderDetailsView', 'customerOrderDetailsView', 'shopifiedPromotionsView']
@@ -338,6 +353,7 @@ INNER JOIN shopifiedProductsView ON promotions.productId = shopifiedProductsView
   populateViews () {
     const promises: Array<() => Promise<any>> = [
       this.createSupplierStocksView,
+      this.createShopStockBSTsView,
       this.createShopStocksView,
       this.createPOOrdersView,
       this.createInStockOrdersView,
