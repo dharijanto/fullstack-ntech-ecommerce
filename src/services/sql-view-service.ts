@@ -35,6 +35,7 @@ class SQLViewService extends CRUDService {
              shopStockBSTs.shopId shopId
         FROM shopStockBSTs
         LEFT OUTER JOIN shopStocks ON shopStocks.shopStockBSTId = shopStockBSTs.id AND shopStocks.deletedAt IS NULL
+        WHERE shopStockBSTs.deletedAt IS NULL
         GROUP BY shopStockBSTs.id
         )
     `)
