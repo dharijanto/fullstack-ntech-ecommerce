@@ -161,13 +161,16 @@ $(document).ready(() => {
     },
     table: {
       ui: [
-        { id: 'id', desc: 'ID', dataTable: true, input: 'hidden', disabled: true },
+        { id: 'id', desc: 'ID', dataTable: false, input: 'hidden', disabled: true },
+        // { id: 'variant.product.id', desc: 'PID', dataTable: true, input: 'hidden' },
+        // { id: 'variant.id', desc: 'VID', dataTable: true, input: 'hidden' },
+        { id: 'sku', desc: 'SKU', dataTable: true, input: 'hidden' },
         { id: 'variant.product.name', desc: 'Product', dataTable: true, input: 'hidden', disabled: true },
         { id: 'variant.name', desc: 'Variant', dataTable: true, input: 'hidden', disabled: true },
+        { id: 'variant.product.price', desc: 'Sell Price (Cloud)', dataTable: true, input: 'text', disabled: true },
         { id: 'price', desc: 'Purchase Price', dataTable: true, input: 'text' },
-        { id: 'variant.product.price', desc: 'Sell Price (Cloud)', dataTable: true, input: 'text' },
-        { id: 'quantity', desc: 'Quantity', dataTable: true, input: 'text' },
         { id: 'aisle', desc: 'Aisle', dataTable: true, input: 'select', selectData: getAisles },
+        { id: 'quantity', desc: 'Quantity', dataTable: true, input: 'text' },
         { id: 'createdAt', desc: 'Date Created', dataTable: true, input: 'hidden', disabled: true },
         { id: 'updatedAt', desc: 'Date Updated', dataTable: true, input: 'hidden', disabled: true }
       ],

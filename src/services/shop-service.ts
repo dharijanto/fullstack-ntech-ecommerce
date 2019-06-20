@@ -239,7 +239,7 @@ class ShopService extends CRUDService {
   }
 
   getShopStock (shopId, searchClause = {}): Promise<NCResponse<Partial<ShopStock[]>>> {
-    return (this.getModels('ShopStock') as Model<ShopStock, Partial<ShopStock>>).findAll({
+    return (this.getModels('ShopStock') as Model<Instance<ShopStock>, Partial<ShopStock>>).findAll({
       where: Object.assign({}, searchClause, { shopId }),
       include: [
         {
@@ -252,7 +252,11 @@ class ShopService extends CRUDService {
         }
       ]
     }).then(data => {
-      return { status: true, data }
+      return { status: true, data: data.map(rawRow => {
+        const row = rawRow.get({ plain: true })
+        return { sku: `${row.variant && row.variant.product && row.variant.product.id} - ${row.variant && row.variant.id}`, ...row }
+        return row
+      })}
     })
   }
 

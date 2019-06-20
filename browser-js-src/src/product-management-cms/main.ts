@@ -7,6 +7,7 @@ import * as _ from 'lodash'
 
 import axios from '../libs/axios-wrapper'
 import Config from '../config'
+import * as Utils from '../libs/utils'
 
 console.log(_.random(true))
 
@@ -49,6 +50,7 @@ const ncSubCategory = $('#sub-category').NCInputLibrary({
   table: {
     ui: [
       { id: 'id', desc: 'ID', dataTable: true, input: 'text', disabled: true },
+      { id: 'categoryId', desc: 'Category ID', dataTable: false, input: 'select', selectData: Utils.getCategories },
       { id: 'createdAt', desc: 'Date Created', dataTable: true, input: 'text', disabled: true },
       { id: 'updatedAt', desc: 'Date Updated', dataTable: true, input: 'text', disabled: true },
       { id: 'name', desc: 'Name', dataTable: true, input: 'text' },
@@ -81,6 +83,7 @@ const ncProduct = $('#product').NCInputLibrary({
   table: {
     ui: [
       { id: 'id', desc: 'ID', dataTable: true, input: 'text', disabled: true },
+      { id: 'subCategoryId', desc: 'Sub-Category ID', dataTable: false, input: 'select', selectData: Utils.getSubCategories },
       { id: 'createdAt', desc: 'Date Created', dataTable: true, input: 'text', disabled: true },
       { id: 'updatedAt', desc: 'Date Updated', dataTable: true, input: 'text', disabled: true },
       { id: 'name', desc: 'Name', dataTable: true, input: 'text' },

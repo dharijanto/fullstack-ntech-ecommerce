@@ -48,13 +48,19 @@ export default class ProductManagementController extends BaseController {
     })
 
     super.routeGet('/subCategories', (req, res, next) => {
-      ProductService.getSubCategories({ categoryId: req.query.categoryId }).then(resp => {
+      const categoryId = req.query.categoryId
+      ProductService.getSubCategories(categoryId && { categoryId: req.query.categoryId }).then(resp => {
         res.json(resp)
       }).catch(next)
     })
 
     super.routePost('/subCategory/edit', (req, res, next) => {
-      ProductService.updateSubCategory(req.body.id, req.body).then(resp => {
+      let categoryId
+      if (req.body.categoryId) {
+        categoryId = req.body.categoryId.split(' - ')[0]
+      }
+
+      ProductService.updateSubCategory(req.body.id, { ...req.body, categoryId }).then(resp => {
         res.json(resp)
       }).catch(next)
     })
@@ -79,7 +85,11 @@ export default class ProductManagementController extends BaseController {
     })
 
     super.routePost('/product/edit', (req, res, next) => {
-      ProductService.update('Product', req.body, { id: req.body.id }).then(resp => {
+      let subCategoryId
+      if (req.body.subCategoryId) {
+        subCategoryId = req.body.subCategoryId.split(' - ')[0]
+      }
+      ProductService.update('Product', { ...req.body, subCategoryId }, { id: req.body.id }).then(resp => {
         res.json(resp)
       }).catch(next)
     })
