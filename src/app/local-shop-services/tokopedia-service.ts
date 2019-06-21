@@ -33,7 +33,7 @@ class TokopediaService extends CRUDService {
         let data: any[] = resp.data.products.map(inStockProduct => {
           let primaryImageURL = inStockProduct.primaryImage && `http://ngizmo-ntech.nusantara-cloud.com/images/${inStockProduct.primaryImage.imageFilename}`
           return [
-            inStockProduct.name, 36, htmlToText.fromString(inStockProduct.description), inStockProduct.price,
+            inStockProduct.name.substring(0, 69), 36, htmlToText.fromString(inStockProduct.description), inStockProduct.price,
             '1000', 1, 'Stok Tersedia', inStockProduct.stockQuantity,
             inStockProduct.subCategory && inStockProduct.subCategory.category && inStockProduct.subCategory.category.name,
             '', '', 'Baru', primaryImageURL, '', '', '', '', '', '', ''
