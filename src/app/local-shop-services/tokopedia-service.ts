@@ -4,6 +4,10 @@ import * as htmlToText from 'html-to-text'
 import ShopService from './local-shop-service'
 
 class TokopediaService extends CRUDService {
+  /*
+  TODO:
+  1. Calculate price based on purchase price?
+   */
   generatedExcel () {
     const rowHeader = [
       'Nama Produk',
@@ -31,12 +35,23 @@ class TokopediaService extends CRUDService {
     return ShopService.getInStockProducts({ pageSize: 1000, pageIndex: 0 }).then(resp => {
       if (resp.status && resp.data) {
         let data: any[] = resp.data.products.map(inStockProduct => {
-          let primaryImageURL = inStockProduct.primaryImage && `http://ngizmo-ntech.nusantara-cloud.com/images/${inStockProduct.primaryImage.imageFilename}`
+          // Pick the first 5 images
+          const images = (inStockProduct.images || []).map(image => {
+            if (image) {
+              return `http://ngizmo-ntech.nusantara-cloud.com/images/${image.imageFilename}`
+            } else {
+              return ''
+            }
+          }).slice(0, 5)
+          while (images.length < 5) {
+            images.push('')
+          }
+
           return [
             inStockProduct.name.substring(0, 69), 36, htmlToText.fromString(inStockProduct.description), inStockProduct.price,
             '1000', 1, 'Stok Tersedia', inStockProduct.stockQuantity,
             inStockProduct.subCategory && inStockProduct.subCategory.category && inStockProduct.subCategory.category.name,
-            '', '', 'Baru', primaryImageURL, '', '', '', '', '', '', ''
+            '', '', 'Baru', ...images, '', '', ''
           ]
         })
 
