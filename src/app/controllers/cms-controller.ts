@@ -58,7 +58,8 @@ export default class CMSController extends BaseController {
             title: 'Other Management',
             children: [
               { href: '/cms/other-management/test-receipt-printer', title: 'Test Receipt Printer' },
-              { href: '/cms/other-management/reindex-search-database', title: 'Reindex Search DB' }
+              { href: '/cms/other-management/reindex-search-database', title: 'Reindex Search DB' },
+              { href: '/cms/other-management/generate-tokopedia-spreadsheet', title: 'Generated Tokopedia Spreadsheet' }
             ]
           },
           {

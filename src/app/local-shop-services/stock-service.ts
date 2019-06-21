@@ -9,6 +9,7 @@ import CRUDService from '../../services/crud-service'
 import LocalShopService from './local-shop-service'
 import ShopService from '../../services/shop-service'
 import PrintService from '../../services/print-service'
+import orderService from '../../services/order-service'
 
 /*
   Used for shop-specific code. This should re-use what's in shop-service as much as possible, though.

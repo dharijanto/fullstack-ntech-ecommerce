@@ -35,7 +35,6 @@ export default class UnauthenticatedCMSController extends BaseController {
     })
     // ------------------------------------------------------
 
-
     // --------- Account-related controller path ------------
     // ------------------------------------------------------
     this.routeGet('/account/login', (req, res, next) => {

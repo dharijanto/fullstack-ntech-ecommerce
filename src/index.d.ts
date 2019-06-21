@@ -317,7 +317,7 @@ interface InStockProduct extends BaseModel {
   variants?: InStockVariant[]
   subCategory?: SubCategory
   images?: ProductImage[]
-  primaryImage?: ProductImage[]
+  primaryImage?: ProductImage
   updatedAt: string
 }
 

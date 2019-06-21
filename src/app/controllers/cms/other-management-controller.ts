@@ -10,6 +10,7 @@ import * as AppConfig from '../../../app-config'
 import AccountService from '../../../services/account-service'
 import SearchService from '../../../services/search-service'
 import OrderService from '../../local-shop-services/order-service'
+import TokopediaService from '../../local-shop-services/tokopedia-service'
 
 let log = require('npmlog')
 
@@ -53,5 +54,16 @@ export default class OtherManagementController extends BaseController {
       }).catch(next)
     })
 
+    this.routeGet('/generate-tokopedia-spreadsheet', (req, res, next) => {
+      TokopediaService.generatedExcel().then(resp => {
+        if (resp.status && resp.data) {
+          res.setHeader('Content-Type', 'application/vnd.openxmlformats')
+          res.setHeader('Content-Disposition', `attachment; filename="file.xlsx"`)
+          res.end(resp.data, 'binary')
+        } else {
+          res.json(resp)
+        }
+      })
+    })
   }
 }
