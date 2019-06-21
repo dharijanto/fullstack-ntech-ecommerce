@@ -30,7 +30,9 @@
   "dependencies": {
     "bluebird-retry": "^0.11.0",
     "flatToTrees": "^0.1.2",
+    "html-to-text": "^5.1.1",
     "mime": "^2.4.0",
+    "node-xlsx": "^0.15.0",
     "passport": "^0.4.0",
     "printer": "^0.2.2",
     "puppeteer": "^1.14.0",
