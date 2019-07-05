@@ -61,6 +61,7 @@ interface SubCategory extends BaseModel {
 interface Product extends BaseModel {
   name: string
   price: number
+  weight: number
   notes: string
   warranty: string
   description: string
@@ -313,6 +314,7 @@ interface InStockProduct extends BaseModel {
   description: string,
   warranty: string,
   price: number,
+  weight: number,
   stockQuantity: number,
   variants?: InStockVariant[]
   subCategory?: SubCategory
@@ -338,6 +340,7 @@ interface POProduct extends BaseModel {
   description: string,
   warranty: string,
   price: number,
+  weight: number,
   preOrderDuration: number
   variants?: POVariant[]
   subCategory?: SubCategory

@@ -115,7 +115,7 @@ GROUP BY orders.shopId, variants.productId, variants.id)
     return super.getSequelize().query(`
 CREATE VIEW shopifiedProductsView AS
 (SELECT products.id, products.name as name, products.description as description,
-        products.warranty as warranty, products.price as defaultPrice,
+        products.warranty as warranty, products.price as defaultPrice, products.weight as weight,
         subCategories.id as subCategoryId,
         subCategories.name AS subCategoryName,
         categories.id AS categoryId,
@@ -216,7 +216,8 @@ CREATE VIEW inStockProductsView AS
         spView.shopId as shopId,
         spView.name as name, spView.description as description, spView.createdAt as createdAt,
         spView.updatedAt as updatedAt, spView.warranty as warranty,
-        IFNULL(spView.shopPrice, spView.defaultPrice) as price, spView.stockQuantity as stockQuantity
+        IFNULL(spView.shopPrice, spView.defaultPrice) as price, spView.weight as weight,
+        spView.stockQuantity as stockQuantity
   FROM shopifiedProductsView as spView WHERE disabled = FALSE and stockQuantity > 0
 );`)
   }
@@ -242,8 +243,8 @@ SELECT spView.id as id, spView.shopId as shopId, spView.name as name,
        spView.subCategoryId as subCategoryId, spView.subCategoryName as subCategoryName,
        spView.categoryId as categoryId, spView.categoryName as categoryName,
        spView.description as description, spView.createdAt as createdAt, spView.updatedAt as updatedAt,
-       spView.warranty as warranty, IFNULL(spView.shopPrice, spView.defaultPrice) as price, spView.preOrderDuration as preOrderDurati\
-on
+       spView.warranty as warranty, IFNULL(spView.shopPrice, spView.defaultPrice) as price,
+       spView.weight as weight, spView.preOrderDuration as preOrderDuration
 FROM shopifiedProductsView as spView WHERE disabled = FALSE AND preOrderAllowed = TRUE AND supplierCount > 0 AND stockQuantity = 0
 );
 `)

@@ -49,7 +49,7 @@ class TokopediaService extends CRUDService {
 
           return [
             inStockProduct.name.substring(0, 69), 36, htmlToText.fromString(inStockProduct.description), inStockProduct.price,
-            '1000', 1, 'Stok Tersedia', inStockProduct.stockQuantity,
+            inStockProduct.weight, 1, 'Stok Tersedia', inStockProduct.stockQuantity,
             inStockProduct.subCategory && inStockProduct.subCategory.category && inStockProduct.subCategory.category.name,
             '', '', 'Baru', ...images, '', '', ''
           ]

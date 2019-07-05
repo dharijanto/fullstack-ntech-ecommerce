@@ -37,6 +37,8 @@ function addTables (sequelize: Sequelize.Sequelize, models: Sequelize.Models) {
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
     name: { type: Sequelize.STRING, allowNull: false },
     price: { type: Sequelize.INTEGER },
+    // In gram
+    weight: { type: Sequelize.INTEGER, defaultValue: 500 },
     notes: { type: Sequelize.TEXT },
     warranty: { type: Sequelize.STRING },
     description: { type: Sequelize.TEXT('long') }
