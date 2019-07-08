@@ -1,0 +1,23 @@
+extend layout/base
+include include/product-catalog.pug
+
+block content
+  #aisle
+    section.product-catalog
+      h2 Aisle
+      select#aisle-select
+        each aisle in aisles
+          if (aisle === currentAisle)
+            option(value=`${aisle}` selected="true")= aisle
+          else
+            option(value=`${aisle}`)= aisle
+    section.product-catalog
+      h2='Produk - Ready Stock'
+      if inStockProducts.length > 0
+        section.tiles#in-stock-products
+          +renderProducts(inStockProducts)
+        +renderPagination(currentInStockProductPage, inStockProductTotalPage, getAisleURL('__pageNumber', currentAisle))
+append scripts
+  script.
+    window['currentInStockProductPage'] = #{currentInStockProductPage}
+  script(src='/assets/js/aisle-app-bundle.js')

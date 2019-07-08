@@ -84,7 +84,7 @@ export default class PromotionManagementController extends BaseController {
     // Stock Opname-related
     // Return only non-empty aisles
     super.routeGet('/aisles/detailed', (req, res, next) => {
-      LocalStockService.getDetailedAisles().then(res.json.bind(res)).catch(next)
+      LocalStockService.getAislesWithQuantity().then(res.json.bind(res)).catch(next)
     })
 
     super.routeGet('/aisles/content', (req, res, next) => {

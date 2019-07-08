@@ -47,7 +47,7 @@ class SQLViewService extends CRUDService {
 CREATE VIEW shopStocksView AS
 (SELECT shopStocksView.shopId, shopStocksView.variantId,
         shopStocksView.aisle, shopStocksView.quantity - IFNULL(orderDetailsView.quantity, 0) AS quantity
-  FROM (
+FROM (
   SELECT shopStocks.shopId AS shopId, shopStocks.variantId AS variantId,
       SUM(shopStocks.quantity) AS quantity, shopStocks.aisle AS aisle
   FROM shopStocks

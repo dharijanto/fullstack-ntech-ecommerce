@@ -6,6 +6,8 @@ import LocalShopService from '../../local-shop-services/local-shop-service'
 import ProductService from '../../../services/product-service'
 import * as Utils from '../../../libs/utils'
 import SearchService from '../../../services/search-service'
+import shopService from '../../../services/shop-service';
+import StockService from '../../local-shop-services/stock-service';
 
 const path = require('path')
 
@@ -44,6 +46,36 @@ export default class ShopController extends BaseController {
 
         /* res.send(data) */
       }).catch(next)
+    })
+
+    this.routeGet('/aisle', (req, res, next) => {
+      res.locals.currentAisle = req.query['aisle']
+      res.locals.currentInStockProductPage = req.query['in-stock-products-page'] || 1
+      const inStockProductPageSize = 9
+
+      Promise.join<NCResponse<any>>(
+        StockService.getNonEmptyAisles(),
+        StockService.getProductsByAisle(res.locals.currentAisle, inStockProductPageSize, res.locals.currentInStockProductPage - 1)
+      ).spread((resp: NCResponse<Aisle[]>, resp2: NCResponse<{ products: InStockProduct[], totalProducts: number }>) => {
+        // console.log(JSON.stringify(resp))
+        // console.log(JSON.stringify(resp2))
+        if (resp.status && resp.data && resp2.status && resp2.data) {
+          res.locals.aisles = resp.data
+          res.locals.inStockProductTotalPage = Utils.getNumberOfPage(resp2.data.totalProducts, inStockProductPageSize)
+          res.locals.inStockProducts = resp2.data.products
+          res.render('aisle')
+        } else {
+          throw new Error('Failed to retrieve some information: ' + resp.errMessage || resp2.errMessage)
+        }
+      }).catch(err => {
+        next(err)
+      })
+    })
+
+    this.routeGet('/get-aisle-url', (req, res, next) => {
+      const aisle = req.query['aisle']
+      const inStockProductsPage = req.query['in-stock-products-page']
+      res.json({ status: true, data: Utils.getAisleURL(inStockProductsPage, aisle })
     })
 
     // Landing page

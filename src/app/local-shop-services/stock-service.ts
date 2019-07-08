@@ -10,6 +10,7 @@ import LocalShopService from './local-shop-service'
 import ShopService from '../../services/shop-service'
 import PrintService from '../../services/print-service'
 import orderService from '../../services/order-service'
+import productService from '../../services/product-service'
 
 /*
   Used for shop-specific code. This should re-use what's in shop-service as much as possible, though.
@@ -44,11 +45,11 @@ class LocalStockService extends CRUDService {
   }
 
   // Used for opname, return aisle with number of quantity in it
-  getDetailedAisles () {
+  getAislesWithQuantity (): Promise<NCResponse<Array<{ aisle: string, quantity: number }>>> {
     return super.rawReadQuery(`SELECT aisle AS aisle, SUM(quantity) AS quantity FROM shopStocksView GROUP BY aisle;`)
   }
 
-  getAisleContent (aisle: string): Promise<NCResponse<any>> {
+  getAisleContent (aisle: string): Promise<NCResponse<Array<{ productName: string, variantName: string, quantity: number }>>> {
     if (aisle) {
       return super.rawReadQuery(`
   SELECT products.name AS productName, variants.name AS variantName, shopStocksView.quantity AS quantity
@@ -61,7 +62,52 @@ class LocalStockService extends CRUDService {
     }
   }
 
-  getStockBSTs () {
+  getNonEmptyAisles (): Promise<NCResponse<string[]>> {
+    const shopId = LocalShopService.getLocalShopId()
+    return super.rawReadQuery(`SELECT aisle FROM shopStocksView WHERE shopId = ${shopId} GROUP BY aisle ORDER BY aisle`).then(resp => {
+      if (resp.status && resp.data) {
+        return { status: true, data: resp.data.map(row => row.aisle) }
+      } else {
+        return { status: false, errMessage: resp.errMessage }
+      }
+    })
+  }
+
+  getProductsByAisle (aisle: string, pageSize: number, pageIndex: number):
+      Promise<NCResponse<{ products: InStockProduct[], totalProducts: number }>> {
+    if (!aisle) {
+      // return Promise.resolve({ status: false, errMessage: 'aisle is required!' })
+      return Promise.resolve({ status: true, data: { products: [], totalProducts: 0 } })
+    } else {
+      return super.rawReadQuery(
+        `SELECT products.id id
+         /* products.name name, SSV.aisle aisle, SSV.quantity quantity */
+         FROM shopStocksView SSV
+         INNER JOIN variants ON variants.id = variantId
+         INNER JOIN products on variants.productId = products.Id
+         WHERE aisle = "${aisle}"`
+      ).then(resp => {
+        if (resp.status && resp.data) {
+          if (resp.data.length > 0) {
+            const ids: any = resp.data.map(data => data.id)
+            return LocalShopService.getInStockProducts({ pageIndex, pageSize, productId : ids }).then(resp2 => {
+              if (resp2.status) {
+                return resp2
+              } else {
+                return { status: false, errMessage: resp2.errMessage }
+              }
+            })
+          } else {
+            return { status: true, data: { products: [], totalProducts: 0 } }
+          }
+        } else {
+          return { status: false, errMessage: resp.errMessage }
+        }
+      })
+    }
+  }
+
+  getStockBSTs (): Promise<NCResponse<Array<ShopStockBSTWithQuantity>>> {
     return super.rawReadQuery(`SELECT * FROM shopStockBSTsView`)
   }
 

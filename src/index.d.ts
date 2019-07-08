@@ -258,6 +258,14 @@ interface Analytics extends BaseModel {
 //-------------------------------------------------------------------------------
 // ---------------Start of model that comes from SQL views-----------------------
 // ---------------(created in services/sql-view-service.ts)----------------------
+
+interface ShopStockBSTWithQuantity extends BaseModel {
+  description: string
+  date: string
+  quantity: number
+  shopId: number
+}
+
 interface ShopifiedProduct extends BaseModel {
   subCategoryId: number
   subCategoryName: string

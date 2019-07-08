@@ -44,6 +44,10 @@ export function getHomeURL (inStockProductPage = 1, poProductPage = 1, anchor = 
   return `/?in-stock-products-page=${inStockProductPage}&po-products-page=${poProductPage}${anchor ? '#' + anchor : ''}`
 }
 
+export function getAisleURL (inStockProductPage: number = 1, aisle: string, anchor?: string) {
+  return `/aisle?aisle=${aisle}&in-stock-products-page=${inStockProductPage}${anchor ? '#' + anchor : ''}`
+}
+
 export function getProductURL (product: Product) {
   if (product.subCategory && product.subCategory.category) {
     return `/${product.subCategory.category.id}/${getSlug(product.subCategory.category.name)}` +
