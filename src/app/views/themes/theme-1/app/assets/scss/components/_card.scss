@@ -1,0 +1,136 @@
+//
+// card
+//
+//
+
+
+// equal
+.card-equal {
+	@extend %equal;
+	overflow: hidden;
+	border: 0;
+
+	.card-header,
+	.card-body,
+	.card-footer {
+		position: absolute;
+		left: 0;
+		right: 0;
+		border: 0;
+		background: none;
+	}
+
+	> a { 
+		@extend %stretch;
+	}
+
+	.card-header { top: $card-spacer-y; }
+	.card-footer { bottom: $card-spacer-y; }
+
+	.card-body {
+		@include translate(0,-50%);
+		top: 50%;
+	}
+}
+
+// data
+.card-data {
+	.card-text {
+		color: $black;
+		font-size: rem(15);
+	}
+
+	.card-header {
+		padding-top: 0;
+		padding-right: 0;
+		padding-bottom: 0;
+	}
+
+	.card-title {
+		font-size: $font-size-base;
+	}
+}
+
+
+.card-header {
+	background: transparent;
+}
+
+
+// post
+.card-post {
+	border: 0;
+
+	.eyebrow {
+		margin-bottom: rem(10);
+	}
+
+	.card-body {
+		width: 90%;
+		padding: $card-spacer-y 0 0 0;
+	}
+
+	.card-title {
+		margin-bottom: 0;
+
+		a {
+			@include transition;
+			color: $black;
+
+			&:hover {
+				color: $primary;
+			}
+		}
+	}
+}
+
+
+//
+// animation
+.card {
+
+	&[class*="-scale"] {
+		.image {
+			@include transition;
+			@include scale(1.1);
+		}
+
+		&:hover {
+			.image {
+				@include scale(1);
+			}
+		}
+	}
+
+	&[class*="-highlight"] {
+		@include transition;
+		border: $border-width solid transparent;
+
+		&:hover {
+			border-color: $black;
+		}
+	}
+
+	&[class*="-fade"] {
+		&:hover {
+			.image::after {
+				opacity: 1;
+			}
+		}
+	}
+}
+
+
+
+// text white
+.text-white {
+	.card {
+		border-color: $white;
+
+		.card-footer,
+		.card-header {
+			border: 0;
+			background: 0;
+		}
+	}
+}

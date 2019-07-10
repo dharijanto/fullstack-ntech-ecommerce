@@ -1,0 +1,52 @@
+//
+// spacing
+//
+//
+
+
+// gutter
+$gutter-list: ();
+$gutter-list: map-merge((
+  1: 10,
+  2: 20,
+  3: 30,
+  4: 40,
+  5: 50,
+), $gutter-list);
+
+@each $breakpoint in map-keys($grid-breakpoints) {
+  @include media-breakpoint-up($breakpoint) {
+    $infix: breakpoint-infix($breakpoint, $grid-breakpoints);
+
+    @each $name, $value in $gutter-list {
+      .gutter#{$infix}-#{$name} {
+        margin: -#{$value/2}px;
+
+        > * {
+          margin-bottom: 0!important;
+          padding: #{$value/2}px;
+        }
+      }
+    }
+
+  }
+}
+
+
+// masonry collage alignment fix
+.gutter-2 {
+  [class*="-short"] {
+    &::before {
+      padding-top: calc(50% - 10px);
+    }
+  } 
+}
+
+.gutter-0 {
+  margin-left: 0;
+  margin-right: 0;
+  
+  > * {
+    padding: 0;
+  }
+}

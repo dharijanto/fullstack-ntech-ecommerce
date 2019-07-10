@@ -1,0 +1,40 @@
+{
+  "name": "vendor",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Jenia Stratila",
+  "devDependencies": {
+    "browser-sync": "^2.26.7",
+    "gulp": "^4.0.2",
+    "gulp-concat": "^2.6.1",
+    "gulp-concat-css": "^3.1.0",
+    "gulp-concat-sourcemap": "^1.3.1",
+    "gulp-rename": "^1.2.2",
+    "gulp-sass": "^4.0.2",
+    "gulp-sourcemaps": "^2.6.4",
+    "gulp-uglify": "^3.0.0"
+  },
+  "dependencies": {
+    "bootstrap": "^4.3.1",
+    "clipboard": "^2.0.4",
+    "headroom.js": "^0.9.4",
+    "imagesloaded": "^4.1.4",
+    "ion-rangeslider": "^2.3.0",
+    "jquery": "^3.4.1",
+    "jquery-countdown": "^2.2.0",
+    "jquery-zoom": "^1.7.21",
+    "lavalamp": "^1.1.0",
+    "magnific-popup": "^1.1.0",
+    "masonry-layout": "^4.2.2",
+    "owl.carousel": "^2.3.4",
+    "owl.carousel2.thumbs": "^0.1.8",
+    "prismjs": "^1.16.0",
+    "skrollr": "^0.6.26",
+    "smooth-scroll": "^16.1.0",
+    "swiper": "^4.5.0"
+  }
+}

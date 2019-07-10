@@ -1,0 +1,186 @@
+// Swiper
+//
+//
+//
+
+.swiper-container,
+.gallery-container {
+	.swiper-slide {
+		height: auto;
+		overflow: hidden;
+	}
+
+	.container,
+	.container-fluid {
+		height: 100%;
+
+		> .row {
+			height: 100%;
+			padding-top: $section-padding;
+			padding-bottom: $section-padding;
+		}
+	}
+}
+
+.swiper-wrapper {
+	z-index: 20;
+}
+
+
+// swiper footer
+.swiper-footer {
+	width: 100%;
+	position: absolute;
+	bottom: 0;
+	z-index: 40;
+
+	.container,
+	.container-fluid {
+		> .row {
+			padding: 0;
+		}
+	}
+}
+
+
+// pagination
+.swiper-container-horizontal {
+	.swiper-pagination-bullets {
+		position: relative;
+		width: auto;
+		margin-left: rem(-10);
+		z-index: 25;
+		
+		.swiper-pagination-bullet {
+			@include transition;
+			@include selection(none);
+			position: relative;
+			float: left;
+			width: rem(30);
+			height: rem(30);
+			margin: 0;
+			opacity: 1;
+			background: transparent;
+			outline: none;
+
+			&::after {
+				@include transition;
+				position: absolute;
+				content: "";
+				display: block;
+				top: 50%;
+				left: 50%;
+				width: rem(8);
+				height: rem(8);
+				margin: -4px 0 0 -4px;
+				border-radius: 50%;
+				background: rgba($white, .2);
+			}
+
+			&:hover {
+				&::after {
+					background: rgba($white, .4);
+				} 
+			}
+
+			&.swiper-pagination-bullet-active {
+				&::after {
+					background: $white;
+				} 
+			}
+		}
+	}
+
+	.swiper-pagination-vertical {
+		@include translate(0,50%);
+		right: ($grid-gutter-width / 2 );
+		bottom: 50%;
+		left: auto;
+		width: 2rem;
+	}
+}
+
+
+// Navigation
+.swiper-button-prev,
+.swiper-button-next {
+	position: relative;
+	display: inline-block;
+    width: rem(50);
+    height: rem(50);
+    margin-bottom: rem(20);
+    text-align: center;
+    background-image: none!important;
+    outline: none;
+
+    &::before {
+    	@include transition;
+    	display: block;
+    	position: absolute;
+    	top: 0;
+    	right: 0;
+    	bottom: 0;
+    	left: 0;
+    	color: $white;
+    	line-height: rem(50);
+    	font-family: 'icomoon';
+    	font-size: rem(24);
+    }
+
+    &:hover {
+    	border-color: $border-color;
+    }
+}
+
+.swiper-button-prev { 
+	&::before {
+		content: "\eada" 
+	}
+
+	&:hover {
+		&::before {
+			@include translate(-10%, 0);
+		}
+	}
+}
+
+.swiper-button-next { 
+	&::before {
+		content: "\eadc"
+	}
+
+	&:hover {
+		&::before {
+			@include translate(10%, 0);
+		}
+	}
+}
+
+
+
+
+// Zoom
+.image-zoom {
+	@include scale(1.2);
+	@include transition(10s);
+}
+
+.swiper-slide-active {
+	.image-zoom {
+		@include scale(1);
+	}
+}
+
+
+
+// Responsive
+//
+//
+@include media-breakpoint-down(sm) {
+	.swiper-container {
+		[class*="vh"] {
+			height: auto!important;
+			max-height: auto!important;
+		}
+	}
+}
