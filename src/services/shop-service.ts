@@ -53,6 +53,11 @@ class ShopService extends CRUDService {
                number/string -> single product
                array -> products with matching ids
    */
+  /*
+  TODO:
+    1. Refactor getInStockProducts and getPOProducts so that the shared logic isn't re-written
+    2. Refactor shopifiedProductsView so that primaryImage and images are there (see shopifiedPromotionsView for reference)
+   */
   getInStockProducts ({ pageSize = 10, pageIndex = 0,
                         productId = null, categoryId = null,
                         subCategoryId = null }, shopId): Promise<NCResponse<{ products: InStockProduct[], totalProducts: number }>> {
@@ -306,10 +311,23 @@ class ShopService extends CRUDService {
     })
   }
 
-  // TODO: This should be of shopifiedProductsView instead of product table
-  getPromotion (shopId): Promise<NCResponse<ShopifiedPromotion[]>> {
+  getPromotions (shopId): Promise<NCResponse<ShopifiedPromotion[]>> {
     return super.rawReadQuery(`SELECT * FROM shopifiedPromotionsView WHERE shopId = ${shopId}`)
   }
+
+  // Return inStockProducts that are listed in promotion
+  // TODO: Should also return poProducts
+  getPromotedProducts (shopId): Promise<NCResponse<{ products: InStockProduct[], totalProducts: number }>> {
+    return this.getPromotions(shopId).then(resp => {
+      if (resp.status && resp.data) {
+        const ids: any = resp.data.map(row => row.productId)
+        return this.getInStockProducts({ productId: ids }, shopId)
+      } else {
+        return { status: false, errMessage: resp.errMessage }
+      }
+    })
+  }
+
 }
 
 export default new ShopService()

@@ -119,7 +119,6 @@ function addTables (sequelize: Sequelize.Sequelize, models: Sequelize.Models) {
   })
   models.Promotion.belongsTo(models.Shop)
   models.Promotion.belongsTo(models.Product)
-  models.Promotion.belongsTo(models.Image, { targetKey: 'filename', foreignKey: 'imageFilename' })
 
   // Used for mapping map local-to-cloud id
   models.SyncMap = sequelize.define('syncMap', {

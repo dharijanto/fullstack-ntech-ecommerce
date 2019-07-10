@@ -168,7 +168,6 @@ interface Promotion extends BaseModel {
   product?: Product
   shopId: number
   productId: number
-  imageFilename: string
 }
 
 interface User extends BaseModel {
@@ -258,6 +257,14 @@ interface Analytics extends BaseModel {
 //-------------------------------------------------------------------------------
 // ---------------Start of model that comes from SQL views-----------------------
 // ---------------(created in services/sql-view-service.ts)----------------------
+
+interface ShopifiedPromotion extends BaseModel {
+  shopId: number
+  name: string
+  productName: string
+  productPrice: number
+  productPrimaryImage: string
+}
 
 interface ShopStockBSTWithQuantity extends BaseModel {
   description: string

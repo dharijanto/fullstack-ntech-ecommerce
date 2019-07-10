@@ -320,11 +320,20 @@ CREATE VIEW shopifiedPromotionsView AS
 SELECT promotions.id AS id, promotions.createdAt AS createdAt,
        promotions.updatedAt AS updatedAt, promotions.shopId AS shopId,
        promotions.name AS name,
-       promotions.productId AS productId, promotions.imageFilename AS imageFilename,
+       shopifiedProductsView.id AS productId,
        shopifiedProductsView.name AS productName,
-       shopifiedProductsView.shopPrice AS productPrice
+       shopifiedProductsView.shopPrice AS productPrice,
+       productImages.imageFilename AS productPrimaryImage
 FROM (SELECT * FROM promotions WHERE deletedAT IS NULL) AS promotions
 INNER JOIN shopifiedProductsView ON promotions.productId = shopifiedProductsView.id AND promotions.shopId = shopifiedProductsView.shopId
+LEFT OUTER JOIN
+  productImages ON productImages.id =
+    (SELECT id FROM productImages
+      WHERE \`primary\` = TRUE
+        AND deletedAt IS NULL
+        AND productId = shopifiedProductsView.id
+      LIMIT 1
+    )
 );`)
   }
 

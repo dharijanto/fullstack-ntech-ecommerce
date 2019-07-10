@@ -289,7 +289,11 @@ class LocalShopService extends CRUDService {
   }
 
   getPromotions (): Promise<NCResponse<ShopifiedPromotion[]>> {
-    return ShopService.getPromotion(this.getLocalShopId())
+    return ShopService.getPromotions(this.getLocalShopId())
+  }
+
+  getPromotedProducts (): Promise<NCResponse<{ products: InStockProduct[], totalProducts: number }>> {
+    return ShopService.getPromotedProducts(this.getLocalShopId())
   }
 
   createPromotion (productId: number, data: Partial<Promotion>): Promise<NCResponse<Promotion>> {
