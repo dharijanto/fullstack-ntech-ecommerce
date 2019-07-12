@@ -1,0 +1,45 @@
+extends base/layout
+include include/product-catalog
+
+block content
+  section.hero.bg-green.text-white
+    .decoration(style=`background-image: url(/assets/themes/theme-1/images/decoration-1.png)`)
+    .container
+      .row
+        .col.text-center
+          img.rounded.img-fluid(src=`${getImageURL(subCategory.imageFilename)}` style="max-height: 200px")
+      .row
+        .col.text-center
+          h1= subCategory.name
+          nav(aria-label='breadcrumb')
+            ol.breadcrumb
+              li.breadcrumb-item
+                a(href='/') Home
+              li.breadcrumb-item
+                a(href=getCategoryURL(subCategory.category))= subCategory.category.name
+              li.breadcrumb-item.active(aria-current='page')= subCategory.name
+  // In-stock Products
+  if inStockProducts && inStockProducts.length > 0
+    section#in-stock-products
+      .container
+        .row
+          .col.text-center
+            h2 Available In-Store
+        .row.gutter-2.gutter-lg-4
+          +renderProducts(inStockProducts)
+        .row
+          .col.text-center
+            +renderPagination(currentInStockProductPage, inStockProductTotalPage, getHomeURL('__pageNumber', currentPOProductPage, 'in-stock-products'))
+
+  // PO Products
+  if poProducts && poProducts.length > 0
+    section.separator-top#po-products
+      .container
+        .row
+          .col.text-center
+            h2 Pre-Order
+        .row.gutter-2.gutter-lg-4
+          +renderProducts(poProducts)
+        .row
+          .col.text-center
+            +renderPagination(currentPOProductPage, poProductTotalPage, getHomeURL(currentInStockProductPage, '__pageNumber', 'po-products'))

@@ -1,5 +1,5 @@
 import AnalyticsService from '../../local-shop-services/analytics-service'
-import BaseController from '../base-controller'
+import ShopBaseController from '../shop/shop-base-controller'
 import CartService from '../../local-shop-services/cart-service'
 import { SiteData } from '../../../site-definitions'
 import LocalShopService from '../../local-shop-services/local-shop-service'
@@ -10,7 +10,7 @@ let log = require('npmlog')
 
 const TAG = 'MainController'
 
-export default class CartController extends BaseController {
+export default class CartController extends ShopBaseController {
   constructor (siteData: SiteData) {
     super(Object.assign(siteData, { viewPath: path.join(__dirname, '../../views') }))
 

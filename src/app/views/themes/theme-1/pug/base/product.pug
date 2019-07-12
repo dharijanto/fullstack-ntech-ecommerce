@@ -1,0 +1,104 @@
+extends layout
+
+append head
+  link(rel="stylesheet" type="text/css" href=`/assets/vendor/toastr/toastr.css`)
+
+block content
+  section#product-category
+    .container
+      .row
+        .col
+          nav(aria-label='breadcrumb')
+            ol.breadcrumb
+              li.breadcrumb-item
+                a(href='/') Home
+              li.breadcrumb-item
+                a(href=getCategoryURL(product.subCategory.category))= getCategoryName(product)
+              li.breadcrumb-item
+                a(href=getSubCategoryURL(product.subCategory.category, product.subCategory))= getSubCategoryName(product)
+              li.breadcrumb-item.active(aria-current='page')= product.name
+
+  section#product.hero.pt-0.allow-overflow
+    // product
+    .container
+      .row.gutter-2.gutter-md-4.justify-content-between
+        // preview
+        .col-lg-7
+          .row.justify-content-between
+            .col-lg-10.order-lg-2
+              .owl-carousel.gallery(data-slider-id='1' data-thumbs='true' data-nav='true')
+                each productImage in product.images
+                  figure.equal
+                    a.image(href=getImageURL(productImage.imageFilename) style=`background-image: url("${getImageURL(productImage.imageFilename)}");`)
+            .col-lg-2.text-center.text-lg-left.order-lg-1
+              .owl-thumbs(data-slider-id='1')
+                each productImage in product.images
+                  span.owl-thumb-item
+                    img(src=getImageURL(productImage.imageFilename) alt='')
+
+        // description
+        .col-lg-5.mb-5.mb-lg-0
+          .row.gutter-3
+            .col-12
+              h1.item-title= product.name
+              span.item-price
+                //s.text-muted $2,268
+                |  #{formatPrice(product.price)}
+            .col-12
+              .row.gutter-1
+                .col-12
+                  .form-group
+                    label Variant
+                    .btn-group-toggle.btn-group-outline(data-toggle='buttons')
+                      select#select-variant.custom-select.custom-select-sm
+                        each variant in product.variants
+                          option(data-id=variant.id data-quantity=Math.min(10, variant.stockQuantity)) #{variant.id} - #{variant.name}
+                .col-12
+                  .form-group
+                    label Quantity
+                    .btn-group-toggle.btn-group-square.btn-group-colors(data-toggle='buttons')
+                      select#select-quantity.custom-select.custom-select-sm
+                .col-12
+                  .form-group
+                    label Availability
+                    .btn-group-toggle.btn-group-square.btn-group-colors(data-toggle='buttons')
+                      label
+                        h3
+                          block availability
+          .row.gutter-2
+            .col-md-8
+              a.btn.btn-block.btn-lg.btn-primary#add-to-cart(href='#!') Add to Cart
+            .col-12
+              ul.nav.nav-actions
+                li.nav-item.dropdown
+                  a.nav-link.dropdown-toggle(data-toggle='dropdown' href='#' role='button' aria-haspopup='true' aria-expanded='false') Share this product
+                  ul.dropdown-menu
+                    li
+                      a.dropdown-item(href='#') Facebook
+                    li
+                      a.dropdown-item(href='#') Twitter
+  // info
+  section.separator-bottom.bg-light
+    .container
+      .row.gutter-2.gutter-lg-4
+        .col-md-10.col-lg-8
+          | !{product.description}
+
+
+  // Modal
+  #cart-modal.modal.fade(tabindex='-1', role='dialog', aria-labelledby='exampleModalLabel', aria-hidden='true')
+    .modal-dialog(role='document')
+      .modal-content
+        .modal-body.text-center
+          .row
+            .col
+              h3 Item added to cart
+          .row.gutter-0
+            .col
+              a.btn.btn-lg.btn-block.btn-secondary(data-dismiss="modal") Continue
+            .col
+              a.btn.btn-lg.btn-block.btn-primary(href='/cart') Checkout
+
+
+append scripts
+  script(src='/assets/js/common-product-app-bundle.js')

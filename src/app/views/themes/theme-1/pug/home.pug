@@ -1,358 +1,79 @@
+extends base/layout
 include include/product-catalog.pug
 
-doctype html
-head
-  meta(charset='utf-8')
-  meta(name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no, user-scalable=no')
-  link(rel='stylesheet' href='/assets/themes/theme-1/css/vendor.css')
-  link(rel='stylesheet' href='/assets/themes/theme-1/css/style.css')
-  title Home - 1
-// header
-header.header.header-dark.header-sticky
-  .container
-    .row
-      nav.navbar.navbar-expand-lg.navbar-dark
-        a.navbar-brand.order-1.order-lg-2(href='index.html')
-          img(src='/assets/themes/theme-1/images/logo.svg' alt='Logo')
-        button.navbar-toggler.order-2(type='button' data-toggle='collapse' data-target='.navbar-collapse' aria-controls='navbarMenu' aria-expanded='false' aria-label='Toggle navigation')
-          span.navbar-toggler-icon
-        #navbarMenu.collapse.navbar-collapse.order-3.order-lg-1
-          ul.navbar-nav.mr-auto
-            for category in categories
-              li.nav-item.dropdown
-                a.nav-link.dropdown-toggle(id=`navbarDropdown-${category.id}` href=getCategoryURL(category) role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false')
-                  | #{category.name}
-                ul.dropdown-menu(aria-labelledby=`navbarDropdown-${category.id}`)
-                    li
-                      a.dropdown-item(href=getCategoryURL(category)) #[strong Show All]
-
-                    for subCategory in category.subCategories
-                      li
-                        a.dropdown-item(href=getSubCategoryURL(category, subCategory))= subCategory.name
-
-        #navbarMenu2.collapse.navbar-collapse.order-4.order-lg-3
-          ul.navbar-nav.ml-auto
+block content
+  // Promotions
+  section.hero.bg-green.text-white
+    .decoration(style='background-image: url(/assets/themes/theme-1/images/decoration-1.png)')
+    .container
+      .row
+        .col-md-10.col-lg-8
+          h1.font-weight-light
+            | Discover our #[b.font-weight-bold products]
+      .row
+        .col
+          ul#myTab.nav.nav-tabs.lavalamp(role='tablist')
             li.nav-item
-              a.nav-link(data-toggle='modal' data-target='#search')
-                i.icon-search
-            li.nav-item.cart
-              a.nav-link(data-toggle='modal' data-target='#cart')
-                span Cart
-                // TODO: retrieve cart size
-                // span 2
-// / header
-// hero
-section.hero.bg-green.text-white
-  .decoration(style='background-image: url(/assets/themes/theme-1/images/decoration-1.png)')
-  .container
-    .row
-      .col-md-10.col-lg-8
-        h1.font-weight-light
-          | Discover our #[b.font-weight-bold products]
-    .row
-      .col
-        ul#myTab.nav.nav-tabs.lavalamp(role='tablist')
-          li.nav-item
-            a#home-tab.nav-link.active(data-toggle='tab' href='#home' role='tab' aria-controls='home' aria-selected='true') Popular
-          li.nav-item
-            a#profile-tab.nav-link(data-toggle='tab' href='#profile' role='tab' aria-controls='profile' aria-selected='false') New Arrivals
-    .row
-      .col
-        #myTabContent.tab-content
-          #home.tab-pane.fade.show.active(role='tabpanel' aria-labelledby='home-tab')
-            .owl-carousel.visible(data-items='[3,4,2,1]' data-margin='20' data-loop='true' data-dots='true')
-              for product in promotedProducts
+              a#home-tab.nav-link.active(data-toggle='tab' href='#home' role='tab' aria-controls='home' aria-selected='true') Popular
+            li.nav-item
+              a#profile-tab.nav-link(data-toggle='tab' href='#profile' role='tab' aria-controls='profile' aria-selected='false') New Arrivals
+      .row
+        .col
+          #myTabContent.tab-content
+            #home.tab-pane.fade.show.active(role='tabpanel' aria-labelledby='home-tab')
+              .owl-carousel.visible(data-items='[3,4,2,1]' data-margin='20' data-loop='true' data-dots='true')
+                for product in promotedProducts
+                  .product
+                    figure.product-image
+                      a(href=getProductURL(product))
+                        img(src=`${getImageURL(product.primaryImage.imageFilename)}` alt='Image')
+                    .product-meta
+                      h3.product-title
+                        a(href=getProductURL(product))= product.name
+                      .product-price
+                        span= formatPrice(product.price)
+                        span.product-action
+                          a(href=getProductURL(product)) View Product
+                      a.product-like(href=getProductURL(product))
+
+            #profile.tab-pane.fade(role='tabpanel' aria-labelledby='profile-tab')
+              .owl-carousel.owl-carousel-alt.visible(data-items='[3,4,2,1]' data-margin='20' data-loop='true' data-nav='true' data-dots='false')
                 .product
                   figure.product-image
                     a(href='#!')
-                      img(src=`${getImageURL(product.primaryImage.imageFilename)}` alt='Image')
+                      img(src='/assets/themes/theme-1/images/demo/product-9.jpg' alt='Image')
+                      img(src='/assets/themes/theme-1/images/demo/product-9-2.jpg' alt='Image')
                   .product-meta
                     h3.product-title
-                      a(href='#!')= product.name
+                      a(href='#!') Black Denim Jacket
                     .product-price
-                      span= formatPrice(product.price)
+                      span $183
                       span.product-action
-                        a(href='#!') View Product
+                        a(href='#!') Add to cart
                     a.product-like(href='#!')
 
-          #profile.tab-pane.fade(role='tabpanel' aria-labelledby='profile-tab')
-            .owl-carousel.owl-carousel-alt.visible(data-items='[3,4,2,1]' data-margin='20' data-loop='true' data-nav='true' data-dots='false')
-              .product
-                figure.product-image
-                  a(href='#!')
-                    img(src='/assets/themes/theme-1/images/demo/product-9.jpg' alt='Image')
-                    img(src='/assets/themes/theme-1/images/demo/product-9-2.jpg' alt='Image')
-                .product-meta
-                  h3.product-title
-                    a(href='#!') Black Denim Jacket
-                  .product-price
-                    span $183
-                    span.product-action
-                      a(href='#!') Add to cart
-                  a.product-like(href='#!')
-              .product
-                figure.product-image
-                  a(href='#!')
-                    img(src='/assets/themes/theme-1/images/demo/product-10.jpg' alt='Image')
-                    img(src='/assets/themes/theme-1/images/demo/product-10-2.jpg' alt='Image')
-                .product-meta
-                  h3.product-title
-                    a(href='#!') Dark Blue Ichiban Plain Cotton Hoodie
-                  .product-price
-                    span $63
-                    span.product-action
-                      a(href='#!') Add to cart
-                  a.product-like(href='#!')
-              .product
-                figure.product-image
-                  a(href='#!')
-                    img(src='/assets/themes/theme-1/images/demo/product-8.jpg' alt='Image')
-                    img(src='/assets/themes/theme-1/images/demo/product-8-2.jpg' alt='Image')
-                .product-meta
-                  h3.product-title
-                    a(href='#!') Coral Swim Shorts
-                  .product-price
-                    span $57
-                    span.product-action
-                      a(href='#!') Add to cart
-                  a.product-like(href='#!')
-              .product
-                figure.product-image
-                  a(href='#!')
-                    img(src='/assets/themes/theme-1/images/demo/product-12.jpg' alt='Image')
-                    img(src='/assets/themes/theme-1/images/demo/product-12-2.jpg' alt='Image')
-                .product-meta
-                  h3.product-title
-                    a(href='#!') Red Organic Cotton Sweater
-                  .product-price
-                    span $82
-                    span.product-action
-                      a(href='#!') Add to cart
-                  a.product-like(href='#!')
-              .product
-                figure.product-image
-                  a(href='#!')
-                    img(src='/assets/themes/theme-1/images/demo/product-14.jpg' alt='Image')
-                    img(src='/assets/themes/theme-1/images/demo/product-14-2.jpg' alt='Image')
-                .product-meta
-                  h3.product-title
-                    a(href='#!') Mallard Pond Cuban SS Shirt
-                  .product-price
-                    span $164
-                    span.product-action
-                      a(href='#!') Add to cart
-                  a.product-like(href='#!')
-              .product
-                figure.product-image
-                  a(href='#!')
-                    img(src='/assets/themes/theme-1/images/demo/product-11.jpg' alt='Image')
-                    img(src='/assets/themes/theme-1/images/demo/product-11-2.jpg' alt='Image')
-                .product-meta
-                  h3.product-title
-                    a(href='#!') Black Low Curve Iceman Trimix Sneakers
-                  .product-price
-                    span $271
-                    span.product-action
-                      a(href='#!') Add to cart
-                  a.product-like(href='#!')
-// / lookbook
-// listing
-section.separator-top#in-stock-products
-  .container
-    .row
-      .col.text-center
-        h2 Available In-Store
-    .row.gutter-2.gutter-lg-4
-      +renderProducts(inStockProducts)
-    .row
-      .col.text-center
-        +renderPagination(currentInStockProductPage, inStockProductTotalPage, getHomeURL('__pageNumber', currentPOProductPage, 'in-stock-products'))
-
-if poProducts && poProducts.length > 0
-  section.separator-top#po-products
-    .container
-      .row
-        .col.text-center
-          h2 Online-Only
-      .row.gutter-2.gutter-lg-4
-        +renderProducts(poProducts)
-      .row
-        .col.text-center
-          +renderPagination(currentPOProductPage, poProductTotalPage, getHomeURL(currentInStockProductPage, '__pageNumber', 'po-products'))
-
-
-// / partners
-// footer
-footer.bg-dark.text-white.py-0
-  .container
-    .row.separated
-      .col-lg-6.py-10
+  // In-stock Products
+  if inStockProducts && inStockProducts.length > 0
+    section.separator-top#in-stock-products
+      .container
         .row
-          .col-md-8
-            p
-              | Vendor Shop Name
-              br
-              | Jl. Letjen S.Parman Kav 28
-              br
-              | Jakarta Barat, 11470
-              br
+          .col.text-center
+            h2 Available In-Store
+        .row.gutter-2.gutter-lg-4
+          +renderProducts(inStockProducts)
         .row
-          .col-md-10
-            h4.eyebrow.mb-3 Quick Links
-            ul.list-group.list-group-columns
-              li.list-group-item
-                a(href='about.html') About
-              li.list-group-item
-                a(href='contact.html') Contact Us
-              li.list-group-item
-                a(href='faq.html') FAQ
-              li.list-group-item
-                a(href='blog.html') Blog
-      .col-lg-6.py-10
-        .row.justify-content-end
-          .col-lg-10
-            h4.eyebrow.mb-3 Subscribe
-            .input-group
-              input.form-control.form-control-lg(type='text' placeholder='Email' aria-label='Subscribe' aria-describedby='button-addon2')
-              .input-group-append
-                button#button-addon2.btn.btn-white(type='button') Subscribe
-        .row.justify-content-end
-          .col-lg-10
-            h4.eyebrow.mb-3 Follow us
-            nav.nav.nav-icons
-              a.nav-link(href='#!')
-                i.icon-facebook-o
-              a.nav-link(href='#!')
-                i.icon-twitter-o
-              a.nav-link(href='#!')
-                i.icon-youtube-o
-// / footer
-// cart
-#cart.modal.fade.sidebar(tabindex='-1' role='dialog' aria-labelledby='cartLabel' aria-hidden='true')
-  .modal-dialog(role='document')
-    .modal-content
-      .modal-header
-        h5#cartLabel.modal-title Cart
-        button.close(type='button' data-dismiss='modal' aria-label='Close')
-          span(aria-hidden='true') &times;
-      .modal-body
-        .row.gutter-3
-          .col-12
-            .cart-item.cart-item-sm
-              .row.align-items-center
-                .col-lg-9
-                  .media.media-product
-                    a(href='#!')
-                      img(src='/assets/themes/theme-1/images/demo/product-3.jpg' alt='Image')
-                    .media-body
-                      h5.media-title Black IC Pendant Light
-                      span.media-subtitle Black, Steel
-                .col-lg-3.text-center.text-lg-right
-                  span.cart-item-price $90
-                a.cart-item-close(href='#!')
-                  i.icon-x
-          .col-12
-            .cart-item.cart-item-sm
-              .row.align-items-center
-                .col-lg-9
-                  .media.media-product
-                    a(href='#!')
-                      img(src='/assets/themes/theme-1/images/demo/product-4.jpg' alt='Image')
-                    .media-body
-                      h5.media-title Red Analog Magazine Rack
-                      span.media-subtitle Red
-                .col-lg-3.text-center.text-lg-right
-                  span.cart-item-price $120
-                a.cart-item-close(href='#!')
-                  i.icon-x
-          .col-12
-            .cart-item.cart-item-sm
-              .row.align-items-center
-                .col-lg-9
-                  .media.media-product
-                    a(href='#!')
-                      img(src='/assets/themes/theme-1/images/demo/product-24.jpg' alt='Image')
-                    .media-body
-                      h5.media-title Closca Helmet
-                      span.media-subtitle Black
-                .col-lg-3.text-center.text-lg-right
-                  span.cart-item-price $132
-                a.cart-item-close(href='#!')
-                  i.icon-x
-      .modal-footer
-        .container-fluid
-          .row.gutter-0
-            .col.d-none.d-md-block
-              a.btn.btn-lg.btn-block.btn-secondary(href='cart.html') View Cart
-            .col
-              a.btn.btn-lg.btn-block.btn-primary(href='checkout.html') Checkout
-// search
-#search.modal.fade.search(tabindex='-1' role='dialog' aria-hidden='true')
-  .modal-dialog(role='document')
-    .modal-content
-      .modal-header
-        input.form-control(type='text' placeholder='Type your search here' aria-label='Type your search here' aria-describedby='button-addon2')
-        button.close(type='button' data-dismiss='modal' aria-label='Close')
-          span(aria-hidden='true') &times;
-// lookbook
-#lookbook.modal.fade.sidebar(tabindex='-1' role='dialog' aria-labelledby='lookbookLabel' aria-hidden='true')
-  .modal-dialog(role='document')
-    .modal-content
-      .modal-header
-        h5#lookbookLabel.modal-title Summer Look
-        button.close(type='button' data-dismiss='modal' aria-label='Close')
-          span(aria-hidden='true') &times;
-      .modal-body
-        .row.gutter-2
-          .col-6
-            .product
-              figure.product-image
-                span.product-promo.bg-red sale
-                a(href='#!')
-                  img(src='/assets/themes/theme-1/images/demo/product-16.jpg' alt='Image')
-                  img(src='/assets/themes/theme-1/images/demo/product-16-2.jpg' alt='Image')
-              .product-meta
-                h3.product-title
-                  a(href='#!') Marino Creta Ante Espadrilles
-                .product-price
-                  span $76
-                  span.product-action
-                    a(href='#!') Add to cart
-                a.product-like(href='#!')
-          .col-6
-            .product
-              figure.product-image
-                span.product-promo -25%
-                a(href='#!')
-                  img(src='/assets/themes/theme-1/images/demo/product-21.jpg' alt='Image')
-                  img(src='/assets/themes/theme-1/images/demo/product-21-2.jpg' alt='Image')
-              .product-meta
-                h3.product-title
-                  a(href='#!') Peach Low Curve Iceman Trimix Sneakers
-                .product-price
-                  span $271
-                  span.product-action
-                    a(href='#!') Add to cart
-                a.product-like(href='#!')
-          .col-6
-            .product
-              figure.product-image
-                a(href='#!')
-                  img(src='/assets/themes/theme-1/images/demo/product-18.jpg' alt='Image')
-                  img(src='/assets/themes/theme-1/images/demo/product-18-2.jpg' alt='Image')
-              .product-meta
-                h3.product-title
-                  a(href='#!') Khaki Alston Chino
-                .product-price
-                  span $101
-                  span.product-action
-                    a(href='#!') Add to cart
-                a.product-like(href='#!')
-      .modal-footer
-        .container-fluid
-          .row.gutter-0
-            .col
-              a.btn.btn-lg.btn-block.btn-primary(href='profile-wishlist.html') Add to Wishlist
-script(src='/assets/themes/theme-1/js/vendor.min.js')
-script(src='/assets/themes/theme-1/js/app.js')
+          .col.text-center
+            +renderPagination(currentInStockProductPage, inStockProductTotalPage, getHomeURL('__pageNumber', currentPOProductPage, 'in-stock-products'))
 
+  // PO Products
+  if poProducts && poProducts.length > 0
+    section.separator-top#po-products
+      .container
+        .row
+          .col.text-center
+            h2 Pre-Order
+        .row.gutter-2.gutter-lg-4
+          +renderProducts(poProducts)
+        .row
+          .col.text-center
+            +renderPagination(currentPOProductPage, poProductTotalPage, getHomeURL(currentInStockProductPage, '__pageNumber', 'po-products'))
