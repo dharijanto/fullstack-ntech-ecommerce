@@ -25,6 +25,18 @@ export function getImageURL (imageFilename, cms = false) {
   }
 }
 
+export function getThumbnailImageURL (imageFilename, cms = false) {
+  if (imageFilename) {
+    if (cms) {
+      return `${AppConfig.BASE_URL}${AppConfig.THUMBNAIL_IMAGE_MOUNT_PATH}${imageFilename}`
+    } else {
+      return `${AppConfig.THUMBNAIL_IMAGE_MOUNT_PATH}${imageFilename}`
+    }
+  } else {
+    return ``
+  }
+}
+
 // Convert 10000 -> Rp. 10.000
 export function formatPrice (price) {
   price = '' + price

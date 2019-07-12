@@ -4,7 +4,7 @@ mixin renderProducts(products)
       .product
         figure.product-image
           a(href=`${getProductURL(product)}`)
-            img(src=`${getImageURL(product.primaryImage.imageFilename)}` alt='Image')
+            img(src=`${getThumbnailImageURL(product.primaryImage.imageFilename)}` alt='Image')
         .product-meta
           h3.product-title
             a(href=`${getProductURL(product)}`)= product.name

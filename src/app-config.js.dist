@@ -31,6 +31,10 @@ const RECEIPT_PRINTER = {
   PAPER_WIDTH: '58mm'
 }
 
+const UI = {
+  THEME_NAME: 'theme-1'
+}
+
 module.exports = {
   SQL_DB: `mysql://${DB.USERNAME}:${DB.PASSWORD}@${DB.HOST}:3306/${DB.DB_NAME}`,
   TEST_SQL_DB: `mysql://${DB.USERNAME}:${DB.PASSWORD}@${DB.HOST}:3306/${DB.TEST_DB_NAME}`,
@@ -38,6 +42,7 @@ module.exports = {
   BASE_URL: 'http://ntech.nusantara-local.com',
   IMAGE_PATH: path.join(__dirname, './images/'),
   IMAGE_MOUNT_PATH: '/images/',
+  THUMBNAIL_IMAGE_MOUNT_PATH: '/thumbnail-images/',
   GENERATED_PRINT_PDF_PATH: path.join(__dirname, './gen-pdf/'),
   GENERATED_CLOUD_SYNC_DATA: path.join(__dirname, './gen-cloud-sync-data'),
   IS_CLOUD_SERVER: false,
@@ -45,5 +50,6 @@ module.exports = {
   DEFAULT_SHOP_PRODUCT_BEHAVIOR,
   DB,
   RECEIPT_PRINTER,
-  CLOUD_SERVER
+  CLOUD_SERVER,
+  UI
 }

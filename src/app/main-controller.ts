@@ -1,5 +1,6 @@
 import * as express from 'express'
 import * as Promise from 'bluebird'
+import * as sharp from 'sharp'
 
 import * as AppConfig from '../app-config'
 import BaseController from './controllers/base-controller'
@@ -28,7 +29,28 @@ class Controller extends BaseController {
     super(Object.assign(siteData, { viewPath: path.join(__dirname, 'views') }))
     SequelizeService.initialize(siteData.db.sequelize, siteData.db.models)
 
+    // Full resolution images
     this.routeUse(AppConfig.IMAGE_MOUNT_PATH, express.static(AppConfig.IMAGE_PATH, { maxAge: AppConfig.PRODUCTION ? '1h' : '0' }))
+
+    // Thumbnail images
+    // The images are generated dynamically. We rely on caching in order to
+    // reduce CPU load
+    this.routeGet('/thumbnail-images/:imageFilename(*)', (req, res, next) => {
+      const inputImage = path.join(AppConfig.IMAGE_PATH, req.params.imageFilename)
+
+      // TODO: We should move this to util
+      sharp(inputImage).resize(250).png().toBuffer().then(data => {
+        res.contentType('png')
+        res.setHeader('Cache-Control', `public, max-age=${AppConfig.PRODUCTION ? '1h' : '0'}`)
+        res.end(data)
+      }).catch(err => {
+        if (err.message === 'Input file is missing') {
+          next()
+        } else {
+          next(err)
+        }
+      })
+    })
 
     Promise.join(
       LocalShopService.initialize(),
