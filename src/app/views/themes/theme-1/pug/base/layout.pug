@@ -91,9 +91,11 @@ footer.bg-dark.text-white.py-0
   .modal-dialog(role='document')
     .modal-content
       .modal-header
-        input.form-control(type='text' placeholder='Type your search here' aria-label='Type your search here' aria-describedby='button-addon2')
-        button.close(type='button' data-dismiss='modal' aria-label='Close')
-          span(aria-hidden='true') &times;
+        form#search-bar(action="/search" method="GET")
+          input.form-control(type='text' name="query" placeholder='Type your search here' aria-label='Type your search here' aria-describedby='button-addon2')
+          button.btn.btn-xs.btn-primary.btn-rounded(type="submit") Search
+          button.close(type='button' data-dismiss='modal' aria-label='Close')
+            span(aria-hidden='true') &times;
 
 script(src='/assets/themes/theme-1/js/vendor.min.js')
 script(src='/assets/themes/theme-1/js/app.js')

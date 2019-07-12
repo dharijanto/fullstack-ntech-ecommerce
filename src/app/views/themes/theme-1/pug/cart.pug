@@ -27,7 +27,7 @@ block content
               .cart-item
                 .row.align-items-center
                   .col-12.col-lg-6
-                    .media.media-product
+                    .media.media-product.p-1
                       a(href='#!')
                         img(src=item.image alt='Image')
                       .media-body
@@ -39,12 +39,11 @@ block content
                     span.cart-item-price= formatPrice(item.product.shopPrice)
                   .col-4.col-lg-2.text-center
                     //input#tentacles1.form-control(type='number' name='tentacles1' min='1' max='10' placeholder=item.quantity)
-                    .p-2
-                      div.d-block
-                        button.btn.btn-primary.btn-ico.add-item(type="button" data-variant-id=item.variantId) +
-                      label#tentacles1.d-block= item.quantity
-                      div.d-block
-                        button.btn.btn-primary.btn-ico.reduce-item(type="button" data-variant-id=item.variantId) -
+                    div.d-block
+                      button.btn.btn-primary.btn-ico.add-item(type="button" data-variant-id=item.variantId) +
+                    label.text-center.d-block= item.quantity
+                    div.d-block
+                      button.btn.btn-primary.btn-ico.reduce-item(type="button" data-variant-id=item.variantId) -
                   .col-4.col-lg-2.text-left
                     span.cart-item-price= formatPrice(parseInt(item.quantity) * parseInt(item.product.shopPrice))
                   button.delete-item.cart-item-close(type="button" href='#!' data-variant-id=item.variantId)
@@ -84,7 +83,7 @@ block content
                   label(for='input-phone') Phone
                   input#input-phone.form-control.form-control(type='text' name="phoneNumber")
                 .form-group.mb-2
-                  label(for='input-notes') Name
+                  label(for='input-notes') Notes
                   textarea#input-notes.form-control.form-control(type='text' name="notes")
                 button#place-order.btn.btn-primary.btn-block(type="button") Checkout
   else

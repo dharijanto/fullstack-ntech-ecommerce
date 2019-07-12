@@ -1,0 +1,19 @@
+extends base/layout
+
+append head
+  link(rel="stylesheet" type="text/css" href=`/assets/vendor/toastr/toastr.css`)
+
+block content
+
+  section.hero
+    .container
+      .row
+        .col
+          nav(aria-label='breadcrumb')
+            ol.breadcrumb
+              li.breadcrumb-item
+                a(href='/') Home
+              li.breadcrumb-item.active(aria-current='page') Cart
+      .row
+        .col
+          h1 Your order has been placed. We'll reach out!
