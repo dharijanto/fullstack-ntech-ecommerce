@@ -54,11 +54,11 @@ html
             if (receipt.status === 'PO')
               p.legal
                 | Barang akan siap diambil dalam #[strong #{receipt.poDuration} hari].
-              if (originalCopy)
+              if (originalCopy === '1')
                 | Gunakan struk ini untuk pengambilan PO
             p.legal
               | THANK YOU
-              if (!originalCopy)
+              if (!originalCopy || originalCopy === '0')
                 br
                 | (Merchant Copy)
               br

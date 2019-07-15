@@ -55,7 +55,7 @@ export default class CMSController extends BaseController {
           },
           {
             id: 'other-management',
-            title: 'Other Management',
+            title: 'Other',
             children: [
               { href: '/cms/other-management/test-receipt-printer', title: 'Test Receipt Printer' },
               { href: '/cms/other-management/reindex-search-database', title: 'Reindex Search DB' },

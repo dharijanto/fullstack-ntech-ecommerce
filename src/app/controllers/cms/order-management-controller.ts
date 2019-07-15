@@ -60,24 +60,7 @@ export default class OrderManagementController extends BaseController {
       // Change order status to 'Closed', print customer receipt, print merchant receipt.
       OrderService.closeOrder(orderId).then(resp => {
         if (resp.status) {
-          return OrderService.printReceipt(`${AppConfig.BASE_URL}${this.getRouter().path()}/order/receipt?orderId=${orderId}&originalCopy=1`, 1).then(resp => {
-            if (resp.status && resp.data) {
-              return OrderService.printReceipt(`${AppConfig.BASE_URL}${this.getRouter().path()}/order/receipt?orderId=${orderId}`, 1).then(resp => {
-                if (resp.status && resp.data) {
-                  res.json({ status: true })
-                } else {
-                  res.json(resp)
-                  return
-                }
-              })
-            } else {
-              res.json(resp)
-              return
-            }
-          }).catch(err => {
-            log.error(TAG, err)
-            res.json({ status: false, errMessage: 'Failed to close order: ' + err.message })
-          })
+          res.json({ status: true })
         } else {
           res.json({ status: false, errMessage: resp.errMessage })
           return
@@ -89,15 +72,7 @@ export default class OrderManagementController extends BaseController {
       const orderId = req.body.id
       OrderService.finishPOOrder(orderId).then(resp => {
         if (resp.status) {
-          return OrderService.printReceipt(`${AppConfig.BASE_URL}${this.getRouter().path()}/order/receipt?orderId=${orderId}&originalCopy=1`, 1).then(resp => {
-            if (resp.status && resp.data) {
-              res.json({ status: true })
-              return
-            } else {
-              res.json(resp)
-              return
-            }
-          })
+          res.json({ status: true })
         } else {
           res.json({ status: false, errMessage: resp.errMessage })
           return
@@ -107,18 +82,26 @@ export default class OrderManagementController extends BaseController {
 
     super.routePost('/order/print-receipt', (req, res, next) => {
       const orderId = req.body.orderId
+      const originalCopy = req.body.originalCopy
       // TODO: This is very inefficient because we're technically calling getReceipt() twice:
       // Here, and from print-service. But for now, we'll live with it...
       OrderService.getReceipt(orderId).then(resp => {
         if (resp.status) {
-          return OrderService.printReceipt(`${AppConfig.BASE_URL}${this.getRouter().path()}/order/receipt?orderId=${orderId}`).then(resp => {
-            if (resp.status && resp.data) {
-              res.json({ status: true })
-            } else {
-              res.json(resp)
-              return
-            }
-          })
+          // For cloud-server, we can't talk to the printer directly, hence we need to rely on the browser
+          // to open up a print dialog
+          if (AppConfig.IS_CLOUD_SERVER) {
+            res.json({ status: true, data: { url: `${this.getRouter().path()}/order/receipt?orderId=${orderId}&uoriginalCopy=${originalCopy}` } })
+            return
+          } else {
+            return OrderService.printReceipt(`${AppConfig.BASE_URL}${this.getRouter().path()}/order/receipt?orderId=${orderId}`).then(resp => {
+              if (resp.status && resp.data) {
+                res.json({ status: true })
+              } else {
+                res.json(resp)
+                return
+              }
+            })
+          }
         } else {
           res.json({ status: false, errMessage: resp.errMessage })
           return
@@ -130,12 +113,13 @@ export default class OrderManagementController extends BaseController {
 
     super.routePost('/order-details/print-receipt', (req, res, next) => {
       const orderId = req.body.orderId
+      const originalCopy = req.body.originalCopy ? '1' : '0'
 
       // TODO: This is very inefficient because we're technically calling getOrderDetails() twice:
       // Here, and from print-service. But for now, we'll live with it...
       OrderService.getOrderDetails(orderId).then(resp => {
         if (resp.status) {
-          return OrderService.printReceipt(`${AppConfig.BASE_URL}${this.getRouter().path()}/order-details/receipt?orderId=${orderId}`).then(resp => {
+          return OrderService.printReceipt(`${AppConfig.BASE_URL}${this.getRouter().path()}/order-details/receipt?orderId=${orderId}&originalCopy=${originalCopy}`).then(resp => {
             if (resp.status && resp.data) {
               res.json({ status: true })
             } else {

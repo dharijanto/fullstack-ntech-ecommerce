@@ -37,7 +37,7 @@
     "lodash": "^4.17.11",
     "marked": "^0.3.6",
     "nc-image-picker": "^1.2.1",
-    "nc-input-library": "^1.5.2",
+    "nc-input-library": "^1.6.5",
     "toastr": "^2.1.4",
     "tsify": "^4.0.1",
     "uglifyify": "^4.0.5",

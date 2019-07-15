@@ -6,6 +6,7 @@ import * as _ from 'lodash'
 
 import axios from '../libs/axios-wrapper'
 import Config from '../config'
+import { openPrintDialog } from '../libs/browser-lib'
 
 let order: Order
 
@@ -39,9 +40,9 @@ const ncOrder = $('#order').NCInputLibrary({
     ui: [
       { id: 'add', desc: 'Add', postTo: '/cms/order-management/order' },
       { id: 'edit', desc: 'Edit', postTo: '/cms/order-management/order/edit' },
-      { id: 'cancel', desc: 'Cancel', postTo: '/cms/order-management/order/cancel', confirm: 'Are you sure?' },
+      { id: 'cancel', desc: 'Cancel', postTo: '/cms/order-management/order/cancel', confirm: 'Are you sure?' }/*,
       { id: 'finish', desc: 'Close', postTo: '/cms/order-management/order/close' },
-      { id: 'finishPO', desc: 'Finish PO', postTo: '/cms/order-management/order/close-po' }
+      { id: 'finishPO', desc: 'Finish PO', postTo: '/cms/order-management/order/close-po' }*/
     ],
     conf: {
       networkTimeout: Config.NETWORK_TIMEOUT // timeout for postTo request
@@ -49,7 +50,7 @@ const ncOrder = $('#order').NCInputLibrary({
   }
 })
 
-const orderPrintBtn = $(`<button class="btn btn-default btn-block" type="button">Print Receipt</button>`)
+/* const orderPrintBtn = $(`<button class="btn btn-default btn-block" type="button">Print Receipt</button>`)
 orderPrintBtn.on('click', () => {
   axios.post('/cms/order-management/order/print-receipt', { orderId: order && order.id }).then(rawResp => {
     let resp = rawResp.data as NCResponse<any>
@@ -62,10 +63,103 @@ orderPrintBtn.on('click', () => {
     toastr.error(err.message)
     console.error(err.message)
   })
-})
-ncOrder.setFirstCustomView(orderPrintBtn)
+}) */
 
-const reloadBtn = $(`<button class="btn btn-default btn-block" type="button">Reload</button>`)
+const closeOrderContainer = $(`<div class="row"></div>`)
+const closeOrderButton = $(`<button class="btn btn-default btn-block" type="button">Close Order</button>`)
+const closePOButton = $(`<button class="btn btn-default btn-block" type="button">Close PO</button>`)
+closeOrderContainer.append(closeOrderButton)
+closeOrderContainer.append(closePOButton)
+ncOrder.setFirstCustomView(closeOrderContainer)
+
+function printReceipt (orderId, originalCopy: '1' | '0') {
+  return axios.post('/cms/order-management/order/print-receipt', { orderId, originalCopy }).then(rawResp => {
+    const resp = rawResp.data
+    // TODO: Handle the two cases: print is done on the server, or open up browser printing dialog
+    if (resp.status) {
+      toastr.success('Customer receipt printed!')
+      if (resp.data && resp.data.url) {
+        return openPrintDialog(resp.data.url, $('#print-frame'), 'print-preview')
+      } else {
+        return
+      }
+    } else {
+      toastr.error('Failed to print customer receipt: ' + resp.errMessage)
+      console.error('Failed to print customer receipt: ' + resp.errMessage)
+      return
+    }
+  })
+}
+
+closeOrderButton.on('click', function (event) {
+  $(this).prop('disabled', true)
+  axios.post('/cms/order-management/order/close', { id: order && order.id }).then(rawResp => {
+    let resp = rawResp.data as NCResponse<any>
+    if (resp.status) {
+      toastr.success('Order successfully closed!')
+      return
+    } else {
+      throw new Error(resp.errMessage)
+    }
+  }).then(() => {
+    if (confirm('Print customer receipt?')) {
+      toastr.info('Printing customer receipt...')
+      // Print customer receipt
+      return printReceipt(order.id, '1')
+    }
+  }).then(() => {
+    if (confirm('Print merchant receipt?')) {
+      toastr.info('Printing merchant receipt...')
+      // Print merchant receipt
+      return printReceipt(order.id, '0')
+    }
+  }).then(() => {
+    $(this).prop('disabled', false)
+    ncOrder.reloadTable()
+  }).catch(err => {
+    toastr.error(err.message)
+    console.error(err.message)
+    $(this).prop('disabled', false)
+    ncOrder.reloadTable()
+  })
+})
+
+closePOButton.on('click', () => {
+  $(this).prop('disabled', true)
+  axios.post('/cms/order-management/order/close-po', { id: order && order.id }).then(rawResp => {
+    let resp = rawResp.data as NCResponse<any>
+    if (resp.status) {
+      toastr.success('PO Order successfully closed!')
+      return
+    } else {
+      throw new Error(resp.errMessage)
+    }
+  }).then(() => {
+    if (confirm('Print customer receipt?')) {
+      toastr.info('Printing customer receipt...')
+      // Print customer receipt
+      return printReceipt(order.id, '1')
+    }
+  }).then(() => {
+    if (confirm('Print merchant receipt?')) {
+      toastr.info('Printing merchant receipt...')
+      // Print customer receipt
+      return printReceipt(order.id, '1')
+    }
+  }).then(() => {
+    $(this).prop('disabled', false)
+    ncOrder.reloadTable()
+  }).catch(err => {
+    toastr.error(err.message)
+    console.error(err.message)
+    $(this).prop('disabled', false)
+    ncOrder.reloadTable()
+  })
+})
+
+// ncOrder.setFirstCustomView(orderPrintBtn)
+
+const reloadBtn = $(`<button class="btn btn-default btn-block" type="button"><i class="fa fa-refresh" aria-hidden="true"></i></button>`)
 reloadBtn.on('click', () => {
   ncOrder.reloadTable()
 })
