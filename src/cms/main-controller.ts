@@ -1,6 +1,7 @@
 import * as log from 'npmlog'
 import * as Promise from 'bluebird'
 
+import * as ApplicationHelper from '../libs/application-helper'
 import BaseController from './controllers/base-controller'
 import OrderManagementController from './controllers/order-management-controller'
 import AccountManagementController from './controllers/account-management-controller'
@@ -34,7 +35,7 @@ class MainController extends BaseController {
       res.locals.__sidebar = []
 
       // Cloud-only menu
-      if (AppConfig.IS_CLOUD_SERVER || !AppConfig.PRODUCTION) {
+      if (ApplicationHelper.getServerType() !== 'ON_PREMISE' || !AppConfig.PRODUCTION) {
         res.locals.__sidebar.push({ title: 'Product Management', url: `/${this.siteHash}/`, faicon: '' })
         res.locals.__sidebar.push({ title: 'Shop Management', url: `/${this.siteHash}/shop-management`, faicon: '' })
         res.locals.__sidebar.push({ title: 'Supplier Management', url: `/${this.siteHash}/supplier-management`, faicon: '' })
@@ -43,7 +44,7 @@ class MainController extends BaseController {
       }
 
       // Local-only menu
-      if (!AppConfig.IS_CLOUD_SERVER || !AppConfig.PRODUCTION) {
+      if (ApplicationHelper.getServerType() === 'ON_PREMISE' || !AppConfig.PRODUCTION) {
         res.locals.__sidebar.push({ title: 'Account Management', url: `/${this.siteHash}/account-management/`, faicon: '' })
       }
 
@@ -59,15 +60,18 @@ class MainController extends BaseController {
     })
 
     super.routeGet('/images', (req, res, next) => {
-      this.imageService.getImages(this.imageURLFormatter).then(resp => {
+      const tag = req.query.tag
+      this.imageService.getImages(this.imageURLFormatter, tag).then(resp => {
         log.verbose(TAG, '/images.GET():' + JSON.stringify(resp))
         res.json(resp)
       }).catch(next)
     })
 
-    super.routePost('/image',
+    super.routePost('/image', (req, res, next) => {
+      const tag = req.query.tag
       this.imageService.getExpressUploadMiddleware(
-        AppConfig.IMAGE_PATH, this.imageURLFormatter))
+        AppConfig.IMAGE_PATH, this.imageURLFormatter, undefined, undefined, tag)(req, res, next)
+    })
 
     super.routePost('/image/delete', (req, res, next) => {
       log.verbose(TAG, 'image/delete.POST: req.body=' + JSON.stringify(req.body))

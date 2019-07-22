@@ -21,7 +21,6 @@ class PrintService {
     this.printerName = printerName
     this.paperWidth = paperWidth
     this.paperHeight = paperHeight
-
   }
 
   private printFile (pdfFilePath: string, numCopies: number = 1): Promise<NCResponse<{ jobId: number}>> {

@@ -97,9 +97,13 @@ interface Supplier extends BaseModel {
 
 interface Shop extends BaseModel {
   name: string,
-  city: string,
+  slogan: string,
+  location: string,
+  coord: string,
   address: string,
-  zipCode: number
+  city: string,
+  zipCode: number,
+  logoFilename: string
 }
 
 interface Stock extends BaseModel {

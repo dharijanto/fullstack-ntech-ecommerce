@@ -1,11 +1,12 @@
 const path = require('path')
 
 const LOCAL_SHOP_INFORMATION = {
-  NAME: 'Nusantara Gizmo 1' // This should be the same as shop.name
+  NAME: 'Setrasari Mall' // This should be the same as shop.name
 }
 
 const CLOUD_SERVER = {
-  HOST: 'https://ntech-ngizmo.nusantara-cloud.com'
+  //HOST: 'http://ntech.nusantara-local.com'
+  HOST: 'http://ngizmo-ntech.nusantara-cloud.com'
 }
 
 // For each products, we can customize certain information, depending
@@ -13,7 +14,7 @@ const CLOUD_SERVER = {
 // NOTE: To apply changes, SQL views have to be re-created! (see. services/sql-view-service)
 const DEFAULT_SHOP_PRODUCT_BEHAVIOR = {
   preOrderAllowed: true, // By default, pre-order is allowed for all products
-  preOrderDuration: 3, // By default, poLength = 3 days for all products
+  preOrderDuration: 2, // By default, poLength = 3 days for all products
   disabled: false // By default, all products are enabled
 }
 
@@ -26,11 +27,13 @@ const DB = {
   TEST_DB_NAME: 'test_ntech'
 }
 
+// This information should match CUPS, see http://localhost:631/admin
 const RECEIPT_PRINTER = {
-  DEVICE_NAME: 'POS58', // CUPS device name, see http://localhost:631/admin
+  DEVICE_NAME: 'POS58',
   PAPER_WIDTH: '58mm'
 }
 
+// Per-customer customizable
 const UI = {
   THEME_NAME: 'theme-1'
 }
@@ -40,12 +43,15 @@ module.exports = {
   TEST_SQL_DB: `mysql://${DB.USERNAME}:${DB.PASSWORD}@${DB.HOST}:3306/${DB.TEST_DB_NAME}`,
   PRODUCTION: false,
   BASE_URL: 'http://ntech.nusantara-local.com',
-  IMAGE_PATH: path.join(__dirname, './images/'),
+  IMAGE_PATH: path.join(__dirname, '../images/'),
   IMAGE_MOUNT_PATH: '/images/',
   THUMBNAIL_IMAGE_MOUNT_PATH: '/thumbnail-images/',
-  GENERATED_PRINT_PDF_PATH: path.join(__dirname, './gen-pdf/'),
-  GENERATED_CLOUD_SYNC_DATA: path.join(__dirname, './gen-cloud-sync-data'),
-  IS_CLOUD_SERVER: false,
+  GENERATED_PRINT_PDF_PATH: path.join(__dirname, '../gen-pdf/'),
+  GENERATED_CLOUD_SYNC_DATA: path.join(__dirname, '../gen-cloud-sync-data'),
+  // Allowed values: 'ON_PREMISE', 'CLOUD_SERVER', or 'CLOUD_ONLY'
+  SERVER_TYPE: 'CLOUD_ONLY',
+  // Whether to print using browser dialog or CUPS
+  USE_BROWSER_PRINTING: true,
   LOCAL_SHOP_INFORMATION,
   DEFAULT_SHOP_PRODUCT_BEHAVIOR,
   DB,

@@ -40,9 +40,7 @@ const ncOrder = $('#order').NCInputLibrary({
     ui: [
       { id: 'add', desc: 'Add', postTo: '/cms/order-management/order' },
       { id: 'edit', desc: 'Edit', postTo: '/cms/order-management/order/edit' },
-      { id: 'cancel', desc: 'Cancel', postTo: '/cms/order-management/order/cancel', confirm: 'Are you sure?' }/*,
-      { id: 'finish', desc: 'Close', postTo: '/cms/order-management/order/close' },
-      { id: 'finishPO', desc: 'Finish PO', postTo: '/cms/order-management/order/close-po' }*/
+      { id: 'cancel', desc: 'Cancel', postTo: '/cms/order-management/order/cancel', confirm: 'Are you sure?' }
     ],
     conf: {
       networkTimeout: Config.NETWORK_TIMEOUT // timeout for postTo request
@@ -50,34 +48,27 @@ const ncOrder = $('#order').NCInputLibrary({
   }
 })
 
-/* const orderPrintBtn = $(`<button class="btn btn-default btn-block" type="button">Print Receipt</button>`)
-orderPrintBtn.on('click', () => {
-  axios.post('/cms/order-management/order/print-receipt', { orderId: order && order.id }).then(rawResp => {
-    let resp = rawResp.data as NCResponse<any>
-    if (resp.status) {
-      toastr.success('Print job created!')
-    } else {
-      throw new Error(resp.errMessage)
-    }
-  }).catch(err => {
-    toastr.error(err.message)
-    console.error(err.message)
-  })
-}) */
-
-const closeOrderContainer = $(`<div class="row"></div>`)
+// "Close Order" button
+const firstViewRow = $(`<div class="row"/>`)
+const closeOrderCol = $(`<div class="col-md-12"/>`)
 const closeOrderButton = $(`<button class="btn btn-default btn-block" type="button">Close Order</button>`)
-const closePOButton = $(`<button class="btn btn-default btn-block" type="button">Close PO</button>`)
-closeOrderContainer.append(closeOrderButton)
-closeOrderContainer.append(closePOButton)
-ncOrder.setFirstCustomView(closeOrderContainer)
+firstViewRow.append(closeOrderCol)
+closeOrderCol.append(closeOrderButton)
 
-function printReceipt (orderId, originalCopy: '1' | '0') {
-  return axios.post('/cms/order-management/order/print-receipt', { orderId, originalCopy }).then(rawResp => {
+// "Close PO" button
+const closePOCol = $(`<div class="col-md-12"/>`)
+const closePOButton = $(`<button class="btn btn-default btn-block" type="button">Close PO</button>`)
+firstViewRow.append(closePOCol)
+closePOCol.append(closePOButton)
+
+ncOrder.setFirstCustomView(firstViewRow)
+
+function printReceipt (orderId, originalCopy: '1' | '0', orderType: 'order' | 'order-detail' = 'order') {
+  return axios.post(`/cms/order-management/${orderType}/print-receipt`, { orderId, originalCopy }).then(rawResp => {
     const resp = rawResp.data
     // TODO: Handle the two cases: print is done on the server, or open up browser printing dialog
     if (resp.status) {
-      toastr.success('Customer receipt printed!')
+      toastr.success('Receipt printed!')
       if (resp.data && resp.data.url) {
         return openPrintDialog(resp.data.url, $('#print-frame'), 'print-preview')
       } else {
@@ -205,21 +196,28 @@ const ncOrderDetail = $('#order-detail').NCInputLibrary({
   }
 })
 
+const secondViewRow = $('<div class="row"/>')
+
+const printAisleCol = $('<div class="col-md-12"/>')
 const printAislesBtn = $(`<button class="btn btn-default btn-block" type="button">Print Aisle Details</button>`)
-printAislesBtn.on('click', () => {
-  axios.post('/cms/order-management/order-details/print-receipt', { orderId: order && order.id }).then(rawResp => {
-    let resp = rawResp.data as NCResponse<any>
-    if (resp.status) {
-      toastr.success('Print job created!')
-    } else {
-      throw new Error(resp.errMessage)
-    }
-  }).catch(err => {
-    toastr.error(err.message)
-    console.error(err.message)
-  })
+printAisleCol.append(printAislesBtn)
+secondViewRow.append(printAisleCol)
+
+printAislesBtn.on('click', function () {
+  $(this).prop('disabled', true)
+  if (confirm('Print aisle detail?')) {
+    toastr.info('Printing aisle detail...')
+    // Print customer receipt
+    return printReceipt(order.id, '1', 'order-detail').then(() => {
+      $(this).prop('disabled', false)
+    }).catch(err => {
+      $(this).prop('disabled', false)
+      toastr.error(err.message)
+      console.error(err.message)
+    })
+  }
 })
 
-ncOrderDetail.setFirstCustomView(printAislesBtn)
+ncOrderDetail.setFirstCustomView(secondViewRow)
 
 ncOrder.reloadTable()

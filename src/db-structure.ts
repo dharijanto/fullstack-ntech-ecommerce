@@ -9,7 +9,8 @@ function addTables (sequelize: Sequelize.Sequelize, models: Sequelize.Models) {
    */
   models.Image = sequelize.define('image', {
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
-    filename: { type: sequelize.Sequelize.STRING, unique: true }
+    filename: { type: sequelize.Sequelize.STRING, unique: true },
+    tag: { type: sequelize.Sequelize.STRING }
   }, {
     paranoid: true
   })
@@ -103,13 +104,19 @@ function addTables (sequelize: Sequelize.Sequelize, models: Sequelize.Models) {
   models.Shop = sequelize.define('shop', {
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
     name: { type: Sequelize.STRING, allowNull: false },
+    slogan: { type: Sequelize.STRING },
     location: { type: Sequelize.STRING },
+    coord: { type: Sequelize.STRING }, // Google map coordinate (lattitude, longitude)
     city: { type: Sequelize.STRING },
     address: { type: Sequelize.STRING },
-    zipCode: { type: Sequelize.INTEGER }
+    zipCode: { type: Sequelize.INTEGER },
+    instagramURL: { type: Sequelize.STRING },
+    tokopediaURL: { type: Sequelize.STRING },
+    bukalapakURL: { type: Sequelize.STRING }
   }, {
     paranoid: true
   })
+  models.Shop.belongsTo(models.Image, { targetKey: 'filename', foreignKey: 'logoFilename' })
 
   models.Promotion = sequelize.define('promotion', {
     id: { type: Sequelize.INTEGER, primaryKey: true, autoIncrement: true },

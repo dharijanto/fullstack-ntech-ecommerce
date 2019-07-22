@@ -1,4 +1,7 @@
 import * as Promise from 'bluebird'
+
+import * as AppConfig from '../../../app-config'
+import CartController from './cart-controller'
 import AnalyticsService from '../../local-shop-services/analytics-service'
 import ShopBaseController from './shop-base-controller'
 import { SiteData } from '../../../site-definitions'
@@ -17,6 +20,30 @@ const TAG = 'ShopController'
 export default class ShopController extends ShopBaseController {
   constructor (siteData: SiteData) {
     super(Object.assign(siteData, { viewPath: path.join(__dirname, '../../views') }))
+
+    // Generic variables required by template
+    this.addInterceptor((req, res, next) => {
+      log.verbose(TAG, 'req.path=' + req.path)
+      log.verbose(TAG, 'loggedIn=' + req.isAuthenticated())
+      log.verbose(TAG, 'req.on=' + JSON.stringify(req.session))
+
+      // Categories and Sub-Categories for shop header
+      ProductService.getCategories({}, true).then(resp => {
+        if (resp.status && resp.data) {
+          res.locals.categories = resp.data
+          next()
+        } else {
+          throw new Error('Failed to retrieve categories: ' + resp.errMessage)
+        }
+      }).catch(err => {
+        next(err)
+      })
+    })
+
+    // TODO: We should probably have 2 different cart page:
+    // one that goes for on-prem ther other for cloud where they send the data
+    // differently
+    this.routeUse('/cart', (new CartController(siteData).getRouter()))
 
     this.routeGet('/search', (req, res, next) => {
       log.verbose(TAG, '/search.GET()')

@@ -7,6 +7,7 @@ import BaseController from './controllers/base-controller'
 import CartController from './controllers/shop/cart-controller'
 import CMSController from './controllers/cms-controller'
 import CloudSyncController from './controllers/cloud-sync-controller'
+import * as ApplicationHelper from '../libs/application-helper'
 import LocalSyncController from './controllers/shop-sync-controller'
 import LocalShopService from './local-shop-services/local-shop-service'
 import ProductService from '../services/product-service'
@@ -33,11 +34,9 @@ class Controller extends BaseController {
     this.routeUse(AppConfig.IMAGE_MOUNT_PATH, express.static(AppConfig.IMAGE_PATH, { maxAge: AppConfig.PRODUCTION ? '1h' : '0' }))
 
     // Thumbnail images
-    // The images are generated dynamically. We rely on caching in order to
-    // reduce CPU load
+    // The images are generated dynamically. We rely on caching in order to reduce CPU load
     this.routeGet('/thumbnail-images/:imageFilename(*)', (req, res, next) => {
       const inputImage = path.join(AppConfig.IMAGE_PATH, req.params.imageFilename)
-
       // TODO: We should move this to util
       sharp(inputImage).resize(250).png().toBuffer().then(data => {
         res.contentType('png')
@@ -53,52 +52,46 @@ class Controller extends BaseController {
     })
 
     Promise.join(
+      // This throws an error if server type fails to validate
+      ApplicationHelper.validateApplicationConfig(),
       LocalShopService.initialize(),
       SearchService.initialize()
-    ).spread((resp1: NCResponse<null>, resp2: NCResponse<null>) => {
-      PassportManager.initialize(LocalShopService.getLocalShopId()).then(() => {
-        if (resp1.status && resp2.status) {
+    ).spread((resp0: NCResponse<null>, resp1: NCResponse<null>, resp2: NCResponse<null>) => {
+      if (resp0.status && resp1.status && resp2.status) {
+        return PassportManager.initialize(LocalShopService.getLocalShopId()).then(() => {
           this.addInterceptor((req, res, next) => {
-            log.verbose(TAG, 'req.path=' + req.path)
-            log.verbose(TAG, 'loggedIn=' + req.isAuthenticated())
-            log.verbose(TAG, 'req.on=' + JSON.stringify(req.session))
-            res.locals.user = req.user
-            ProductService.getCategories({}, true).then(resp => {
-              if (resp.status && resp.data) {
-                Object.keys(Utils).forEach(key => {
-                  res.locals[key] = Utils[key]
-                })
-                res.locals.categories = resp.data
-                next()
-              } else {
-                throw new Error('Failed to retrieve categories: ' + resp.errMessage)
-              }
-            }).catch(err => {
-              next(err)
+            // Helper utilities (i.e. string formatter)
+            Object.keys(Utils).forEach(key => {
+              res.locals[key] = Utils[key]
             })
+            // Currently logged-in user
+            res.locals.user = req.user
+            next()
           })
 
           // It's convenient to allow dev server to act as both cloud and local server, especially for testing purposes
-          if (!AppConfig.PRODUCTION || AppConfig.IS_CLOUD_SERVER) {
+          if (!AppConfig.PRODUCTION || AppConfig.SERVER_TYPE === 'CLOUD_ONLY') {
             // Cloud specific
             this.routeUse('/cloud-sync', (new CloudSyncController(siteData).getRouter()))
           }
-          if (!AppConfig.PRODUCTION || !AppConfig.IS_CLOUD_SERVER) {
+          if (!AppConfig.PRODUCTION || AppConfig.SERVER_TYPE === 'ON_PREMISE') {
             // Local specific
             this.routeUse('/local-sync', (new LocalSyncController(siteData).getRouter()))
-            // CMS path
+          }
+
+          if (!AppConfig.PRODUCTION || AppConfig.SERVER_TYPE === 'CLOUD_ONLY' || AppConfig.SERVER_TYPE === 'ON_PREMISE') {
+            // CMS controller
             this.routeUse('/cms', (new CMSController(siteData).getRouter()))
-            this.routeUse('/cart', (new CartController(siteData).getRouter()))
           }
 
           // More involved logics are separated into different controllers
           this.routeUse('/', (new ShopController(siteData).getRouter()))
-
-        } else {
-          throw new Error(resp1.errMessage || resp2.errMessage)
-        }
-      })
+        })
+      } else {
+        throw new Error(resp0.errMessage || resp1.errMessage || resp2.errMessage)
+      }
     }).catch(err => {
+      log.error(TAG, 'Error in initializing application: ' + err.message)
       this.routeUse('*', (req, res, next) => {
         next(err)
       })

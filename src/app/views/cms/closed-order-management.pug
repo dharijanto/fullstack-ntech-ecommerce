@@ -8,5 +8,7 @@ block content
     .row
       .col-md-12
         #order-detail
+  div(style="display: none")
+    iframe#print-frame(src='' name='print-preview')
 append scripts
   script(src=`/assets/js/closed-order-management-app-bundle.js`)

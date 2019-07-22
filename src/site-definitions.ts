@@ -1,11 +1,24 @@
-import * as path from 'path'
+/*
+  Version: 1.1.0
+  Versioning is done using Semantic Versioning (Semver) convention
+  X.Y.Z
+  X -> Major version: Changes that break API compatibility
+  Y -> Minor version: New changes added, but is backward compatible
+  Z -> Patch version: Fixess only, doesn't affect compatibility
 
+  Note that to make things easy we pre-set locals.basedir to the path where
+  root CMS layout is stored. This local is used by PUG when the include/extends
+  path is prefixed by / (i.e. extends /layout.pug)
+
+  The path is set to src/sites/root/cms/view/v1. Remember to update version number
+  if extensible layout files under that directory are updated.
+ */
+
+import * as path from 'path'
 import * as express from 'express'
 import * as Promise from 'bluebird'
 
 import { Sequelize, Models } from 'sequelize'
-
-import * as AppConfig from './app-config'
 
 export interface Database {
   sequelize: Sequelize
@@ -28,13 +41,43 @@ export interface ImageResource {
 }
 export interface ImageService {
   getExpressUploadMiddleware (uploadPath: string, urlFormatter: URLFormatter,
-    fieldName?: string, fileNameFormatter?: FileNameFormatter): express.RequestHandler
-  getImages (urlFormatter: URLFormatter): Promise<NCResponse<ImageResource>>
+    fieldName?: string, fileNameFormatter?: FileNameFormatter, tag?: string): express.RequestHandler
+  getImages (urlFormatter: URLFormatter, tag?: string): Promise<NCResponse<ImageResource>>
   deleteImage (uploadPath: string, fileName: string): Promise<NCResponse<null>>
 }
 
-export interface ImageServiceConstructable {
-  new (sequelize: Sequelize, models: Models): ImageService
+export interface EmailData {
+  sourceAddress: string //  "denny@nusantara-cloud.com",
+  htmlMessage: string // "<b>hello</b>",
+  subject: string // "Hello World This is from NC-Messaging-Service",
+  toAddresses: string[] // ["adennyh@gmail.com"]
+}
+
+export interface SendEmailParameter {
+  emailData: EmailData
+  UUID?: string
+}
+
+export interface DelayedEmailParameter {
+  emailData: EmailData
+  delay: number
+  UUID?: string
+}
+
+export interface RegisterSourceEmailParameter {
+  sourceEmail: string
+  UUID?: string
+}
+
+export interface MessagingService {
+  sendEmail (params: SendEmailParameter)
+  delaySendEmail (params: DelayedEmailParameter)
+  registerSourceEmail (params: RegisterSourceEmailParameter)
+  getSourceEmails ()
+}
+
+export interface ServiceConstructable<T> {
+  new (sequelize: Sequelize, models: Models): T
 }
 
 // Database format needed to use Image Service
@@ -42,13 +85,15 @@ export function addImageModel (sequelize: Sequelize, models: Models) {
   models.Image = sequelize.define('images', {
     id: { type: sequelize.Sequelize.INTEGER, primaryKey: true, autoIncrement: true },
     filename: { type: sequelize.Sequelize.STRING, unique: true },
-    url: { type: sequelize.Sequelize.TEXT }
+    url: { type: sequelize.Sequelize.TEXT },
+    tag: { type: sequelize.Sequelize.STRING }
   })
 }
 /* ------------------------------------------------ */
 
 export interface Services {
-  ImageService: ImageServiceConstructable
+  ImageService: ServiceConstructable<ImageService>,
+  MessagingService: ServiceConstructable<MessagingService>
 }
 
 export interface Site {
@@ -64,8 +109,8 @@ export interface SiteData {
   user: User,
   socketIO: SocketIO,
   db: Database,
+  baseDir?: string, // Used for default Pug path when include path is prefixed by /
   viewPath: string,
-  baseDir?: string,
   assetPath?: string,
   services: Services
 }
@@ -94,7 +139,7 @@ export abstract class AppController {
 
     this.router.set('views', this.viewPath)
     this.router.set('view engine', 'pug')
-    this.router.use('/assets', express.static(this.assetsPath, { maxAge: AppConfig.PRODUCTION ? '1h' : '0' }))
+    this.router.use('/assets', express.static(this.assetsPath, { maxAge: '1h' }))
   }
   // Initialize the class. The reason this can't be done using constructor is because
   // we may have to wait until the initialization is compelte before preceeding
@@ -176,8 +221,9 @@ export abstract class CMSController {
     } else {
       this.subRouter = this.router
     }
+    // Helper function to prepend site hash to the path
     this.subRouter.locals.rootifyPath = this.rootifyPath.bind(this)
-    // Used for pug path that starts with /
+    // Used by PUG when includes/extends use absolute path instead of relative one
     this.subRouter.locals.basedir = siteData.baseDir
     this.viewPath = siteData.viewPath
     this.assetsPath = siteData.assetPath || path.join(this.viewPath, '/assets')

@@ -99,27 +99,24 @@ html
       ul.nav.menu
         if user
           each menu in sidebar || []
-            if 'privileges' in menu && menu.privileges.indexOf(user.privilege) === -1
-              // Don't display this menu
+            if 'children' in menu
+              li.parent
+                a(data-toggle='collapse' href=`#${menu.id}`)
+                  em.fa.fa-navicon
+                  |  #{menu.title}
+                  span.icon.pull-right(data-toggle='collapse' href=`#${menu.id}`)
+                    em.fa.fa-plus
+                ul.children.collapse(id=`${menu.id}`)
+                  each child in menu.children
+                    li
+                      a(href=`${child.href}`)
+                        span.fa(class=`${child.faIcon || 'fa-arrow-right'}`)
+                        |  #{child.title}
             else
-              if 'children' in menu
-                li.parent
-                  a(data-toggle='collapse' href=`#${menu.id}`)
-                    em.fa.fa-navicon
-                    |  #{menu.title}
-                    span.icon.pull-right(data-toggle='collapse' href=`#${menu.id}`)
-                      em.fa.fa-plus
-                  ul.children.collapse(id=`${menu.id}`)
-                    each child in menu.children
-                      li
-                        a(href=`${child.href}`)
-                          span.fa(class=`${child.faIcon || 'fa-arrow-right'}`)
-                          |  #{child.title}
-              else
-                li
-                  a(href=`${menu.href}`)
-                    em.fa(class=`${menu.faIcon || ''}`)
-                    |  #{menu.title}
+              li
+                a(href=`${menu.href}`)
+                  em.fa(class=`${menu.faIcon || ''}`)
+                  |  #{menu.title}
     // /.sidebar
     .col-sm-9.col-sm-offset-3.col-lg-10.col-lg-offset-2.main
       block content

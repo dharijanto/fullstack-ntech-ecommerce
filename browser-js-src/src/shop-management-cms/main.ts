@@ -22,10 +22,16 @@ $(document).ready(() => {
       ui: [
         { id: 'id', desc: 'ID', dataTable: true, input: 'text', disabled: true },
         { id: 'name', desc: 'Name', dataTable: true, input: 'text', disabled: false },
-        { id: 'city', desc: 'City', dataTable: true, input: 'text', disabled: false },
+        { id: 'slogan', desc: 'Slogan', dataTable: true, input: 'text', disabled: false },
         { id: 'location', desc: 'Location', dataTable: true, input: 'text', disabled: false },
+        { id: 'coord', desc: 'GPS Coordinate', dataTable: true, input: 'text', disabled: false },
         { id: 'address', desc: 'Address', dataTable: true, input: 'text', disabled: false },
+        { id: 'city', desc: 'City', dataTable: true, input: 'text', disabled: false },
         { id: 'zipCode', desc: 'Zip Code', dataTable: true, input: 'text', disabled: false },
+        { id: 'logoFilename', desc: 'Logo (240x40)', dataTable: true, input: 'text', disabled: false },
+        { id: 'instagramURL', desc: 'Instagram URL', dataTable: true, input: 'text', disabled: false },
+        { id: 'tokopediaURL', desc: 'Tokopedia URL', dataTable: true, input: 'text', disabled: false },
+        { id: 'bukalapakURL', desc: 'Bukalapak URL', dataTable: true, input: 'text', disabled: false },
         { id: 'createdAt', desc: 'Date Created', dataTable: true, input: 'text', disabled: true },
         { id: 'updatedAt', desc: 'Date Updated', dataTable: true, input: 'text', disabled: true }
       ],
@@ -37,6 +43,7 @@ $(document).ready(() => {
           shop = data
           ncProduct.reloadTable()
           ncShopStock.reloadTable()
+          setImagePreview(data.logoFilename)
         }
       }
     },
@@ -52,25 +59,33 @@ $(document).ready(() => {
     }
   })
 
-  /*
-interface ShopifiedProduct {
-  id: number,
-  name: string,
-  description: string,
-  warranty: string,
-  defaultPrice: number,
-  // The following can be null as they come from LEFT OUTER JOIN between Product and
-  // respective table. This is intentional because we want to be able to manage
-  // them in CMS
-  shopId?: number,
-  stockQuantity?: number,
-  supplierCount?: number,
-  shopPrice?: number,
-  preOrderAllowed?: boolean,
-  preOrderDuration?: number,
-  disabled?: boolean
-}
-  */
+  const imagePreview = $(`<img class="img-responsive" style="max-width: 200px; padding: 15px">`)
+  function setImagePreview (filename) {
+    axios.post(`/${window['siteHash']}/image/get-url`, { filename: filename }).then(resp => {
+      console.dir(resp)
+      if (resp.status) {
+        imagePreview.attr('src', resp.data.data)
+      } else {
+        toastr.error('Failed to retrieve image URL')
+      }
+    }).catch(err => {
+      console.error(err)
+      toastr.error('Unexpected error!')
+    })
+  }
+
+  ncShop.setFirstCustomView(imagePreview)
+  $(`input[name="logoFilename"]`).NCImagePicker({
+    callbackFn: (imageUrl, imageFilename) => {
+      toastr.info('Image Selected!')
+      setImagePreview(imageFilename)
+      $('input[name="logoFilename"]').val(imageFilename)
+    },
+    getURL: `/${window['siteHash']}/images?tag=shop-logo`,
+    postURL: `/${window['siteHash']}/image?tag=shop-logo`,
+    deleteURL: `/${window['siteHash']}/image/delete`
+  })
+
   const ncProduct = $('#product').NCInputLibrary({
     design: {
       title: 'Products'
@@ -158,7 +173,6 @@ interface ShopifiedProduct {
         { id: 'variant.name', desc: 'Variant', dataTable: true, input: 'hidden', disabled: true },
         { id: 'date', desc: 'Date', dataTable: true, input: 'date', data: { dateFormat: 'YYYY-MM-DD' } },
         { id: 'price', desc: 'Purchase Price', dataTable: true, input: 'text' },
-        { id: 'description', desc: 'Description', dataTable: true, input: 'text' },
         { id: 'quantity', desc: 'Quantity', dataTable: true, input: 'text' },
         { id: 'createdAt', desc: 'Date Created', dataTable: true, input: 'hidden', disabled: true },
         { id: 'updatedAt', desc: 'Date Updated', dataTable: true, input: 'hidden', disabled: true }

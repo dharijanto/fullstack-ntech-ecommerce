@@ -1,3 +1,4 @@
+import * as AppConfig from '../../app-config'
 import BaseController from './base-controller'
 import OrderManagementController from './cms/order-management-controller'
 import OtherManagementController from './cms/other-management-controller'
@@ -18,10 +19,11 @@ export default class CMSController extends BaseController {
 
     super.addInterceptor((req, res, next) => {
       if (req.user) {
-        res.locals.sidebar = [
+        const sidebar = [
           {
             id: 'order-management',
             title: 'Order Management',
+            serverTypes: ['stock'],
             children: [
               { href: '/cms/order-management/open-order-management', title: 'Open Order' },
               { href: '/cms/order-management/closed-order-management', title: 'Closed Order' }
@@ -31,6 +33,7 @@ export default class CMSController extends BaseController {
             id: 'stock-management',
             title: 'Stock Management',
             privileges: ['Admin'],
+            serverTypes: ['stock'],
             children: [
               { href: '/cms/stock-management/aisle-management', title: 'Aisles' },
               { href: '/cms/stock-management/in-management', title: 'Stock-in' },
@@ -41,6 +44,7 @@ export default class CMSController extends BaseController {
             id: 'shop-management',
             title: 'Shop Management',
             privileges: ['Admin'],
+            serverTypes: ['stock'],
             children: [
               { href: '/cms/product-management', title: 'Product' },
               { href: '/cms/promotion-management', title: 'Promotion' }
@@ -68,6 +72,18 @@ export default class CMSController extends BaseController {
             faIcon: 'fa-power-off'
           }
         ]
+
+        // Filter out sidebar where user doesn't have proper permission
+        if (req.user) {
+          const user = req.user
+          res.locals.sidebar = sidebar.filter(menu => {
+            if (menu.privileges && menu.privileges.indexOf(user.privilege) === -1) {
+              return false
+            } else {
+              return true
+            }
+          })
+        }
       }
       next()
     })

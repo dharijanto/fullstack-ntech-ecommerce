@@ -33,7 +33,7 @@ class PassportManager {
             cb(err)
           })
         }))
-      resolve()
+      resolve({ status: true })
     })
   }
 

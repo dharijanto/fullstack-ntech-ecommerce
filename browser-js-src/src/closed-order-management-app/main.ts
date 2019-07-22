@@ -3,9 +3,9 @@ import 'nc-input-library'
 import 'nc-image-picker'
 import * as toastr from 'toastr'
 import * as _ from 'lodash'
-import 'jQuery.print'
 
 import axios from '../libs/axios-wrapper'
+import { openPrintDialog } from '../libs/browser-lib'
 import Config from '../config'
 
 let order: Order
@@ -50,33 +50,47 @@ const ncOrder = $('#order').NCInputLibrary({
 })
 
 const orderPrintBtn = $(`<button class="btn btn-default btn-block" type="button">Print Receipt</button>`)
-orderPrintBtn.on('click', () => {
-  axios.post('/cms/order-management/order/print-receipt', { orderId: order && order.id }).then(rawResp => {
-    const resp = rawResp.data as NCResponse<any>
-    if (resp.status) {
-      toastr.success('Success!')
-    } else {
-      toastr.error('Failed: ' + resp.errMessage)
+orderPrintBtn.on('click', function () {
+  $(this).prop('disabled', true)
+  Promise.resolve().then(() => {
+    if (confirm('Print customer receipt?')) {
+      toastr.info('Printing customer receipt...')
+      // Print customer receipt
+      return printReceipt(order.id, '1')
     }
-    /* if (resp.status) {
-      const htmlData = resp.data
-      $('<div></div>').print({
-        title: 'UBKSYSTEM',
-        globalStyles: true,
-        iframe: true,
-        append: htmlData
-      })
-      console.dir(htmlData)
-    } else {
-      throw new Error(resp.errMessage)
-    } */
+  }).then(() => {
+    if (confirm('Print merchant receipt?')) {
+      toastr.info('Printing merchant receipt...')
+      return printReceipt(order.id, '0')
+    }
+  }).then(() => {
+    $(this).prop('disabled', false)
   }).catch(err => {
+    $(this).prop('disabled', false)
     toastr.error(err.message)
     console.error(err.message)
   })
-  // window.open(`/cms/order-management/order/print-preview?orderId=${order && order.id}`)
 })
 ncOrder.setFirstCustomView(orderPrintBtn)
+
+function printReceipt (orderId, originalCopy: '1' | '0', orderType: 'order' | 'order-detail' = 'order') {
+  return axios.post(`/cms/order-management/${orderType}/print-receipt`, { orderId, originalCopy }).then(rawResp => {
+    const resp = rawResp.data
+    // TODO: Handle the two cases: print is done on the server, or open up browser printing dialog
+    if (resp.status) {
+      toastr.success('Receipt printed!')
+      if (resp.data && resp.data.url) {
+        return openPrintDialog(resp.data.url, $('#print-frame'), 'print-preview')
+      } else {
+        return
+      }
+    } else {
+      toastr.error('Failed to print customer receipt: ' + resp.errMessage)
+      console.error('Failed to print customer receipt: ' + resp.errMessage)
+      return
+    }
+  })
+}
 
 const ncOrderDetail = $('#order-detail').NCInputLibrary({
   design: {
