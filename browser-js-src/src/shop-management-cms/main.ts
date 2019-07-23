@@ -23,6 +23,7 @@ $(document).ready(() => {
         { id: 'id', desc: 'ID', dataTable: true, input: 'text', disabled: true },
         { id: 'name', desc: 'Name', dataTable: true, input: 'text', disabled: false },
         { id: 'slogan', desc: 'Slogan', dataTable: true, input: 'text', disabled: false },
+        { id: 'whatsappNumber', desc: 'Whatsapp #', dataTable: true, input: 'text', disabled: false },
         { id: 'location', desc: 'Location', dataTable: true, input: 'text', disabled: false },
         { id: 'coord', desc: 'GPS Coordinate', dataTable: true, input: 'text', disabled: false },
         { id: 'address', desc: 'Address', dataTable: true, input: 'text', disabled: false },

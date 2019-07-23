@@ -40,7 +40,7 @@ export default class CMSController extends BaseController {
         const sidebar: Array<SidebarMenu | SimpleSidebarMenu> = [
           {
             id: 'order-management',
-            title: 'Online Order Inquiry',
+            title: 'Online Inquiry',
             serverTypes: ['CLOUD_ONLY', 'CLOUD_SERVER'],
             children: [
               { href: '/cms/order-management/open-order-management', title: 'Open Order' },

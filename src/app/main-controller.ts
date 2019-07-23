@@ -7,7 +7,7 @@ import BaseController from './controllers/base-controller'
 import CartController from './controllers/shop/cart-controller'
 import CMSController from './controllers/cms-controller'
 import CloudSyncController from './controllers/cloud-sync-controller'
-import * as ApplicationHelper from '../libs/application-helper'
+import * as AppHelper from '../libs/application-helper'
 import LocalSyncController from './controllers/shop-sync-controller'
 import LocalShopService from './local-shop-services/local-shop-service'
 import ProductService from '../services/product-service'
@@ -53,7 +53,7 @@ class Controller extends BaseController {
 
     Promise.join(
       // This throws an error if server type fails to validate
-      ApplicationHelper.validateApplicationConfig(),
+      AppHelper.validateApplicationConfig(),
       LocalShopService.initialize(),
       SearchService.initialize()
     ).spread((resp0: NCResponse<null>, resp1: NCResponse<null>, resp2: NCResponse<null>) => {
@@ -64,6 +64,7 @@ class Controller extends BaseController {
             Object.keys(Utils).forEach(key => {
               res.locals[key] = Utils[key]
             })
+            res.locals.serverType = AppHelper.getServerType()
             // Currently logged-in user
             res.locals.user = req.user
             next()

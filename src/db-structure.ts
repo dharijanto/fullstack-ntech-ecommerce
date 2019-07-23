@@ -112,7 +112,8 @@ function addTables (sequelize: Sequelize.Sequelize, models: Sequelize.Models) {
     zipCode: { type: Sequelize.INTEGER },
     instagramURL: { type: Sequelize.STRING },
     tokopediaURL: { type: Sequelize.STRING },
-    bukalapakURL: { type: Sequelize.STRING }
+    bukalapakURL: { type: Sequelize.STRING },
+    whatsappNumber: { type: Sequelize.STRING }
   }, {
     paranoid: true
   })
