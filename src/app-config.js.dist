@@ -1,7 +1,7 @@
 const path = require('path')
 
 const LOCAL_SHOP_INFORMATION = {
-  NAME: 'Setrasari Mall' // This should be the same as shop.name
+  NAME: 'Nusantara Gizmo' // This should be the same as shop.name
 }
 
 const CLOUD_SERVER = {

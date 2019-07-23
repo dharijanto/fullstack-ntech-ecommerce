@@ -66,6 +66,10 @@ class LocalShopService extends CRUDService {
     }
   }
 
+  getShop (): Promise<NCResponse<Shop>> {
+    return ShopService.getShop(this.getLocalShopId())
+  }
+
   getShopifiedProducts () {
     return ShopService.getShopifiedProducts(this.getLocalShopId())
   }

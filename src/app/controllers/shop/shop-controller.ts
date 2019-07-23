@@ -27,13 +27,16 @@ export default class ShopController extends ShopBaseController {
       log.verbose(TAG, 'loggedIn=' + req.isAuthenticated())
       log.verbose(TAG, 'req.on=' + JSON.stringify(req.session))
 
-      // Categories and Sub-Categories for shop header
-      ProductService.getCategories({}, true).then(resp => {
-        if (resp.status && resp.data) {
+      Promise.join<NCResponse<any>>(
+        ProductService.getCategories({}, true),
+        LocalShopService.getShop()
+      ).spread((resp: NCResponse<Category[]>, resp2: NCResponse<Shop>) => {
+        if (resp.status && resp.data && resp2.status && resp2.data) {
           res.locals.categories = resp.data
+          res.locals.shop = resp2.data
           next()
         } else {
-          throw new Error('Failed to retrieve categories: ' + resp.errMessage)
+          throw new Error('Failed to retrieve categories or shop info ' + resp.errMessage || resp2.errMessage)
         }
       }).catch(err => {
         next(err)

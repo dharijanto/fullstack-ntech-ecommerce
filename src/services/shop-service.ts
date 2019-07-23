@@ -24,10 +24,12 @@ class ShopService extends CRUDService {
     }
   */
 
+  getShop (shopId) {
+    return this.readOne<Shop>('Shop', { id: shopId })
+  }
+
   getShops () {
-    return this.read<Shop>('Shop', {}).then(resp => {
-      return resp
-    })
+    return this.read<Shop>('Shop', {})
   }
 
   createShop (data: Partial<Shop>) {

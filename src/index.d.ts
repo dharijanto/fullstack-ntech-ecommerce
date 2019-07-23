@@ -174,6 +174,7 @@ interface Promotion extends BaseModel {
   productId: number
 }
 
+type UserPrivilege = 'Admin' | 'Cashier' | 'Opnamer'
 interface User extends BaseModel {
   username: string
   password?: string
@@ -181,7 +182,7 @@ interface User extends BaseModel {
   salt?: string
   saltedPass?: string
   fullName: string
-  privilege: ['Admin', 'Cashier', 'Opnamer']
+  privilege: UserPrivilege
   shopId: number
 }
 

@@ -12,7 +12,10 @@ header.header.header-dark.bg-dark.header-sticky
     .row
       nav.navbar.navbar-expand-lg.navbar-dark
         a.navbar-brand.order-1.order-lg-2(href='/')
-          img(src='/assets/themes/theme-1/images/logo.svg' alt='Logo')
+          if shop.logoFilename
+            img(src=`${getImageURL(shop.logoFilename)}` alt='Logo')
+          else
+            img(src='/assets/themes/theme-1/images/logo.svg' alt='Logo')
         button.navbar-toggler.order-2(type='button' data-toggle='collapse' data-target='.navbar-collapse' aria-controls='navbarMenu' aria-expanded='false' aria-label='Toggle navigation')
           span.navbar-toggler-icon
         #navbarMenu.collapse.navbar-collapse.order-3.order-lg-1
@@ -24,7 +27,6 @@ header.header.header-dark.bg-dark.header-sticky
                 ul.dropdown-menu(aria-labelledby=`navbarDropdown-${category.id}`)
                     li
                       a.dropdown-item(href=getCategoryURL(category)) #[strong Show All]
-
                     for subCategory in category.subCategories
                       li
                         a.dropdown-item(href=getSubCategoryURL(category, subCategory))= subCategory.name
@@ -49,11 +51,13 @@ footer.bg-dark.text-white.py-0
         .row
           .col-md-8
             p
-              | Vendor Shop Name
+              | #{shop.name || 'Vendor Shop Name'}
               br
-              | Jl. Letjen S.Parman Kav 28
+              | #{shop.location || 'Central Park'}
               br
-              | Jakarta Barat, 11470
+              | #{shop.address || 'Jl. Letjen S.Parman Kav 28'}
+              br
+              | #{shop.city || 'Jakarta Barat'} #{shop.zipCode || '11470'}
               br
         .row
           .col-md-10
