@@ -31,7 +31,7 @@ class Controller extends BaseController {
     SequelizeService.initialize(siteData.db.sequelize, siteData.db.models)
 
     // Full resolution images
-    this.routeUse(AppConfig.IMAGE_MOUNT_PATH, express.static(AppConfig.IMAGE_PATH, { maxAge: AppConfig.PRODUCTION ? '1h' : '0' }))
+    this.routeUse(AppConfig.IMAGE_MOUNT_PATH, express.static(AppConfig.IMAGE_PATH, { maxAge: AppConfig.ENABLE_MAX_AGE_CACHING ? '1h' : '0' }))
 
     // Thumbnail images
     // The images are generated dynamically. We rely on caching in order to reduce CPU load
@@ -40,7 +40,7 @@ class Controller extends BaseController {
       // TODO: We should move this to util
       sharp(inputImage).resize(250).png().toBuffer().then(data => {
         res.contentType('png')
-        res.setHeader('Cache-Control', `public, max-age=${AppConfig.PRODUCTION ? '1h' : '0'}`)
+        res.setHeader('Cache-Control', `public, max-age=${AppConfig.ENABLE_MAX_AGE_CACHING ? '1h' : '0'}`)
         res.end(data)
       }).catch(err => {
         if (err.message === 'Input file is missing') {
@@ -80,11 +80,8 @@ class Controller extends BaseController {
             this.routeUse('/local-sync', (new LocalSyncController(siteData).getRouter()))
           }
 
-          if (!AppConfig.PRODUCTION || AppConfig.SERVER_TYPE === 'CLOUD_ONLY' || AppConfig.SERVER_TYPE === 'ON_PREMISE') {
-            // CMS controller
-            this.routeUse('/cms', (new CMSController(siteData).getRouter()))
-          }
-
+          // CMS controller
+          this.routeUse('/cms', (new CMSController(siteData).getRouter()))
           // More involved logics are separated into different controllers
           this.routeUse('/', (new ShopController(siteData).getRouter()))
         })

@@ -4,7 +4,7 @@ head
   meta(name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no, user-scalable=no')
   link(rel='stylesheet' href='/assets/themes/theme-1/css/vendor.css')
   link(rel='stylesheet' href='/assets/themes/theme-1/css/style.css')
-  title Home - 1
+  title #{shop.name} #{shop.slogan ? ' - ' + shop.slogan : ''}
   block head
 // Header
 header.header.header-dark.bg-dark.header-sticky
@@ -106,4 +106,4 @@ script(src='/assets/themes/theme-1/js/vendor.min.js')
 script(src='/assets/themes/theme-1/js/app.js')
 block scripts
   if (serverType === 'CLOUD_SERVER' || serverType === 'CLOUD_ONLY')
-  +whatsappWidget(shop.whatsappNumber)
+    +whatsappWidget(shop.whatsappNumber)

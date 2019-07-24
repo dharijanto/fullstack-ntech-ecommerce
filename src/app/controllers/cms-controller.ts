@@ -17,7 +17,7 @@ const path = require('path')
 interface SidebarMenu {
   id: string
   title: string,
-  privileges?: UserPrivilege[]
+  privileges: UserPrivilege[]
   serverTypes: AppHelper.ServerType[],
   children: Array<{
     href: string,
@@ -42,6 +42,7 @@ export default class CMSController extends BaseController {
             id: 'order-management',
             title: 'Online Inquiry',
             serverTypes: ['CLOUD_ONLY', 'CLOUD_SERVER'],
+            privileges: ['Admin', 'Cashier'],
             children: [
               { href: '/cms/order-management/open-order-management', title: 'Open Order' },
               { href: '/cms/order-management/closed-order-management', title: 'Closed Order' }
@@ -51,6 +52,7 @@ export default class CMSController extends BaseController {
             id: 'order-management',
             title: 'Order Management',
             serverTypes: ['CLOUD_ONLY', 'ON_PREMISE'],
+            privileges: ['Admin', 'Cashier'],
             children: [
               { href: '/cms/order-management/open-order-management', title: 'Open Order' },
               { href: '/cms/order-management/closed-order-management', title: 'Closed Order' }
@@ -59,8 +61,8 @@ export default class CMSController extends BaseController {
           {
             id: 'stock-management',
             title: 'Stock Management',
-            privileges: ['Admin'],
             serverTypes: ['CLOUD_ONLY', 'ON_PREMISE'],
+            privileges: ['Admin'],
             children: [
               { href: '/cms/stock-management/aisle-management', title: 'Aisles' },
               { href: '/cms/stock-management/in-management', title: 'Stock-in' },
@@ -70,8 +72,8 @@ export default class CMSController extends BaseController {
           {
             id: 'shop-management',
             title: 'Shop Management',
-            privileges: ['Admin'],
             serverTypes: ['CLOUD_ONLY', 'ON_PREMISE'],
+            privileges: ['Admin'],
             children: [
               { href: '/cms/product-management', title: 'Product' },
               { href: '/cms/promotion-management', title: 'Promotion' }
@@ -81,6 +83,7 @@ export default class CMSController extends BaseController {
             id: 'sync-management',
             title: 'Sync Management',
             serverTypes: ['ON_PREMISE'],
+            privileges: ['Admin', 'Cashier'],
             children: [
               { href: '/cms/sync-management/cloud-to-local', title: 'Cloud-to-Local' }
             ]
@@ -89,6 +92,7 @@ export default class CMSController extends BaseController {
             id: 'other-management',
             title: 'Other',
             serverTypes: ['CLOUD_ONLY', 'ON_PREMISE'],
+            privileges: ['Admin', 'Cashier'],
             children: [
               { href: '/cms/other-management/test-receipt-printer', title: 'Test Receipt Printer' },
               { href: '/cms/other-management/reindex-search-database', title: 'Reindex Search DB' },
@@ -106,7 +110,8 @@ export default class CMSController extends BaseController {
         if (req.user) {
           const user = req.user
           res.locals.sidebar = sidebar.filter(menu => {
-            if ('privileges' in menu && menu.privileges && menu.privileges.indexOf(user.privilege) === -1) {
+            if (('privileges' in menu && menu.privileges.indexOf(user.privilege) === -1) ||
+                ('serverTypes' in menu && menu.serverTypes.indexOf(AppHelper.getServerType()) === -1)) {
               return false
             } else {
               return true

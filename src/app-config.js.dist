@@ -41,7 +41,8 @@ const UI = {
 module.exports = {
   SQL_DB: `mysql://${DB.USERNAME}:${DB.PASSWORD}@${DB.HOST}:3306/${DB.DB_NAME}`,
   TEST_SQL_DB: `mysql://${DB.USERNAME}:${DB.PASSWORD}@${DB.HOST}:3306/${DB.TEST_DB_NAME}`,
-  PRODUCTION: false,
+  PRODUCTION: true,
+  ENABLE_MAX_AGE_CACHING: false,
   BASE_URL: 'http://ntech.nusantara-local.com',
   IMAGE_PATH: path.join(__dirname, '../images/'),
   IMAGE_MOUNT_PATH: '/images/',
