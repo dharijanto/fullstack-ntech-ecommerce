@@ -32,4 +32,4 @@ Features:
 - Support for in-store purchase, in-store pick up, and online purchase with delivery option.
 - Works offline when there's no connectivity, and would sync with the cloud server when there's connectivity
 - Full-text search for products
-- Supports for thermal printers.
+- Supports for thermal printer-based receipt.
