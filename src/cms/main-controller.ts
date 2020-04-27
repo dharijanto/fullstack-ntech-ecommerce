@@ -45,12 +45,13 @@ class MainController extends BaseController {
 
       // Local-only menu
       if (ApplicationHelper.getServerType() === 'ON_PREMISE' || !AppConfig.PRODUCTION) {
-        res.locals.__sidebar.push({ title: 'Account Management', url: `/${this.siteHash}/account-management/`, faicon: '' })
+        // nothing yet
       }
 
       // Menu for both local and cloud
       res.locals.__sidebar.push({ title: 'Populate Views', url: `/${this.siteHash}/populate-views`, faicon: '' })
       res.locals.__sidebar.push({ title: 'Reindex Search Cache', url: `/${this.siteHash}/reindex-search-database`, faicon: '' })
+      res.locals.__sidebar.push({ title: 'Account Management', url: `/${this.siteHash}/account-management/`, faicon: '' })
       next()
     })
 

@@ -18,6 +18,8 @@ import { SiteData } from '../site-definitions'
 import * as Utils from '../libs/utils'
 import PassportManager from './libs/passport-manager'
 
+import TestAPIController from './controllers/api/v1/test-controller'
+
 const path = require('path')
 
 let log = require('npmlog')
@@ -40,7 +42,7 @@ class Controller extends BaseController {
       // TODO: We should move this to util
       sharp(inputImage).resize(250).png().toBuffer().then(data => {
         res.contentType('png')
-        res.setHeader('Cache-Control', `public, max-age=${AppConfig.ENABLE_MAX_AGE_CACHING ? '1h' : '0'}`)
+        res.setHeader('Cache-Control', `public, max-age=${AppConfig.ENABLE_MAX_AGE_CACHING ? '3600' : '0'}`)
         res.end(data)
       }).catch(err => {
         if (err.message === 'Input file is missing') {
@@ -84,6 +86,8 @@ class Controller extends BaseController {
           this.routeUse('/cms', (new CMSController(siteData).getRouter()))
           // More involved logics are separated into different controllers
           this.routeUse('/', (new ShopController(siteData).getRouter()))
+
+          this.routeUse('/api/v1/', (new TestAPIController(siteData).getRouter()))
         })
       } else {
         throw new Error(resp0.errMessage || resp1.errMessage || resp2.errMessage)

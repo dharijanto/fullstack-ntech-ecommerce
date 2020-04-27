@@ -91,7 +91,7 @@ export default class CMSController extends BaseController {
           {
             id: 'other-management',
             title: 'Other',
-            serverTypes: ['CLOUD_ONLY', 'ON_PREMISE'],
+            serverTypes: ['CLOUD_ONLY', 'CLOUD_SERVER', 'ON_PREMISE'],
             privileges: ['Admin', 'Cashier'],
             children: [
               { href: '/cms/other-management/test-receipt-printer', title: 'Test Receipt Printer' },

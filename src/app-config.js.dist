@@ -52,7 +52,7 @@ module.exports = {
   // Allowed values: 'ON_PREMISE', 'CLOUD_SERVER', or 'CLOUD_ONLY'
   SERVER_TYPE: 'CLOUD_ONLY',
   // Whether to print using browser dialog or CUPS
-  USE_BROWSER_PRINTING: true,
+  USE_BROWSER_PRINTING: false,
   LOCAL_SHOP_INFORMATION,
   DEFAULT_SHOP_PRODUCT_BEHAVIOR,
   DB,

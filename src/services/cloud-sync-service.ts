@@ -116,7 +116,7 @@ class CloudSyncService extends CRUDService {
       }},{ order: [['untilTime', 'DESC'], ['sinceTime', 'DESC']], transaction, lock: transaction && transaction.LOCK.UPDATE })
   }
 
-  protected prepareData (shopName: string, sinceTime: string, untilTime: string, syncHistoryId: number): Promise<NCResponse<CloudSyncHistory>> {
+  public getDataSince (shopName: string, sinceTime: string): Promise<any> {
     return super.readOne<Shop>('Shop', { name: shopName }).then(resp => {
       if (resp.status && resp.data) {
         // TODO
@@ -151,7 +151,11 @@ class CloudSyncService extends CRUDService {
       } else {
         throw new Error(`Shop doesn't exist!`)
       }
-    }).then(data => {
+    })
+  }
+
+  protected prepareData (shopName: string, sinceTime: string, untilTime: string, syncHistoryId: number): Promise<NCResponse<CloudSyncHistory>> {
+    return this.getDataSince(shopName, sinceTime).then(data => {
       // Write generated cloud sync data to file
       return new Promise((resolve, reject) => {
         try {

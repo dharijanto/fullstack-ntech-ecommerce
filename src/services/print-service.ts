@@ -45,7 +45,7 @@ class PrintService {
   // fullURL: Complete URL. This can't be relative path because this is passed to a separate process (puppeteer)
   async printURL (fullURL: string, numCopies: number = 1): Promise<NCResponse<{ jobId: number }>> {
     try {
-      const browser = await puppeteer.launch()
+      const browser = await puppeteer.launch({ headless: true })
       const page = await browser.newPage()
       await page.goto(fullURL, {
         waitUntil: 'networkidle0'
