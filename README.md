@@ -28,8 +28,8 @@ the cloud.
 
 Features:
 
-- Support for multi-store stocks management, with centralized on-cloud SKU management.
-- Support for in-store purchase, in-store pick up, and online purchase with delivery.
-- Works offline when there's no connectivity, and would sync online when there's connectivity
+- Support for per-store individual stock management, with centralized on-cloud SKU management.
+- Support for in-store purchase, in-store pick up, and online purchase with delivery option.
+- Works offline when there's no connectivity, and would sync with the cloud server when there's connectivity
 - Full-text search for products
 - Supports for thermal printers.
